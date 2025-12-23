@@ -1,0 +1,264 @@
+/* =========================
+  Member Detail Page CSS
+  (matches your "standard style above")
+========================= */
+
+/* ===== Topbar (same as your base) ===== */
+.topbar{
+  border-radius: 18px;
+  background: white;
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+}
+
+.topbar-icon{
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(0,0,0,.06);
+  font-size: 18px;
+}
+
+.topbar-title{
+  font-size: 18px;
+  letter-spacing: .2px;
+}
+
+/* ===== Chips / Detail box ===== */
+.detail-box{
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+/* ===== Inputs / textarea ===== */
+.inputs{
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 14px;
+  width: 100%;
+  padding: 8px 15px;
+}
+.inputs:focus{
+  outline: 2px solid blue;
+  box-shadow: 0 0 0 4px rgba(0, 85, 255, 0.20);
+}
+
+.description{
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,.10);
+  padding: 12px;
+  min-height: 90px;
+  outline: none;
+  width: 100%;
+}
+.description:focus{
+  outline: 2px solid blue;
+  box-shadow: 0 0 0 4px rgba(0, 85, 255, 0.20);
+}
+
+/* ===== Search input group (same as your base) ===== */
+.search{
+  border-radius: 12px;
+  background: white;
+  border: 1px solid rgba(0,0,0,.08);
+  min-width: 260px;
+  transition: .2s ease;
+  max-width: 400px;
+}
+.search:focus-within{
+  box-shadow: 0 0 0 4px rgba(0, 85, 255, 0.354);
+  outline: 2px solid blue;
+}
+.input{
+  border: 0 !important;
+  outline: none !important;
+  background: transparent;
+  width: calc(100% - 50px);
+  padding: 8px 6px;
+  font-size: 13px;
+}
+
+/* ===== Buttons ===== */
+.add-book{
+  border-radius: 12px;
+  padding: 8px 14px;
+  background: #111;
+  color: #fff;
+  border: 0;
+}
+.add-book:hover{ opacity: .92; }
+
+.btn-soft2{
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.10);
+  background: #fff;
+}
+.btn-soft2:hover{
+  background: rgba(0,0,0,.03);
+}
+
+.btn-save{
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+/* ===== Panel cards (like your table-card style) ===== */
+.panel-card{
+  border-radius: 18px;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+  background: #fff;
+  overflow: hidden;
+}
+
+.panel-head{
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+
+.panel-body{
+  padding: 16px;
+}
+
+.panel-icon{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(0,0,0,.06);
+}
+
+/* Stats inside profile */
+.stat-box{
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,.06);
+  background: rgba(0,0,0,.02);
+  padding: 12px 14px;
+}
+
+/* ===== Tabs (pill style like your base) ===== */
+.tab-pills .nav-link{
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 600;
+  border: 1px solid rgba(0,0,0,.10);
+  color: rgba(0,0,0,.75);
+  background: #fff;
+  margin-right: 8px;
+}
+.tab-pills .nav-link.active{
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+/* small select inside detail box */
+.filter-select{
+  width: 100px;
+  height: 34px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.10);
+}
+.filter-select:focus{
+  outline: 2px solid blue;
+  box-shadow: 0 0 0 4px rgba(0, 85, 255, 0.20);
+}
+
+/* ===== Table card (same as your base) ===== */
+.table-card{
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+  background: #fff;
+}
+
+.table-head th{
+  font-size: 12px;
+  color: white;
+  letter-spacing: .3px;
+  background: rgb(0, 0, 0);
+  border-bottom: 1px solid rgba(0,0,0,.08);
+  padding: 14px 16px;
+}
+
+.table td{
+  padding: 14px 16px;
+  border-color: rgba(0,0,0,.06);
+}
+
+.row-hover{
+  transition: .15s ease;
+}
+.row-hover:hover{
+  background: rgba(0,0,0,.02);
+  transform: translateY(-1px);
+}
+
+/* Text styles */
+.primary-text{ font-weight: 600; }
+.sub-text{
+  font-size: 12px;
+  color: rgba(0,0,0,.55);
+}
+
+/* Badge soft */
+.badge-soft{
+  font-weight: 600;
+  padding: 8px 10px;
+}
+
+/* ===== Actions (same as your base) ===== */
+.side-actions{
+  display:flex;
+  gap: 8px;
+  justify-content:flex-end;
+}
+
+.icon-btn{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.10);
+  background: rgba(255,255,255,.9);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition: .15s ease;
+}
+.icon-btn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0,0,0,.08);
+}
+.icon-btn.danger{
+  border-color: rgba(220,53,69,.25);
+}
+.icon-btn.danger:hover{
+  background: rgba(220,53,69,.08);
+}
+
+/* ===== Modal (same as your base) ===== */
+.modal-soft{
+  border-radius: 24px;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 20px 60px rgba(0,0,0,.18);
+}
+.modal-pad{
+  padding: 26px;
+}
+
+.modal-body{
+  position: relative;
+}
+.close-modal{
+  position: absolute;
+  top: 18px;
+  right: 18px;
+}

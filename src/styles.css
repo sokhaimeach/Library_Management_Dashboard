@@ -1,1 +1,59 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  /* ---------- PRIMARY (Indigo) ---------- */
+  --color-primary-50:  #EEF2FF;
+  --color-primary-100: #E0E7FF;
+  --color-primary-200: #C7D2FE;
+  --color-primary-300: #A5B4FC;
+  --color-primary-400: #818CF8;
+  --color-primary-500: #6366F1; /* Main primary */
+  --color-primary-600: #4F46E5; /* Hover / active */
+  --color-primary-700: #4338CA;
+
+  /* ---------- SECONDARY (Gold) ---------- */
+  --color-secondary-100: #FDEFC2;
+  --color-secondary-200: #FBD97B;
+  --color-secondary-300: #F4BC3B; /* Gold accent */
+  --color-secondary-400: #E0A72E;
+
+  /* ---------- NEUTRALS ---------- */
+  --color-bg:          #F5F7FB; /* App background */
+  --color-surface:     #FFFFFF; /* Cards, sidebar, table header */
+  --color-border:      #c7c7c7;
+  --color-text:        #1F2937; /* Main text */
+  --color-text-muted:  #6B7280; /* Secondary text */
+
+  /* ---------- STATUS ---------- */
+  --color-success: #4CAF50;
+  --color-warning: #FACC15;
+  --color-error:   #EF4444;
+  --color-info:    #3B82F6;
+
+  /* ---------- SIDEBAR ---------- */
+  --sidebar-bg:            #FFFFFF;
+  --sidebar-text:          #6B7280;
+  --sidebar-text-active:   #4F46E5;
+  --sidebar-item-hover:    #EEF2FF;
+  --sidebar-border:        #E5E7EB;
+
+  /* ---------- UI ELEMENTS ---------- */
+  --card-radius: 16px;
+  --input-radius: 12px;
+  --button-radius: 8px;
+  --modal-radius: 20px;
+
+  /* ---------- SHADOWS ---------- */
+  --shadow-card: 0px 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0px 6px 24px rgba(0, 0, 0, 0.10);
+
+  /* ---------- SPACING SYSTEM (optional) ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+}

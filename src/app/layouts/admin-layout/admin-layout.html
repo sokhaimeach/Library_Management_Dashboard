@@ -1,0 +1,76 @@
+<main class="d-flex">
+    <!-- start sidebar -->
+    <aside class="aside">
+        <div class="logo">
+            MIS Library
+        </div>
+        <ul class="sidebar-list">
+            <li class="active">
+                <i class="bi bi-clipboard-data"></i>Dashboard
+            </li>
+            <li>
+                <i class="bi bi-journal-text"></i>Borrow & Return
+            </li>
+            <li>
+                <i class="bi bi-journals"></i>Books
+            </li>
+            <li>
+                <i class="bi bi-feather"></i>Author
+            </li>
+            <li>
+                <i class="bi bi-tags"></i>Category
+            </li>
+            <li>
+                <i class="bi bi-people"></i>Member
+            </li>
+            <li>
+                <i class="bi bi-exclamation-triangle"></i>Penalty
+            </li>
+            <li>
+                <i class="bi bi-person-circle"></i>User
+            </li>
+        </ul>
+    </aside>
+    <!-- end::sidebar -->
+    <main class="containers">
+        <!-- start navbar -->
+        <nav class="nav border">
+            <div>
+                <!-- <input class="Search" type="text" placeholder="Search"> -->
+                <span class="fw-bold fs-5">MIS Library :: Book</span>
+                <span class="ms-2" style="font-size: 14px;">Today, 14 Sun 2025</span>
+            </div>
+            <div class="d-flex">
+                <div class="box">
+                    <i class="bi bi-gear-fill"></i>
+                </div>
+                <div class="box position-relative">
+                    <i class="bi bi-bell-fill"></i>
+                    <span
+                        class="position-absolute translate-middle p-2 bg-danger border border-light rounded-circle"
+                        style="right: -5px; top: 1px;">
+                        <span class="visually-hidden">New alerts</span>
+                    </span>
+                </div>
+                <div class="acc">
+                    <div class="img">
+                        <img src="https://img.freepik.com/premium-vector/people-profile-graphic_24911-21373.jpg" alt="">
+                    </div>
+                    <div class="ms-3" style="line-height: 0; display: flex; flex-direction: column; justify-content: center;">
+                        <p style="font-size: 10px; color: rgba(255, 255, 255, 0.467); margin-top: 10px; text-align: left;">Welcome back!</p>
+                        <p style="font-size: 14px; font-weight: 550;">Meach Sokhai</p>
+                    </div>
+                    <div class="ms-4 show-acc">
+                        <i class="bi bi-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <!-- end::navbar -->
+        <!-- start content -->
+        <div class="content">
+            <router-outlet />
+        </div>
+        <!-- end::content -->
+    </main>
+</main>

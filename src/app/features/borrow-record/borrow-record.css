@@ -1,0 +1,225 @@
+/* =========================
+   STANDARD STYLE (same as your saved style)
+========================= */
+.topbar{
+  border-radius: 18px;
+  background: white;
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+}
+.topbar-icon{
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(0,0,0,.06);
+  font-size: 18px;
+}
+.topbar-title{
+  font-size: 18px;
+  letter-spacing: .2px;
+}
+.detail-box{
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+/* Search */
+.search{
+  border-radius: 12px;
+  background: white;
+  border: 1px solid rgba(0,0,0,.08);
+  min-width: 260px;
+  transition: .2s ease;
+}
+.search:focus-within{
+  box-shadow: 0 0 0 4px rgba(0, 85, 255, 0.354);
+  outline: 2px solid blue;
+}
+.input{
+  border: 0 !important;
+  outline: none !important;
+  background: transparent;
+  width: calc(100% - 50px);
+  padding: 8px 6px;
+  font-size: 13px;
+}
+
+/* Primary black button */
+.add-book{
+  border-radius: 12px;
+  padding: 8px 14px;
+  background: #111;
+  color: #fff;
+  border: 0;
+}
+.add-book:hover{ opacity: .92; }
+
+/* Table Card */
+.table-card{
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+  background: #fff;
+}
+.table-head th{
+  font-size: 12px;
+  color: #fff;
+  letter-spacing: .3px;
+  background: #000;
+  padding: 14px 16px;
+}
+.table td{
+  padding: 14px 16px;
+  border-color: rgba(0,0,0,.06);
+}
+.row-hover{ transition: .15s ease; }
+.row-hover:hover{
+  background: rgba(0,0,0,.02);
+  transform: translateY(-1px);
+}
+.primary-text{ font-weight: 600; }
+.sub-text{ font-size: 12px; color: rgba(0,0,0,.55); }
+
+/* Avatar */
+.avatar{
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(0,0,0,.06);
+  font-weight: 700;
+}
+
+/* Badge (soft) */
+.badge-soft{
+  font-weight: 600;
+  padding: 8px 10px;
+}
+
+/* Actions */
+.side-actions{
+  display:flex;
+  gap: 8px;
+  justify-content:flex-end;
+}
+.icon-btn{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.10);
+  background: rgba(255,255,255,.9);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition: .15s ease;
+}
+.icon-btn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0,0,0,.08);
+}
+.icon-btn.eye{
+  border-color: rgba(13, 110, 253, .25);
+}
+.icon-btn.eye:hover{
+  background: rgba(13, 110, 253, .08);
+}
+.icon-btn.danger{
+  border-color: rgba(220,53,69,.25);
+}
+.icon-btn.danger:hover{
+  background: rgba(220,53,69,.08);
+}
+
+/* Modal */
+.modal-soft{
+  border-radius: 24px;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 20px 60px rgba(0,0,0,.18);
+}
+.modal-pad{
+  padding: 26px;
+}
+.modal-body{ position: relative; }
+.close-modal{
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+/* Inputs */
+.inputs{
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 14px;
+  width: 100%;
+  padding: 8px 15px;
+}
+.inputs:focus{ outline: 2px solid blue; }
+
+.btn-soft2{
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.10);
+}
+.btn-save{
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+/* Detail card (same feel as penalty) */
+.detail-card{
+  background: #ffffff;
+  border: 1px solid #eef1f5;
+  border-radius: 18px;
+  padding: 14px;
+}
+.book-cover{
+  width: 64px;
+  height: 86px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid #eef1f5;
+}
+
+/* Status badge styling */
+.status-badge{
+  border: 1px solid rgba(0,0,0,.10);
+  padding: 8px 10px;
+  font-weight: 600;
+}
+.status-borrowed{
+  background: rgba(13, 110, 253, .12);
+  color: #0b5ed7;
+  border-color: rgba(13, 110, 253, .25);
+}
+.status-returned{
+  background: rgba(22, 163, 74, .12);
+  color: #15803d;
+  border-color: rgba(22, 163, 74, .22);
+}
+.status-late{
+  background: rgba(245, 158, 11, .14);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, .22);
+}
+.status-overdue{
+  background: rgba(14, 165, 164, .12);
+  color: #0f766e;
+  border-color: rgba(14, 165, 164, .22);
+}
+.status-lost{
+  background: rgba(220, 53, 69, .10);
+  color: #b02a37;
+  border-color: rgba(220, 53, 69, .20);
+}
+.status-damaged{
+  background: rgba(108, 117, 125, .12);
+  color: #495057;
+  border-color: rgba(108, 117, 125, .25);
+}

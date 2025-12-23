@@ -1,0 +1,170 @@
+/* =========================
+   RESTORE BOOK CSS (STANDARD + small extras)
+========================= */
+.topbar{
+  border-radius: 18px;
+  background: white;
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+}
+.topbar-icon{
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(0,0,0,.06);
+  font-size: 18px;
+}
+.topbar-title{ font-size: 18px; letter-spacing: .2px; }
+
+.detail-box{
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+/* ===== Primary button ===== */
+.add-book{
+  border-radius: 12px;
+  padding: 8px 14px;
+  background: #111;
+  color: #fff;
+  border: 0;
+}
+.add-book:hover{ opacity: .92; }
+
+/* Search */
+.search{
+  border-radius: 12px;
+  background: white;
+  border: 1px solid rgba(0,0,0,.08);
+  min-width: 260px;
+  transition: .2s ease;
+}
+.search:focus-within{
+  box-shadow: 0 0 0 4px rgba(0, 85, 255, 0.354);
+  outline: 2px solid blue;
+}
+.input{
+  border: 0 !important;
+  outline: none !important;
+  background: transparent;
+  width: calc(100% - 50px);
+  padding: 8px 6px;
+  font-size: 13px;
+}
+
+/* Table */
+.table-card{
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+  background: #fff;
+}
+.table-head th{
+  font-size: 12px;
+  color: #fff;
+  letter-spacing: .3px;
+  background: #000;
+  padding: 14px 16px;
+}
+.table td{
+  padding: 14px 16px;
+  border-color: rgba(0,0,0,.06);
+}
+.row-hover{ transition: .15s ease; }
+.row-hover:hover{
+  background: rgba(0,0,0,.02);
+  transform: translateY(-1px);
+}
+.primary-text{ font-weight: 600; }
+.sub-text{ font-size: 12px; color: rgba(0,0,0,.55); }
+.badge-soft{ font-weight: 600; padding: 8px 10px; }
+
+/* Cover */
+.cover-sm{
+  width: 44px;
+  height: 60px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid rgba(0,0,0,.08);
+  background: rgba(0,0,0,.03);
+}
+
+/* Actions */
+.side-actions{
+  display:flex;
+  gap: 8px;
+  justify-content:flex-end;
+}
+.icon-btn{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.10);
+  background: rgba(255,255,255,.9);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition: .15s ease;
+}
+.icon-btn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0,0,0,.08);
+}
+.icon-btn.restore{
+  border-color: rgba(25, 135, 84, .25);
+}
+.icon-btn.restore:hover{
+  background: rgba(25, 135, 84, .10);
+}
+.icon-btn.danger{
+  border-color: rgba(220,53,69,.25);
+}
+.icon-btn.danger:hover{
+  background: rgba(220,53,69,.08);
+}
+
+/* Deleted badge */
+.deleted-badge{
+  background: rgba(220, 53, 69, .10);
+  color: #b02a37;
+  border: 1px solid rgba(220, 53, 69, .20);
+  padding: 8px 10px;
+  font-weight: 600;
+}
+
+/* Modal */
+.modal-soft{
+  border-radius: 24px;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 20px 60px rgba(0,0,0,.18);
+}
+.modal-pad{ padding: 26px; }
+.modal-body{ position: relative; }
+.close-modal{
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.inputs{
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 14px;
+  width: 100%;
+  padding: 8px 15px;
+}
+.inputs:focus{ outline: 2px solid blue; }
+
+.btn-soft2{
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.10);
+}
+.btn-save{
+  border-radius: 12px;
+  padding: 10px 14px;
+}

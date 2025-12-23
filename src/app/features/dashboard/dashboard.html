@@ -1,0 +1,318 @@
+<div class="container-fluid py-3">
+
+    <!-- Topbar -->
+    <div class="topbar-card d-flex align-items-center justify-content-between gap-3 mb-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="topbar-icon d-flex align-items-center justify-content-center">
+                <i class="bi bi-speedometer2 fs-4"></i>
+            </div>
+            <div>
+                <div class="fw-semibold fs-5 mb-0">Library Dashboard</div>
+                <div class="text-muted small">Overview & daily operations</div>
+            </div>
+        </div>
+
+        <!-- <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div class="input-group search-group">
+                <span class="input-group-text bg-white border-0">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="form-control border-0" placeholder="Search member / book..."
+                    [(ngModel)]="searchText" [ngModelOptions]="{ standalone: true }" />
+            </div>
+
+            <button class="btn btn-black-soft" type="button" (click)="onQuickAction('add_member')">
+                <i class="bi bi-person-plus me-2"></i> Add Member
+            </button>
+            <button class="btn btn-black-soft" type="button" (click)="onQuickAction('add_book')">
+                <i class="bi bi-book me-2"></i> Add Book
+            </button>
+            <button class="btn btn-black-soft" type="button" (click)="onQuickAction('create_borrow')">
+                <i class="bi bi-box-arrow-up-right me-2"></i> Create Borrow
+            </button>
+        </div> -->
+    </div>
+
+    <!-- KPI cards -->
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-sm-6 col-lg-3" *ngFor="let k of kpis">
+            <div class="kpi-card">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small">{{ k.label }}</div>
+                        <div class="fw-semibold fs-4">{{ k.value }}</div>
+                        <div class="small" [class.text-success]="k.delta >= 0" [class.text-danger]="k.delta < 0">
+                            <i class="bi" [ngClass]="k.delta >= 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right'"></i>
+                            {{ k.deltaText }}
+                        </div>
+                    </div>
+                    <div class="kpi-icon d-flex align-items-center justify-content-center">
+                        <i class="bi fs-4" [ngClass]="k.icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts + Quick actions -->
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-lg-7">
+            <div class="card-soft">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="fw-semibold">
+                        <i class="bi bi-exclamation-triangle me-2"></i> Overdue Alerts
+                    </div>
+                    <span class="badge rounded-pill text-bg-light border">Top {{ alerts.length }}</span>
+                </div>
+
+                <div class="alert-list">
+                    <div class="alert-item" *ngFor="let a of alerts">
+                        <div class="d-flex align-items-start justify-content-between gap-2">
+                            <div class="d-flex align-items-start gap-2">
+                                <span class="chip" [ngClass]="chipClass(a.type)">
+                                    <i class="bi me-1" [ngClass]="alertIcon(a.type)"></i>{{ a.type }}
+                                </span>
+                                <div>
+                                    <div class="fw-semibold">{{ a.title }}</div>
+                                    <div class="text-muted small">{{ a.subtitle }}</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-icon-soft" type="button"
+                                    (click)="openDetail(a.refType, a.refId)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="btn btn-icon-soft danger" type="button"
+                                    (click)="openStatusModal(a.refType, a.refId)">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="alerts.length === 0" class="text-muted small py-3">
+                        No alerts 🎉
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+            <div class="card-soft h-100">
+                <div class="fw-semibold mb-2">
+                    <i class="bi bi-lightning-charge me-2"></i> Quick Actions
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-6">
+                        <button class="btn btn-white-action w-100" (click)="onQuickAction('return_book')">
+                            <i class="bi bi-box-arrow-in-left me-2"></i> Return
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-white-action w-100" (click)="onQuickAction('create_penalty')">
+                            <i class="bi bi-receipt me-2"></i> Penalty
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-white-action w-100" (click)="onQuickAction('members')">
+                            <i class="bi bi-people me-2"></i> Members
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-white-action w-100" (click)="onQuickAction('books')">
+                            <i class="bi bi-journal-bookmark me-2"></i> Books
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="my-3">
+
+                <div class="detail-box">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span class="text-muted small">Available vs Borrowed</span>
+                        <span class="chip chip-dark">{{ inventory.available }} available</span>
+                    </div>
+                    <div class="progress mt-2" style="height: 10px;">
+                        <div class="progress-bar" role="progressbar" [style.width.%]="inventory.borrowedPct"
+                            aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small mt-2">
+                        <span>{{ inventory.borrowed }} borrowed</span>
+                        <span>{{ inventory.borrowedPct | number:'1.0-0' }}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-lg-6">
+            <div class="card-soft">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="fw-semibold"><i class="bi bi-graph-up me-2"></i> Borrow Trend (7 days)</div>
+                    <span class="badge rounded-pill text-bg-light border">Daily</span>
+                </div>
+                <div class="chart-wrap">
+                    <canvas #trendCanvas></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-3">
+            <div class="card-soft h-100">
+                <div class="fw-semibold mb-2"><i class="bi bi-pie-chart me-2"></i> Status Breakdown</div>
+                <div class="chart-wrap">
+                    <canvas #statusCanvas></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-3">
+            <div class="card-soft h-100">
+                <div class="fw-semibold mb-2"><i class="bi bi-bar-chart me-2"></i> Top Categories</div>
+                <div class="chart-wrap">
+                    <canvas #categoryCanvas></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables -->
+    <div class="row g-3">
+        <div class="col-12 col-lg-7">
+            <div class="table-card">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="fw-semibold"><i class="bi bi-clock-history me-2"></i> Recent Borrows</div>
+                    <button class="btn btn-sm btn-black-soft" (click)="onQuickAction('borrows')">
+                        View All
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-head-dark">
+                            <tr>
+                                <th>Member</th>
+                                <th>Book</th>
+                                <th>Due</th>
+                                <th>Status</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="row-hover" *ngFor="let b of recentBorrows">
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div>
+                                            <div class="fw-semibold">{{ b.member_name }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="fw-semibold">{{ b.book_title }}</td>
+                                <!-- <td class="text-muted">{{ b.borrow_date | date:'MMM d, y' }}</td> -->
+                                <td class="text-muted">{{ b.due_date | date:'MMM d, y' }}</td>
+                                <td>
+                                    <span class="chip" [ngClass]="statusChipClass(b.status)">{{ b.status }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <button class="btn btn-icon-soft me-1" (click)="openDetail('borrow', b._id)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-icon-soft danger" (click)="openStatusModal('borrow', b._id)">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr *ngIf="recentBorrows.length === 0">
+                                <td colspan="6" class="text-center text-muted py-4">No recent borrows</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+            <div class="table-card">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="fw-semibold"><i class="bi bi-receipt-cutoff me-2"></i> Penalties</div>
+                    <button class="btn btn-sm btn-black-soft" (click)="onQuickAction('penalties')">
+                        View All
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-head-dark">
+                            <tr>
+                                <th>Member</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="row-hover" *ngFor="let p of penalties">
+                                <td class="fw-semibold">{{ p.member_name }}</td>
+                                <td class="text-muted">{{ p.penalty_type }}</td>
+                                <td class="fw-semibold">${{ p.amount }}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-icon-soft me-1" (click)="openDetail('penalty', p._id)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-icon-soft danger"
+                                        (click)="openStatusModal('penalty', p._id)">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr *ngIf="penalties.length === 0">
+                                <td colspan="5" class="text-center text-muted py-4">No penalties</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Small Status Modal -->
+    <div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-soft">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-semibold">
+                        <i class="bi bi-arrow-repeat me-2"></i> Update Status
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body pt-0">
+                    <div class="detail-box mb-3">
+                        <div class="text-muted small">Target</div>
+                        <div class="fw-semibold">{{ modalTarget.type }} • {{ modalTarget.id }}</div>
+                    </div>
+
+                    <label class="text-muted small mb-2">Select status</label>
+                    <select class="form-select input-soft" [(ngModel)]="modalTarget.newStatus"
+                        [ngModelOptions]="{ standalone: true }">
+                        <option *ngFor="let s of modalTarget.allowed" [value]="s">{{ s }}</option>
+                    </select>
+                </div>
+
+                <div class="modal-footer border-0">
+                    <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-black-soft" (click)="confirmUpdateStatus()">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

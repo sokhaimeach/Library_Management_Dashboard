@@ -1,0 +1,217 @@
+/* ===== Topbar ===== */
+.topbar{
+  border-radius: 18px;
+  background: white;
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+}
+.topbar-icon{
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(0,0,0,.06);
+  font-size: 18px;
+}
+.topbar-title{ font-size: 18px; letter-spacing: .2px; }
+
+/* ===== Search ===== */
+.search{
+  border-radius: 12px;
+  background: white;
+  border: 1px solid rgba(0,0,0,.08);
+  min-width: 260px;
+  transition: .2s ease;
+}
+.search:focus-within{
+  box-shadow: 0 0 0 4px rgba(0, 85, 255, 0.354);
+  outline: 2px solid blue;
+}
+.input{
+  border: 0 !important;
+  outline: none !important;
+  background: transparent;
+  width: calc(100% - 50px);
+  padding: 8px 6px;
+  font-size: 13px;
+}
+
+/* close modal button */
+.close-modal{
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+/* ===== Detail chip ===== */
+.detail-box{
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+/* ===== Buttons ===== */
+.add-book{
+  border-radius: 12px;
+  padding: 8px 14px;
+  background: #111;
+  color: #fff;
+  border: 0;
+}
+.add-book:hover{ opacity: .92; }
+
+/* ===== Table Card ===== */
+.table-card{
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+  background: #fff;
+}
+.table-head th{
+  font-size: 12px;
+  color: #fff;
+  letter-spacing: .3px;
+  background: #000;
+  padding: 14px 16px;
+}
+.table td{
+  padding: 14px 16px;
+  border-color: rgba(0,0,0,.06);
+}
+.row-hover{ transition: .15s ease; }
+.row-hover:hover{
+  background: rgba(0,0,0,.02);
+  transform: translateY(-1px);
+}
+
+.primary-text{ font-weight: 600; }
+.sub-text{ font-size: 12px; color: rgba(0,0,0,.55); }
+
+/* Avatar */
+.avatar{
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(0,0,0,.06);
+  font-weight: 700;
+}
+
+/* Clamp description */
+.bio-clamp{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 520px;
+  color: rgba(0,0,0,.72);
+}
+
+/* Actions */
+.side-actions{
+  display:flex;
+  gap: 8px;
+  justify-content:flex-end;
+}
+.icon-btn{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.10);
+  background: rgba(255,255,255,.9);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition: .15s ease;
+}
+.icon-btn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0,0,0,.08);
+}
+.icon-btn.danger{
+  border-color: rgba(220,53,69,.25);
+}
+.icon-btn.danger:hover{
+  background: rgba(220,53,69,.08);
+}
+
+/* Modal */
+.modal-soft{
+  border-radius: 24px;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 20px 60px rgba(0,0,0,.18);
+}
+.modal-pad{ padding: 26px; }
+.description{
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,.10);
+  padding: 12px;
+  min-height: 110px;
+  outline: none;
+}
+.description:focus{
+  box-shadow: 0 0 0 4px rgba(0, 85, 255, 0.20);
+  outline: 2px solid rgba(0, 85, 255, 0.55);
+}
+.btn-soft2{
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.10);
+}
+.btn-save{
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+
+/* inputs */
+.inputs, .description{
+    border: 1px solid var(--color-border);
+    border-radius: var(--button-radius);
+    width: 100%;
+    padding: 8px 15px 8px 15px;
+}
+.inputs:focus {
+  outline: 2px solid blue;
+}
+
+
+
+
+
+/* Member Type badge (optional nice look) */
+.type-badge{
+  border: 1px solid rgba(0,0,0,.10);
+  padding: 5px 10px;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+/* Example type colors (edit to match your backend values) */
+.type-badge.vip{
+  background: rgba(255, 193, 7, .18);
+  color: #856404;
+  border-color: rgba(255, 193, 7, .35);
+}
+.type-badge.regular{
+  background: rgba(13, 110, 253, .12);
+  color: #0b5ed7;
+  border-color: rgba(13, 110, 253, .25);
+}
+.type-badge.blacklist{
+  background: rgba(253, 13, 13, 0.12);
+  color: #d70b0b;
+  border-color: rgba(253, 13, 13, 0.25);
+}
+
+/* Eye button (same style family) */
+.icon-btn.eye{
+  border-color: rgba(13, 110, 253, .25);
+}
+.icon-btn.eye:hover{
+  background: rgba(13, 110, 253, .08);
+}

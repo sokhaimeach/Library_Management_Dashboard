@@ -1,0 +1,258 @@
+<!-- ======= Top Bar ======= -->
+<div class="container-fluid ps-3 pe-3 mt-4">
+    <div class="topbar p-3 p-md-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+
+            <!-- Left: Title + Count -->
+            <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="topbar-icon">
+                        <i class="bi bi-person-gear"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold topbar-title">Users</div>
+                        <div class="text-muted small">Manage staff accounts & permissions</div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 ms-md-3">
+                    <div class="detail-box">
+                        <div class="text-muted small">User</div>
+                        <div class="fw-semibold text-dark">5 users</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Actions -->
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn add-book btn-sm fw-semibold shadow-sm" data-bs-toggle="modal"
+                    data-bs-target="#exampleModal" (click)="clearItem()">
+                    <i class="bi bi-plus-circle me-1"></i> Add user
+                </button>
+            </div>
+        </div>
+
+        <!-- Search + Filter Row -->
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+            <div class="input-group input-group-sm search px-2">
+                <span class="input-group-text bg-transparent border-0 text-muted">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="input" placeholder="Search username, phone, role..." />
+            </div>
+
+            <div class="d-flex gap-2 align-items-center">
+                <div class="detail-box d-flex align-items-center gap-2">
+                    <i class="bi bi-funnel"></i>
+                    <select class="form-select form-select-sm filter-select" style="border-radius: 8px;" aria-label="Filter status">
+                        <option selected>All status</option>
+                        <option value="returned">Disabled</option>
+                        <option value="late">Active</option>
+                    </select>
+                </div>
+
+                <app-filter-dropdown [filters]="genreFilters" (filtersChange)="onFilterChange($event)">
+                </app-filter-dropdown>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- ======= Table ======= -->
+<div class="container py-4">
+    <div class="table-card mx-1">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-head">
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Phone</th>
+                        <th>Start date</th>
+                        <th>Status</th>
+                        <th class="text-end" style="width:120px;">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for(user of users; track $index){
+                    <tr class="row-hover">
+
+                        <!-- User -->
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <img [src]="user.image_url || 'https://ui-avatars.com/api/?name=' + user.username + '&background=F3F4F6&color=111827'"
+                                    class="avatar-img" alt="User avatar" />
+                                <div>
+                                    <div class="primary-text">{{ user.username }}</div>
+                                    <div class="sub-text">
+                                        <i class="bi bi-hash me-1"></i> ID: {{ user._id }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Role -->
+                        <td>
+                            <span class="badge rounded-pill role-badge" [class.role-admin]="user.role === 'admin'"
+                                [class.role-librarian]="user.role === 'librarian'"
+                                [class.role-staff]="user.role === 'staff'"
+                                [class.role-stock]="user.role === 'stock-keeper'">
+                                <i class="bi bi-shield-lock me-1"></i> {{ user.role }}
+                            </span>
+                        </td>
+
+                        <!-- Phone -->
+                        <td>
+                            <span class="badge rounded-pill text-bg-light border badge-soft">
+                                <i class="bi bi-telephone me-1"></i> {{ user.contact.phone_number || '—' }}
+                            </span>
+                            <div class="sub-text mt-1">Contact</div>
+                        </td>
+
+                        <!-- Start date -->
+                        <td>
+                            <div class="primary-text">{{ user.start_date | date:'mediumDate' }}</div>
+                            <div class="sub-text">{{ user.start_date | date:'yyyy-MM-dd' }}</div>
+                        </td>
+
+                        <!-- Status -->
+                        <td>
+                            <span class="badge rounded-pill status-badge" [class.status-active]="user.status"
+                                [class.status-disabled]="!user.status">
+                                <i class="bi me-1" [class.bi-check-circle-fill]="user.status"
+                                    [class.bi-x-circle]="!user.status"></i>
+                                {{ user.status ? 'Active' : 'Disabled' }}
+                            </span>
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="text-end">
+                            <div class="side-actions">
+                                <button class="icon-btn eye" type="button"
+                                aria-label="View detail" [routerLink]="['/admin/user/account/'+user._id]">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+
+                                <button class="icon-btn" type="button" aria-label="Edit user" 
+                                data-bs-toggle="modal" data-bs-target="#exampleModal" (click)="openEditModal(user)">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- end::table -->
+
+
+<!-- ======= Modal (Add user) ======= -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content modal-soft">
+            <div class="modal-body modal-pad">
+
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h1 class="modal-title fs-5 fw-bold m-0" id="exampleModalLabel">{{modalTitle}}</h1>
+                        <div class="text-muted small">Create staff account information</div>
+                    </div>
+                    <button type="button" class="btn-close close-modal" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <form>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="mb-1">Username</label>
+                            <input type="text" class="form-control inputs" name="username" [(ngModel)]="item.username">
+                        </div>
+
+                        <div class="col-6">
+                            <label class="mb-1">Password</label>
+                            <input type="password" class="form-control inputs" name="password"
+                            [(ngModel)]="item.password" [disabled]="isEditModalOpen">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="mb-1">Role</label>
+                            <!-- add name for Angular forms -->
+                            <select class="form-select inputs" name="role"
+                            [(ngModel)]="item.role" [disabled]="isEditModalOpen">
+                                <option value="admin">Admin</option>
+                                <option value="librarian">Librarian</option>
+                                <option value="stock-keeper">Stock keeper</option>
+                            </select>
+                        </div>
+
+                        <div class="col-6">
+                            <label class="mb-1">Phone number</label>
+                            <input type="tel" class="form-control inputs" name="phone_number"
+                                [(ngModel)]="item.contact.phone_number" placeholder="+855...">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="mb-1">Email</label>
+                            <input type="email" class="form-control inputs" name="email"
+                                [(ngModel)]="item.contact.email" placeholder="example@gmail.com">
+                        </div>
+
+                        <div class="col-6">
+                            <label class="mb-1">Image Url</label>
+                            <input type="text" class="form-control inputs" name="image_url"
+                                [(ngModel)]="item.image_url">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="mb-1">City</label>
+                            <input type="text" class="form-control inputs" name="city" [(ngModel)]="item.address.city">
+                        </div>
+
+                        <div class="col-6">
+                            <label class="mb-1">District</label>
+                            <input type="text" class="form-control inputs" name="district"
+                                [(ngModel)]="item.address.district">
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <label class="mb-1">Commune</label>
+                            <input type="text" class="form-control inputs" name="commune"
+                                [(ngModel)]="item.address.commune">
+                        </div>
+
+                        <div class="col-6">
+                            <label class="mb-1">Village</label>
+                            <input type="text" class="form-control inputs" name="village"
+                                [(ngModel)]="item.address.village">
+                        </div>
+                    </div>
+
+                    <div class="d-flex w-100 justify-content-end gap-2">
+                        <button type="button" class="btn btn-light btn-soft2" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-dark btn-save">
+                            <i class="bi bi-check2-circle me-1"></i> Save user
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end::form modal -->

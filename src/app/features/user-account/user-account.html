@@ -1,0 +1,490 @@
+<div class="container py-4" *ngIf="user as u">
+
+    <!-- ======= Top Bar ======= -->
+    <div class="topbar p-3 p-md-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+
+            <!-- Left -->
+            <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="topbar-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+
+                    <div>
+                        <div class="fw-bold topbar-title d-flex align-items-center flex-wrap gap-2">
+                            {{ u.username }}
+
+                            <span class="badge rounded-pill role-pill"
+                                [ngClass]="u.role === 'admin' ? 'role-admin' : 'role-staff'">
+                                <i class="bi bi-shield-lock me-1"></i>
+                                {{ u.role | titlecase }}
+                            </span>
+
+                            <span class="badge rounded-pill status-pill"
+                                [ngClass]="u.status ? 'status-active' : 'status-disabled'">
+                                <i class="bi me-1"
+                                    [ngClass]="u.status ? 'bi-check-circle-fill' : 'bi-x-circle-fill'"></i>
+                                {{ u.status ? 'Active' : 'Disabled' }}
+                            </span>
+                        </div>
+
+                        <div class="text-muted small">
+                            Account / User Detail •
+                            <i class="bi bi-calendar-event ms-1 me-1"></i>
+                            Start date: {{ u.start_date | date:'mediumDate' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right -->
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-dark btn-sm d-flex align-items-center gap-2" style="border-radius: 10px;"
+                    type="button" (click)="goBack()">
+                    <i class="bi bi-arrow-left"></i> Back
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======= Main content ======= -->
+    <div class="row g-3 mt-1">
+
+        <!-- Left: Profile card -->
+        <div class="col-12 col-lg-4">
+            <div class="panel-card">
+                <div class="panel-head d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="panel-icon"><i class="bi bi-person-circle"></i></div>
+                        <div>
+                            <div class="fw-semibold">Profile</div>
+                            <div class="text-muted small">Quick contact & avatar</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="avatar">
+                            <img *ngIf="u.image_url; else avatarFallback" [src]="u.image_url" class="avatar-img"
+                                alt="avatar" />
+                            <ng-template #avatarFallback>
+                                <div class="avatar-fallback">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                            </ng-template>
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold text-dark">{{ u.username }}</div>
+                            <div class="sub-text">Id: {{ u._id }}</div>
+                        </div>
+                    </div>
+
+                    <hr class="my-3" />
+
+                    <div class="mini-cards">
+                        <!-- Email -->
+                        <div class="mini-card">
+                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="mini-icon">
+                                        <i class="bi bi-envelope-fill"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Email</div>
+                                        <div class="fw-semibold text-dark text-truncate" style="max-width: 210px;">
+                                            {{ u.contact.email || '—' }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button class="icon-btn" type="button" (click)="copyText(u.contact.email)"
+                                    aria-label="Copy email">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="mini-card">
+                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="mini-icon">
+                                        <i class="bi bi-telephone-fill"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Phone</div>
+                                        <div class="fw-semibold text-dark">{{ u.contact.phone_number || '—' }}</div>
+                                    </div>
+                                </div>
+
+                                <button class="icon-btn" type="button" (click)="copyText(u.contact.phone_number)"
+                                    aria-label="Copy phone">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Tabs -->
+        <div class="col-12 col-lg-8">
+            <div class="panel-card">
+
+                <div class="panel-body">
+
+                    <ul class="nav nav-pills tab-pills mb-3" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tabProfile"
+                                type="button">
+                                <i class="bi bi-person-lines-fill me-1"></i> Profile
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tabSecurity" type="button">
+                                <i class="bi bi-shield-lock me-1"></i> Security
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+
+                        <!-- ===================== Profile TAB ===================== -->
+                        <div class="tab-pane fade show active" id="tabProfile">
+                            <div class="row g-3">
+
+                                <!-- Account Details -->
+                                <div class="col-12">
+                                    <div class="section-card">
+                                        <div class="section-head">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div class="fw-semibold text-dark d-flex align-items-center gap-2">
+                                                    <i class="bi bi-person-badge"></i> Account Details
+                                                </div>
+                                                <span
+                                                    class="badge rounded-pill text-bg-light border badge-soft">Overview</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="section-body">
+                                            <div class="row g-2">
+                                                <div class="col-12 col-md-6 col-lg-3">
+                                                    <div class="detail-box">
+                                                        <div class="text-muted small">Username</div>
+                                                        <div class="fw-semibold text-dark">{{ u.username }}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12 col-md-6 col-lg-3">
+                                                    <div class="detail-box">
+                                                        <div class="text-muted small">Role</div>
+                                                        <div class="fw-semibold text-dark">{{ u.role }}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12 col-md-6 col-lg-3">
+                                                    <div class="detail-box">
+                                                        <div class="text-muted small">Status</div>
+                                                        <div class="fw-semibold"
+                                                            [ngClass]="u.status ? 'text-success' : 'text-danger'">
+                                                            {{ u.status ? 'Active' : 'Disabled' }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12 col-md-6 col-lg-3">
+                                                    <div class="detail-box">
+                                                        <div class="text-muted small">Start Date</div>
+                                                        <div class="fw-semibold text-dark">{{ u.start_date |
+                                                            date:'mediumDate' }}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-12">
+                                                    <div class="detail-box mt-2">
+                                                        <div class="text-muted small">User ID</div>
+                                                        <div class="fw-semibold text-dark font-monospace small">{{ u._id
+                                                            }}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Address -->
+                                <div class="col-12">
+                                    <div class="section-card">
+                                        <div class="section-head">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div class="fw-semibold text-dark d-flex align-items-center gap-2">
+                                                    <i class="bi bi-geo-alt"></i> Address
+                                                </div>
+                                                <span class="badge rounded-pill text-bg-light border badge-soft">
+                                                    {{ formatAddress(u.address) === '-' ? 'No address' : 'Saved' }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="section-body">
+                                            <div class="row g-2">
+                                                <div class="col-12 col-md-6 col-lg-3">
+                                                    <div class="detail-box">
+                                                        <div class="text-muted small">Village</div>
+                                                        <div class="fw-semibold text-dark">{{ u.address.village || '-'
+                                                            }}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-6 col-lg-3">
+                                                    <div class="detail-box">
+                                                        <div class="text-muted small">Commune</div>
+                                                        <div class="fw-semibold text-dark">{{ u.address.commune || '-'
+                                                            }}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-6 col-lg-3">
+                                                    <div class="detail-box">
+                                                        <div class="text-muted small">District</div>
+                                                        <div class="fw-semibold text-dark">{{ u.address.district || '-'
+                                                            }}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-6 col-lg-3">
+                                                    <div class="detail-box">
+                                                        <div class="text-muted small">City</div>
+                                                        <div class="fw-semibold text-dark">{{ u.address.city || '-' }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-3 text-muted small">
+                                                <i class="bi bi-info-circle me-1"></i>
+                                                Full:
+                                                <span class="text-dark fw-semibold">{{ formatAddress(u.address)
+                                                    }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- ===================== Security TAB ===================== -->
+                        <div class="tab-pane fade" id="tabSecurity">
+                            <div class="row g-3">
+
+                                <!-- Admin only: Update Status -->
+                                @if(userProfile && userProfile.role === 'admin'){
+                                <div class="col-12" *ngIf="canUpdateStatus">
+                                    <div class="section-card">
+                                        <div class="section-head">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div class="fw-semibold text-dark d-flex align-items-center gap-2">
+                                                    <i class="bi bi-toggle2-on"></i> Update Status
+                                                </div>
+                                                <span class="badge rounded-pill text-bg-light border badge-soft">Admin action</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="section-body">
+                                            <form [formGroup]="statusForm" (ngSubmit)="onUpdateStatus()">
+                                                <div class="row g-2 align-items-end">
+                                                    <div class="col-12 col-md-6">
+                                                        <label class="form-label small text-muted mb-1">Status</label>
+                                                        <select class="form-select inputs" formControlName="status">
+                                                            <option [ngValue]="true">Active</option>
+                                                            <option [ngValue]="false">Disabled</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-12 col-md-6 d-flex justify-content-md-end">
+                                                        <button class="btn btn-dark btn-save" type="submit"
+                                                            [disabled]="statusForm.invalid || loading.updateStatus">
+                                                            <span *ngIf="loading.updateStatus"
+                                                                class="spinner-border spinner-border-sm me-2"></span>
+                                                            <i class="bi bi-save me-1"></i> Save Status
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="text-muted small mt-2">
+                                                    Tip: disabling a user prevents login (depends on your backend
+                                                    logic).
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                }
+
+                                <!-- Change Password -->
+                                @if(userId && userProfile && userId === userProfile._id){
+                                <div class="col-12">
+                                    <div class="section-card">
+                                        <div class="section-head">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div class="fw-semibold text-dark d-flex align-items-center gap-2">
+                                                    <i class="bi bi-key"></i> Change Password
+                                                </div>
+                                                <span class="badge rounded-pill text-bg-light border badge-soft">Your
+                                                    account</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="section-body">
+                                            <form [formGroup]="changePwForm" (ngSubmit)="openChangePwConfirm()">
+                                                <div class="row g-3">
+                                                    <div class="col-12 col-md-4">
+                                                        <label class="form-label small text-muted mb-1">Current</label>
+                                                        <input type="password" class="form-controls inputs"
+                                                            formControlName="currentPassword">
+                                                        <div class="text-danger small mt-1"
+                                                            *ngIf="isInvalid(changePwForm, 'currentPassword')">
+                                                            Required
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-12 col-md-4">
+                                                        <label class="form-label small text-muted mb-1">New</label>
+                                                        <input type="password" class="form-controls inputs"
+                                                            formControlName="newPassword">
+                                                        <div class="text-danger small mt-1"
+                                                            *ngIf="isInvalid(changePwForm, 'newPassword')">
+                                                            Min 4 characters
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-12 col-md-4">
+                                                        <label class="form-label small text-muted mb-1">Confirm</label>
+                                                        <input type="password" class="form-controls inputs"
+                                                            formControlName="confirmPassword">
+                                                        <div class="text-danger small mt-1" *ngIf="pwMismatch">
+                                                            Passwords do not match
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-12 d-flex justify-content-end">
+                                                        <button class="btn btn-dark btn-save" type="submit"
+                                                            [disabled]="changePwForm.invalid || pwMismatch || loading.changePw">
+                                                            <span *ngIf="loading.changePw"
+                                                                class="spinner-border spinner-border-sm me-2"></span>
+                                                            <i class="bi bi-check2-circle me-1"></i> Update Password
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                }
+
+                                <!-- Reset Password -->
+                                @if(userProfile && userProfile.role === 'admin'){
+                                <div class="col-12">
+                                    <div class="section-card">
+                                        <div class="section-head">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div class="fw-semibold text-dark d-flex align-items-center gap-2">
+                                                    <i class="bi bi-arrow-counterclockwise"></i> Reset Password
+                                                </div>
+                                                <span class="badge rounded-pill text-bg-light border badge-soft">Admin action</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="section-body">
+                                            <form [formGroup]="resetPwForm" (ngSubmit)="onResetPassword()">
+                                                <div class="row g-2 align-items-end">
+                                                    <div class="col-12 col-md-8">
+                                                        <label class="form-label small text-muted mb-1">New
+                                                            Password</label>
+                                                        <input type="password" class="form-controls inputs"
+                                                            formControlName="newPassword">
+                                                        <div class="text-danger small mt-1"
+                                                            *ngIf="isInvalid(resetPwForm, 'newPassword')">
+                                                            Min 4 characters
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-12 col-md-4 d-flex justify-content-md-end">
+                                                        <button class="btn btn-dark btn-save" type="submit"
+                                                            [disabled]="resetPwForm.invalid || !canResetPassword || loading.resetPw">
+                                                            <span *ngIf="loading.resetPw"
+                                                                class="spinner-border spinner-border-sm me-2"></span>
+                                                            <i class="bi bi-shield-exclamation me-1"></i> Reset
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="text-muted small mt-2" *ngIf="!canResetPassword">
+                                                    Only admin can reset, usually for other users.
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                }
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ======= Small Confirm Modal (UPDATED STYLE) ======= -->
+<div class="modal fade" id="changePwConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content modal-soft">
+            <div class="modal-body modal-pad position-relative">
+
+                <!-- Close -->
+                <button type="button" class="btn-close close-modal" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                <!-- Header -->
+                <div class="d-flex align-items-start gap-3 mb-3">
+                    <div class="confirm-icon">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold fs-6 mb-0">Confirm update</div>
+                        <div class="text-muted small">This action will change your password.</div>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="confirm-box mb-3">
+                    <div class="text-muted small mb-1">Action</div>
+                    <div class="fw-semibold text-dark">Update your password now?</div>
+                    <div class="text-muted small mt-2">
+                        Make sure you remember the new password before continuing.
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-end gap-2">
+                    <button class="btn btn-light btn-soft2" type="button" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button class="btn btn-dark btn-save" type="button" (click)="onChangePasswordConfirmed()">
+                        <i class="bi bi-check2-circle me-1"></i> Yes, Update
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

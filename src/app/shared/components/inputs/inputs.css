@@ -1,0 +1,6 @@
+.input{
+    border: 1px solid var(--color-border);
+    border-radius: var(--button-radius);
+    width: 100%;
+    padding: 8px 15px 8px 15px;
+}

@@ -1,0 +1,24 @@
+.login-card {
+    border-radius: var(--modal-radius);
+    box-shadow: var(--shadow-card);
+}
+
+.login-btn{
+    background-color: var(--color-primary-500);
+    width: 100%;
+    color: white;
+    font-weight: 550;
+}
+
+.email-text {
+    user-select: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.email-text:active{
+    transform: scale(0.9);
+}
+
+form {
+    flex-direction: column;
+}

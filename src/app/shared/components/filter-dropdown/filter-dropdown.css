@@ -1,0 +1,44 @@
+.main {
+    display: flex;
+    height: 30px;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.btn-filter {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-filter:active {
+    transform: scale(0.95);
+
+}
+
+.filter {
+    background-color: var(--color-primary-200);
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    height: 30px;
+    padding-left: 10px;
+    padding-right: 10px;
+    user-select: none;
+}
+
+.delete-filter {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}

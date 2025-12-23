@@ -1,0 +1,426 @@
+<div class="container py-4">
+
+    <!-- ======= Top Bar ======= -->
+    <div class="topbar p-3 p-md-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+
+            <!-- Left: Icon + Title + sub -->
+            <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="topbar-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold topbar-title">Member Details</div>
+                        <div class="text-muted small">Manage profile, type, borrow history & penalties</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right actions -->
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-dark btn-sm d-flex align-items-center gap-2" type="button"
+                    style="border-radius: 10px;" (click)="goBack()">
+                    <i class="bi bi-arrow-left"></i> Back
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======= Top section ======= -->
+    <div class="row g-3 mt-1">
+
+        <!-- Profile -->
+        <div class="col-12 col-lg-6">
+            <div class="panel-card h-100">
+                <div class="panel-head d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="panel-icon"><i class="bi bi-person"></i></div>
+                        <div>
+                            <div class="fw-semibold">Profile</div>
+                            <div class="text-muted small">Joined: 2025-12-01</div>
+                        </div>
+                    </div>
+
+                    <span class="badge rounded-pill text-bg-light border badge-soft">
+                        <i class="bi bi-shield-exclamation me-1"></i> Type: blacklist
+                    </span>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="text-muted small">Phone</div>
+                            <div class="fw-semibold">0123456789</div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="text-muted small">Email</div>
+                            <div class="fw-semibold">makara1@gmail.com</div>
+                        </div>
+                    </div>
+
+                    <hr class="my-3" />
+
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="stat-box">
+                                <div class="text-muted small">Current Borrow</div>
+                                <div class="fs-5 fw-bold">0</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-box">
+                                <div class="text-muted small">Lost Records</div>
+                                <div class="fs-5 fw-bold">1</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Member Type -->
+        <div class="col-12 col-lg-6">
+            <div class="panel-card h-100">
+                <div class="panel-head d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="panel-icon"><i class="bi bi-shield-check"></i></div>
+                        <div>
+                            <div class="fw-semibold">Change Member Type</div>
+                            <div class="text-muted small">This affects borrowing permissions.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="mb-3">
+                        <label class="form-label small text-muted mb-1">Current Type</label>
+                        <input class="form-control inputs" value="blacklist" disabled />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small text-muted mb-1">New Type</label>
+                        <select class="form-select inputs" aria-label="Member type">
+                            <option value="regular" selected>Regular</option>
+                            <option value="vip">VIP</option>
+                            <option value="blacklist">Blacklist</option>
+                        </select>
+                        <div class="form-text">Note: Change type would affect borrowing behavior.</div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="btn btn-light btn-soft2" type="button">Cancel</button>
+
+                        <button class="btn btn-dark btn-save" type="button" data-bs-toggle="modal"
+                            data-bs-target="#confirmTypeChangeModal">
+                            <i class="bi bi-arrow-repeat me-1"></i> Update Type
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confirm modal -->
+            <div class="modal fade" id="confirmTypeChangeModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-sm modal-dialog-centered">
+                    <div class="modal-content modal-soft">
+                        <div class="modal-body modal-pad position-relative">
+                            <button type="button" class="btn-close close-modal" data-bs-dismiss="modal"></button>
+
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <div class="topbar-icon" style="width:38px;height:38px;">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">Confirm change</div>
+                                    <div class="text-muted small">Update member type</div>
+                                </div>
+                            </div>
+
+                            <div class="detail-box mb-3">
+                                <div class="text-muted small">Change</div>
+                                <div class="fw-semibold text-dark">blacklist → regular</div>
+                            </div>
+
+                            <div class="small text-muted mb-3">
+                                This will be saved in the member history log.
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2">
+                                <button class="btn btn-light btn-soft2" data-bs-dismiss="modal">Cancel</button>
+                                <button class="btn btn-dark btn-save" data-bs-dismiss="modal">Confirm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ======= History ======= -->
+    <div class="panel-card mt-4">
+        <div class="panel-head d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+                <div class="panel-icon"><i class="bi bi-clock-history"></i></div>
+                <div>
+                    <div class="fw-semibold">Member History</div>
+                    <div class="text-muted small">Borrow records and penalties.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-body">
+            <!-- Tabs -->
+            <ul class="nav nav-pills tab-pills" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-borrows" type="button">
+                        <i class="bi bi-journal-text me-1"></i> Borrow Records
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-penalties" type="button">
+                        <i class="bi bi-exclamation-triangle me-1"></i> Penalties
+                        <span class="badge rounded-pill text-bg-light border ms-1">1</span>
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content pt-3">
+
+                <!-- ================= BORROW RECORDS TAB ================= -->
+                <div class="tab-pane fade show active" id="tab-borrows">
+
+                    <!-- Filters (same flow, styled) -->
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div class="input-group input-group-sm search px-2">
+                            <span class="input-group-text bg-transparent border-0 text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" class="input" placeholder="Search book title..." />
+                        </div>
+
+                        <div class="detail-box d-flex align-items-center gap-2">
+                            <i class="bi bi-funnel"></i>
+                            <select class="form-select form-select-sm filter-select" aria-label="Filter status">
+                                <option selected>All status</option>
+                                <option value="returned">Returned</option>
+                                <option value="late">Late</option>
+                                <option value="overdue">Overdue</option>
+                                <option value="lost">Lost</option>
+                                <option value="damaged">Damaged</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-head">
+                                    <tr>
+                                        <th>Book</th>
+                                        <th>Borrow Date</th>
+                                        <th>Due Date</th>
+                                        <th>Return Date</th>
+                                        <th>Status</th>
+                                        <th class="text-end" style="width:90px;">Action</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    @for(borrow of borrowRecords; track $index){
+                                    <tr class="row-hover">
+                                        <td>
+                                            <div class="primary-text">{{borrow.book_title}}</div>
+                                            <div class="sub-text mt-1">Record ID: {{borrow._id}}</div>
+                                        </td>
+
+                                        <td>
+                                            <div class="primary-text">{{borrow.borrow_date | date}}</div>
+                                            <div class="sub-text">yyyy-mm-dd</div>
+                                        </td>
+
+                                        <td>
+                                            <div class="primary-text">{{borrow.due_date | date}}</div>
+                                            <div class="sub-text">yyyy-mm-dd</div>
+                                        </td>
+
+                                        <td>
+                                            <div class="primary-text text-muted">
+                                                {{borrow.return_date!==null ? (borrow.return_date | date) : '____'}}
+                                            </div>
+                                            <div class="sub-text">return date</div>
+                                        </td>
+
+                                        <td>
+                                            <span class="badge rounded-pill text-bg-light border badge-soft">
+                                                <i class="bi bi-info-circle me-1"></i> {{borrow.status}}
+                                            </span>
+                                        </td>
+
+                                        <td class="text-end">
+                                            <div class="side-actions">
+                                                <button class="icon-btn" type="button" aria-label="Update status"
+                                                    data-bs-toggle="modal" data-bs-target="#updateBorrowStatusModal"
+                                                    (click)="openUpdateStatus(borrow)">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ================= PENALTIES TAB ================= -->
+                <div class="tab-pane fade" id="tab-penalties">
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div class="input-group input-group-sm search px-2">
+                            <span class="input-group-text bg-transparent border-0 text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" class="input" placeholder="Search penalty..." />
+                        </div>
+
+                        <div class="detail-box d-flex align-items-center gap-2">
+                            <i class="bi bi-funnel"></i>
+                            <select class="form-select form-select-sm filter-select" aria-label="Filter penalty status">
+                                <option selected>All status</option>
+                                <option value="paid">Paid</option>
+                                <option value="pending">Pending</option>
+                                <option value="replaced">Replaced</option>
+                                <option value="returned">Returned</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-head">
+                                    <tr>
+                                        <th style="width: 18%;">Type</th>
+                                        <th style="width: 14%;">Amount</th>
+                                        <th style="width: 16%;">Status</th>
+                                        <th>Note</th>
+                                        <th class="text-end" style="width: 18%;">Action</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr class="row-hover">
+                                        <td class="fw-semibold">lost</td>
+                                        <td>$4.50</td>
+                                        <td>
+                                            <span class="badge rounded-pill text-bg-warning">pending</span>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">Book lost</div>
+                                            <div class="sub-text">Penalty ID: 69351b761f34e4d5156f6a2d</div>
+                                        </td>
+                                        <td class="text-end">
+                                            <button class="btn btn-light btn-soft2 btn-sm">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-dark btn-sm btn-save ms-2">
+                                                <i class="bi bi-check2-circle me-1"></i> Mark Paid
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+
+                    @if(penalties.length === 0){
+                    <!-- empty state -->
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-shield-check fs-2 d-block mb-2"></i>
+                        No penalties found.
+                    </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- ===================== Small Modal: Update Borrow Status ===================== -->
+<div class="modal fade" id="updateBorrowStatusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content modal-soft">
+            <div class="modal-body modal-pad position-relative">
+                <button type="button" class="btn-close close-modal" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="topbar-icon" style="width:38px;height:38px;">
+                        <i class="bi bi-journal-check"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Update Status</div>
+                        <div class="text-muted small">#{{selectedBorrowId}}</div>
+                    </div>
+                </div>
+
+                <label class="mb-1 small text-muted">Status</label>
+                <select class="form-select inputs mb-3" [(ngModel)]="selectedStatus" name="selectedStatus">
+                    <option value="returned" selected>Returned</option>
+                    <option value="late">Late</option>
+                    <option value="lost">Lost</option>
+                    <option value="damaged">Damaged</option>
+                </select>
+
+                @if(selectedStatus === 'damaged'){
+                <p class="mt-2 mb-1">Damage Type</p>
+                <div class="ms-2">
+                    <div class="d-flex"></div>
+                    <div class="d-flex">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="radioDefault" id="radioDefault1" checked
+                                (click)="checkDamageType(true)">
+                            <label class="form-check-label" for="radioDefault1">
+                                Can use
+                            </label>
+                        </div>
+                        <input type="number" class="form-control ms-2" [disabled]="!isLittleDamage"
+                            [(ngModel)]="statusItem.damage_fee" style="width: 140px; height: 30px; border-radius: 8px;"
+                            placeholder="Damage fine">
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="radioDefault" id="radioDefault2"
+                            (click)="checkDamageType(false)">
+                        <label class="form-check-label" for="radioDefault2">
+                            Can not use
+                        </label>
+                    </div>
+                </div>
+
+                <div class="alert alert-danger d-flex align-items-center" [ngClass]="removeFailed? 'd-block': 'd-none'"
+                    style="width: 100%; height: 30px !important;">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <p class="h-100" style="font-size: 12px;">
+                        Invalid damage fine
+                    </p>
+                </div>
+                <div class="mb-3"></div>
+                }
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button class="btn btn-light btn-soft2" type="button" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-dark btn-save" type="button" data-bs-dismiss="modal" (click)="saveStatus()">
+                        <i class="bi bi-check2-circle me-1"></i> Save
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

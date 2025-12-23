@@ -1,0 +1,453 @@
+<!-- ======= Top Bar ======= -->
+<div class="container-fluid ps-3 pe-3 mt-4">
+    <div class="topbar p-3 p-md-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+
+            <!-- Left: Title + Count -->
+            <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="topbar-icon">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold topbar-title">Books</div>
+                        <div class="text-muted small">Manage books, categories & authors</div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 ms-md-3">
+                    <div class="detail-box">
+                        <div class="text-muted small">Book</div>
+                        <div class="fw-semibold text-dark">18 books</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Actions -->
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn add-book btn-sm fw-semibold shadow-sm" data-bs-toggle="modal"
+                    data-bs-target="#exampleModal" (click)="modalTitle='Add new book';clearModalData()">
+                    <i class="bi bi-plus-circle me-1"></i> Add book
+                </button>
+            </div>
+        </div>
+
+        <!-- Search + Filter Row -->
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+            <div class="input-group input-group-sm search px-2">
+                <span class="input-group-text bg-transparent border-0 text-muted">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="input" placeholder="Search title, author, category..." />
+            </div>
+
+            <div class="d-flex justify-content-between w-100">
+                <app-filter-dropdown [filters]="genreFilters" (filtersChange)="onFilterChange($event)">
+                </app-filter-dropdown>
+                <button class="btn add-book btn-sm fw-semibold shadow-sm" routerLink="/admin/book/recycle">
+                    <i class="bi bi-trash3 me-1"></i> Trash
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ======= Book Card List (KEEP SAME) ======= -->
+@defer (on timer(100ms)) {
+<div class="px-3 gap-2 main-card">
+    @for(book of books; track $index){
+    <div class="book-card" role="group" [attr.aria-label]="'Book: ' + book.title">
+        <div class="cover">
+            <img [src]="book.cover_url" [alt]="book.title + ' cover'" loading="lazy" />
+        </div>
+
+        <div class="content">
+            <h3 class="title" [title]="book.title">{{ book.title }}</h3>
+
+            <p class="meta">
+                <span class="pill">
+                    <i class="bi bi-person"></i>
+                    {{ book.author_name || 'Unknown author' }}
+                </span>
+
+                <span class="pill">
+                    <i class="bi bi-tags"></i>
+                    {{ book.category_name || 'Uncategorized' }}
+                </span>
+
+                <span class="pill">
+                    <i class="bi bi-cash-coin"></i>
+                    {{ book.price.$numberDecimal }}
+                </span>
+            </p>
+
+            <p class="sub">
+                <span>
+                    <i class="bi bi-book"></i>
+                    Total: <b>{{ book.total_copies ? book.total_copies : 0 }}</b>
+                </span>
+
+                <span>
+                    <i class="bi bi-check2-circle"></i>
+                    Available: <b>{{ book.available_copies ? book.available_copies : 0 }}</b>
+                </span>
+
+                <span class="muted">
+                    <i class="bi bi-calendar3"></i>
+                    {{ book.published_date }}
+                </span>
+            </p>
+
+            <div class="actions-row">
+                <button class="btn-primary-soft btn-sm" type="button" data-bs-toggle="collapse"
+                    [attr.data-bs-target]="'#collapse'+book._id" aria-expanded="false"
+                    [attr.aria-controls]="'#collapse'+book._id">
+                    Read More
+                </button>
+            </div>
+
+            <div class="side-actions">
+                <button class="icon-btn" type="button" (click)="onEdit(book._id); openModal(book)"
+                    aria-label="Edit book" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <i class="bi bi-pencil-square"></i>
+                </button>
+
+                <button class="icon-btn danger" type="button" aria-label="Delete book"
+                    (click)="openRemoveModal(book._id, book.available_copies)" data-bs-toggle="modal"
+                    data-bs-target="#remove">
+                    <i class="bi bi-trash3"></i>
+                </button>
+            </div>
+
+            <!-- start collapse -->
+            <div class="collapse mt-2" [id]="'collapse'+book._id">
+                <div class="card card-body">
+                    {{book.description}}
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>
+}
+
+
+<!-- ======= Main Modal (Styled) ======= -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content modal-soft">
+            <div class="modal-body modal-pad">
+
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h1 class="modal-title fs-5 fw-bold m-0" id="exampleModalLabel">{{modalTitle}}</h1>
+                        <div class="text-muted small">Fill information below</div>
+                    </div>
+                    <button type="button" class="btn-close close-modal" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <form (submit)="$event.preventDefault()">
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="mb-1" for="">Title</label>
+                            <input type="text" class="form-control inputs" name="title" [(ngModel)]="item.title">
+                        </div>
+
+                        <div class="col-6 mb-2">
+                            <div class="d-flex">
+                                <div style="width: 75%;">
+                                    <label class="mb-1">Author</label>
+                                    <div class="dropdown w-100">
+                                        <div class="position-relative">
+                                            <input type="text" class="form-control inputs dropdown-toggle w-100"
+                                                name="author_id" data-bs-toggle="dropdown" data-bs-auto-close="true"
+                                                aria-expanded="false" [(ngModel)]="searchAuthorText"
+                                                (input)="onSearchChange()" (focus)="openDropdown()"
+                                                autocomplete="off" />
+
+                                            <button class="btn-drop" type="button" data-bs-toggle="dropdown"
+                                                data-bs-auto-close="true" aria-expanded="false">
+                                                <i class="bi bi-chevron-down"></i>
+                                            </button>
+
+                                            <ul class="dropdown-menu w-100 p-2 shadow dropdown-menu-start">
+                                                @if(filterAuthorData.length === 0){
+                                                <li><span class="dropdown-item-text text-muted">No results</span></li>
+                                                }
+
+                                                @for(author of filterAuthorData; track author._id){
+                                                <li>
+                                                    <button type="button" class="dropdown-item rounded-3"
+                                                        (click)="selectAuthorId(author)">
+                                                        <div class="fw-semibold">{{ author.name }}</div>
+                                                        <div class="small text-muted">id: {{ author._id }}</div>
+                                                    </button>
+                                                </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 ms-2">
+                                    <button class="btn btn-dark btn-save mt-1" type="button"
+                                        (click)="openSecondModal(true)" style="height:40px;">
+                                        <i class="bi bi-plus-lg"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 mb-2">
+                            <div class="d-flex">
+                                <div style="width: 74%;">
+                                    <label class="mb-1">Category</label>
+                                    <div class="dropdown w-100">
+                                        <div class="position-relative">
+                                            <input type="text" class="form-control inputs dropdown-toggle w-100"
+                                                name="category_id" data-bs-toggle="dropdown" data-bs-auto-close="true"
+                                                aria-expanded="false" [(ngModel)]="searchCategoryText"
+                                                (input)="onSearchChangeCategory()" (focus)="openDropdownCategory()"
+                                                autocomplete="off" />
+
+                                            <button class="btn-drop" type="button" data-bs-toggle="dropdown"
+                                                data-bs-auto-close="true" aria-expanded="false">
+                                                <i class="bi bi-chevron-down"></i>
+                                            </button>
+
+                                            <ul class="dropdown-menu w-100 p-2 shadow dropdown-menu-start">
+                                                @if(filterCategoryData.length === 0){
+                                                <li><span class="dropdown-item-text text-muted">No results</span></li>
+                                                }
+
+                                                @for(category of filterCategoryData; track category._id){
+                                                <li>
+                                                    <button type="button" class="dropdown-item rounded-3"
+                                                        (click)="selectCategoryId(category)">
+                                                        <div class="fw-semibold">{{ category.name }}</div>
+                                                        <div class="small text-muted">id: {{ category._id }}</div>
+                                                    </button>
+                                                </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 ms-2">
+                                    <button class="btn btn-dark btn-save mt-1" type="button"
+                                        (click)="openSecondModal(false)" style="height:40px;">
+                                        <i class="bi bi-plus-lg me-1"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <label class="mb-1" for="">Published Date</label>
+                            <input type="date" class="form-control inputs" name="published_date"
+                                [(ngModel)]="item.published_date">
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <label class="mb-1" for="">Price</label>
+                            <input type="number" class="form-control inputs" name="price" [(ngModel)]="item.price">
+                        </div>
+                        <div class="col-6">
+                            <label class="mb-1" for="">Total copies</label>
+                            <input type="number" class="form-control inputs" name="total_copies"
+                                [(ngModel)]="item.total_copies">
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-12">
+                            <label class="mb-1" for="">Cover Url</label>
+                            <input type="text" class="form-control inputs" name="cover_url"
+                                [(ngModel)]="item.cover_url">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12 d-flex flex-column">
+                            <label class="mb-1">Description</label>
+                            <textarea class="description" name="description"
+                                placeholder="Write book description..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex w-100 justify-content-end gap-2">
+                        <button type="button" class="btn btn-light btn-soft2" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-dark btn-save">
+                            <i class="bi bi-check2-circle me-1"></i> Save book
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+
+            <!-- ======= Second Modal (Keep your structure, styled) ======= -->
+            @if(showSecondModal){
+            <div class="custom-backdrop">
+                <div class="custom-modal modal-soft">
+                    <div class="modal-body modal-pad position-relative">
+                        <button type="button" class="btn-close close-second-modal"
+                            (click)="closeSecondModal()"></button>
+
+                        <div class="mb-3">
+                            <h1 class="modal-title fs-5 fw-bold m-0">{{secondModalTitle}}</h1>
+                            <div class="text-muted small">Quick create without leaving this page</div>
+                        </div>
+
+                        @if(isAuthorModal){
+                        <!-- Author form -->
+                        <form (submit)="onSubmitAuthor(); $event.preventDefault()">
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="mb-1" for="">Name</label>
+                                    <input type="text" class="form-control inputs" name="author_name"
+                                        [(ngModel)]="authorItem.name">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="mb-1">Nationality</label>
+                                    <select class="form-select mb-3 inputs" [(ngModel)]="authorItem.nationality"
+                                        aria-label="Nationality">
+                                        <option value="Khmer" selected>Khmer</option>
+                                        <option value="American">American</option>
+                                        <option value="Chinese">Chinese</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="mb-1" for="">Birth Date</label>
+                                    <input type="date" class="form-control inputs" name="birth_date"
+                                        [(ngModel)]="authorItem.birth_date">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-12 d-flex flex-column">
+                                    <label class="mb-1">Biography</label>
+                                    <textarea class="description" name="biography" [(ngModel)]="authorItem.biography"
+                                        placeholder="Write short biography..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="d-flex w-100 justify-content-end gap-2">
+                                <button type="button" class="btn btn-light btn-soft2" (click)="closeSecondModal()">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn btn-dark btn-save">
+                                    <i class="bi bi-check2-circle me-1"></i> Save
+                                </button>
+                            </div>
+                        </form>
+                        } @else {
+                        <!-- Category form -->
+                        <form (submit)="onSubmitCategory(); $event.preventDefault()">
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="mb-1" for="">Name</label>
+                                    <input type="text" class="form-control inputs" name="category_name"
+                                        [(ngModel)]="categoryItem.name">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-12 d-flex flex-column">
+                                    <label class="mb-1">Description</label>
+                                    <textarea class="description" name="category_description"
+                                        [(ngModel)]="categoryItem.description"
+                                        placeholder="Write description..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="d-flex w-100 justify-content-end gap-2">
+                                <button type="button" class="btn btn-light btn-soft2" (click)="closeSecondModal()">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn btn-dark btn-save">
+                                    <i class="bi bi-check2-circle me-1"></i> Save
+                                </button>
+                            </div>
+                        </form>
+                        }
+
+                    </div>
+                </div>
+            </div>
+            }
+            <!-- end:: second modal -->
+        </div>
+    </div>
+</div>
+
+
+<!-- ======= Remove Modal (Styled) ======= -->
+<div class="modal fade" id="remove" tabindex="-1" aria-labelledby="remove" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content modal-soft">
+            <div class="modal-body modal-pad position-relative">
+                <button type="button" class="btn-close close-modal" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="topbar-icon" style="width:38px;height:38px;">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <div class="fw-bold">Remove book?</div>
+                </div>
+
+                <div class="ms-3 mb-3">
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="radio" name="radioDefault" id="radioDefault1" checked
+                            (click)="checkRemoveType(custom.checked)">
+                        <label class="form-check-label" for="radioDefault1">
+                            Remove all available
+                        </label>
+                    </div>
+                    <div class="form-check d-flex mb-3 mt-2">
+                        <input class="form-check-input" type="radio" name="radioDefault" id="radioDefault2"
+                            (change)="checkRemoveType(custom.checked)" #custom>
+                        <label class="form-check-label ms-2" for="radioDefault2">
+                            Custom
+                        </label>
+                        <input type="number" placeholder="quantity" name="remove_quantity" [(ngModel)]="removeQuantity"
+                            class="form-control ms-2" style="width: 150px; height: 30px;" [disabled]="!isCustom">
+                    </div>
+                </div>
+                <div class="alert alert-danger d-flex align-items-center" [ngClass]="removeFailed? 'd-block': 'd-none'"
+                    style="width: 100%; height: 30px !important;">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <p class="h-100" style="font-size: 10px;">
+                        quantity must smaller then available
+                    </p>
+                </div>
+                <p [class]="isCustom?'d-block':'d-none'" style="font-size: 12px; color: rgba(0, 0, 0, 0.541);">
+                    <span class="fw-semibold">Note :</span> Remove quantity must be smaller then available
+                </p>
+
+                <div class="d-flex w-100 justify-content-end gap-2">
+                    <button type="button" class="btn btn-light btn-soft2" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" style="border-radius:12px;"
+                        (click)="onRemove()">Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<app-alert-success></app-alert-success>

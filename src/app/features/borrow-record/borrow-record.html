@@ -1,0 +1,312 @@
+<!-- ======= Top Bar ======= -->
+<div class="container-fluid ps-3 pe-3 mt-4">
+    <div class="topbar p-3 p-md-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+
+            <!-- Left: Title + Count -->
+            <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="topbar-icon">
+                        <i class="bi bi-journal-check"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold topbar-title">Borrow Records</div>
+                        <div class="text-muted small">Track borrow/return status by member & book</div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 ms-md-3">
+                    <div class="detail-box">
+                        <div class="text-muted small">Borrow</div>
+                        <div class="fw-semibold text-dark">{{ borrows.length }} records</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Actions (no add required here) -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- optional: keep empty or add export later -->
+            </div>
+        </div>
+
+        <!-- Search + Filter Row -->
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+            <div class="input-group input-group-sm search px-2">
+                <span class="input-group-text bg-transparent border-0 text-muted">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="input" placeholder="Search member, book title..." [(ngModel)]="q" name="q" />
+            </div>
+
+            <app-filter-dropdown [filters]="genreFilters"
+                (filtersChange)="onFilterChange($event)"></app-filter-dropdown>
+            <!-- <div class="detail-box d-flex align-items-center gap-2" style="padding: 8px 12px;">
+                <i class="bi bi-filter"></i>
+                <select class="form-select form-select-sm inputs" style="height: 34px; padding: 6px 10px;"
+                    [(ngModel)]="statusFilter" name="statusFilter">
+                    <option value="all">All status</option>
+                    <option value="borrowed">Borrowed</option>
+                    <option value="returned">Returned</option>
+                    <option value="late">Late</option>
+                    <option value="overdue">Overdue</option>
+                    <option value="lost">Lost</option>
+                    <option value="damaged">Damaged</option>
+                </select>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+<!-- ======= Table ======= -->
+<div class="container py-4">
+    <div class="table-card mx-1">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-head">
+                    <tr>
+                        <th>Member</th>
+                        <th>Book</th>
+                        <th>Borrow date</th>
+                        <th>Due date</th>
+                        <th>Return date</th>
+                        <th>Status</th>
+                        <th class="text-end" style="width:140px;">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for(b of borrows; track b._id){
+                    <tr class="row-hover">
+
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar">{{ b.member_name[0] || 'M' }}</div>
+                                <div>
+                                    <div class="primary-text">{{ b.member_name }}</div>
+                                    <div class="sub-text"><i class="bi bi-person-badge me-1"></i> Member</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="primary-text">{{ b.book_title }}</div>
+                            <div class="sub-text"><i class="bi bi-book me-1"></i> Book</div>
+                        </td>
+
+                        <td>
+                            <div class="primary-text">{{ b.borrow_date | date:'mediumDate' }}</div>
+                            <div class="sub-text">{{ b.borrow_date | date:'yyyy-MM-dd' }}</div>
+                        </td>
+
+                        <td>
+                            <div class="primary-text">{{ b.due_date | date:'mediumDate' }}</div>
+                            <div class="sub-text">{{ b.due_date | date:'yyyy-MM-dd' }}</div>
+                        </td>
+
+                        <td>
+                            @if(b.return_date){
+                            <div class="primary-text">{{ b.return_date | date:'mediumDate' }}</div>
+                            <div class="sub-text">{{ b.return_date | date:'yyyy-MM-dd' }}</div>
+                            } @else {
+                            <span class="badge rounded-pill text-bg-light border badge-soft">
+                                <i class="bi bi-dash-circle me-1"></i> Not returned
+                            </span>
+                            }
+                        </td>
+
+                        <td>
+                            <span class="badge rounded-pill status-badge" [ngClass]="statusClass(b.status)">
+                                <i class="bi me-1" [ngClass]="statusIcon(b.status)"></i>
+                                {{ b.status | titlecase }}
+                            </span>
+                        </td>
+
+                        <td class="text-end">
+                            <div class="side-actions">
+                                <!-- View detail -->
+                                <button class="icon-btn eye" type="button" aria-label="View detail"
+                                    data-bs-toggle="modal" data-bs-target="#borrowDetailModal"
+                                    (click)="openDetail(b._id)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+
+                                <!-- Update status (small modal) -->
+                                <button class="icon-btn" type="button" aria-label="Update status" data-bs-toggle="modal"
+                                    data-bs-target="#updateStatusModal" (click)="openUpdateStatus(b)">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </button>
+                            </div>
+                        </td>
+
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============ SMALL MODAL: Update Status ============ -->
+<div class="modal fade" id="updateStatusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content modal-soft">
+            <div class="modal-body modal-pad position-relative">
+
+                <button type="button" class="btn-close close-modal" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="topbar-icon" style="width:38px;height:38px;">
+                        <i class="bi bi-arrow-repeat"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Update status</div>
+                        <div class="text-muted small">#{{ selectedBorrowId }}</div>
+                    </div>
+                </div>
+
+                <label class="mb-1 small text-muted">Status</label>
+                <select class="form-select inputs mb-3" [(ngModel)]="selectedStatus" name="selectedStatus">
+                    <option value="returned" selected>Returned</option>
+                    <option value="late">Late</option>
+                    <option value="lost">Lost</option>
+                    <option value="damaged">Damaged</option>
+                </select>
+
+                @if(selectedStatus === 'damaged'){
+                <p class="mt-2 mb-1">Damage Type</p>
+                <div class="ms-2">
+                    <div class="d-flex"></div>
+                    <div class="d-flex">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" 
+                            name="radioDefault" id="radioDefault1"checked (click)="checkDamageType(true)">
+                            <label class="form-check-label" for="radioDefault1">
+                                Can use
+                            </label>
+                        </div>
+                        <input type="number" class="form-control ms-2" [disabled]="!isLittleDamage" [(ngModel)]="item.damage_fee"
+                    style="width: 140px; height: 30px; border-radius: 8px;" placeholder="Damage fine">
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="radioDefault" id="radioDefault2" 
+                        (click)="checkDamageType(false)">
+                        <label class="form-check-label" for="radioDefault2">
+                            Can not use
+                        </label>
+                    </div>
+                </div>
+
+                <div class="alert alert-danger d-flex align-items-center" [ngClass]="removeFailed? 'd-block': 'd-none'"
+                    style="width: 100%; height: 30px !important;">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <p class="h-100" style="font-size: 12px;">
+                        Invalid damage fine
+                    </p>
+                </div>
+                <div class="mb-3"></div>
+                }
+
+
+                <div class="d-flex gap-2 justify-content-end">
+                    <button class="btn btn-light btn-soft2" type="button" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-dark btn-save" type="button" (click)="saveStatus()">
+                        <i class="bi bi-check2-circle me-1"></i> Save
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ========== DETAIL MODAL ========== -->
+<div class="modal fade" id="borrowDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content modal-soft">
+            <div class="modal-body modal-pad">
+
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h1 class="modal-title fs-5 fw-bold m-0">Borrow Detail</h1>
+                        <div class="text-muted small">#{{ detail._id }}</div>
+                    </div>
+                    <button type="button" class="btn-close close-modal" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <div class="row g-3">
+                    <!-- Left: Member/User -->
+                    <div class="col-12 col-lg-7">
+                        <div class="detail-card">
+                            <div class="fw-semibold mb-2">Member</div>
+
+                            <div class="d-flex align-items-start justify-content-between">
+                                <div>
+                                    <div class="fw-semibold">{{ detail.member.name }}</div>
+                                    <div class="text-muted small">
+                                        {{ detail.member.contact.phone_number }} • {{ detail.member.contact.email }}
+                                    </div>
+                                    <div class="text-muted small">
+                                        Member Type: <span class="fw-medium">{{ detail.member.member_type }}</span>
+                                    </div>
+                                    <div class="text-muted small">
+                                        Join date: {{ detail.member.join_date | date:'mediumDate' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-card mt-3">
+                            <div class="fw-semibold mb-2">Handled by (User)</div>
+                            <div class="fw-semibold">{{ detail.user.username }}</div>
+                            <div class="text-muted small">
+                                {{ detail.user.contact.phone_number }} • {{ detail.user.contact.email }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Book -->
+                    <div class="col-12 col-lg-5">
+                        <div class="detail-card">
+                            <div class="fw-semibold mb-2">Book</div>
+
+                            <div class="d-flex gap-2">
+                                <img class="book-cover" [src]="detail.book.cover_url" alt="cover" />
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold">{{ detail.book.title }}</div>
+                                    <div class="text-muted small">{{ detail.book.category }} • {{
+                                        detail.book.author_name }}</div>
+                                    <div class="text-muted small">Copies: {{ detail.book.total_copies }}</div>
+                                    <div class="small mt-2">
+                                        Price: <span class="fw-bold">{{ detail.book.price.$numberDecimal }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-2" />
+
+                            <div class="d-flex justify-content-between small">
+                                <span class="text-muted">Current status</span>
+                                <span class="fw-semibold">{{ selectedBorrowStatusDisplay }}</span>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-3">
+                                <button class="btn btn-dark btn-save" type="button" data-bs-dismiss="modal"
+                                    data-bs-toggle="modal" data-bs-target="#updateStatusModal" (click)="removeFailed=false">
+                                    <i class="bi bi-arrow-repeat me-1"></i> Update status
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<app-alert-success></app-alert-success>

@@ -22,7 +22,12 @@
               }
             ],
             "styles": [
+              "node_modules/bootstrap-icons/font/bootstrap-icons.css",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
+            ],
+            "scripts": [
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
             ]
           },
           "configurations": {
@@ -81,5 +86,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "d7ea34ed-7cab-4202-b17b-f72418855305"
   }
 }

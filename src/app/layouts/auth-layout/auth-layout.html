@@ -1,0 +1,44 @@
+<main class="d-flex justify-content-center align-items-center"
+    style="width: 100vw; height: 100vh; background-color: var(--color-bg);">
+    <div class="card p-5 login-card" style="width: 350px;">
+        <h3 class="fw-bold text-center mb-4">Login</h3>
+        <form [class]="!loginByEmail ? 'd-flex' : 'd-none'" (submit)="login(); $event.preventDefault()">
+            <div class="mb-3">
+                <app-inputs type="text" placeholder="Username" [(value)]="username"></app-inputs>
+            </div>
+            <div class="mb-1">
+                <app-inputs [type]="showPassword ? 'text': 'password'" placeholder="Password"
+                    [(value)]="password"></app-inputs>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" style="border: 1px solid var(--color-border);" class="form-check-input"
+                    (click)="togglePassword()" id="exampleCheck1">
+                <label class="form-check-label" style="user-select: none;" for="exampleCheck1">Show password</label>
+            </div>
+            <div class="alert alert-danger d-flex align-items-center" [ngClass]="message()===''?'d-none':'d-flex'" style="width: 100%; height: 30px !important;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <p class="h-100" style="font-size: 14px;">
+                    {{message()}}
+                </p>
+            </div>
+            <button type="submit" class="btn login-btn">Login</button>
+        </form>
+        <form [class]="loginByEmail ? 'd-flex' : 'd-none'" (submit)="loginByEmailFn(); $event.preventDefault()">
+            <div class="mb-3">
+                <app-inputs type="email" placeholder="Email" [(value)]="email"></app-inputs>
+            </div>
+            <div class="alert alert-danger d-flex align-items-center" [ngClass]="emailMess()===''?'d-none':'d-flex'" style="width: 100%; height: 30px !important;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <p class="h-100" style="font-size: 14px;">
+                    {{emailMess()}}
+                </p>
+            </div>
+            <button type="submit" class="btn login-btn">Login</button>
+        </form>
+        <div class="d-flex">
+            <p class="mt-4 email-text" (click)="loginByEmail = !loginByEmail">
+                {{!loginByEmail ? 'Login by Email' : 'Login by username'}}
+            </p>
+        </div>
+    </div>
+</main>

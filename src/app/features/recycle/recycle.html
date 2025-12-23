@@ -1,0 +1,187 @@
+<!-- ======= Top Bar ======= -->
+<div class="container-fluid ps-3 pe-3 mt-4">
+    <div class="topbar p-3 p-md-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+
+            <!-- Left: Title -->
+            <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="topbar-icon">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold topbar-title">Restore Books</div>
+                        <div class="text-muted small">Restore deleted books back to inventory or remove permanently
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right -->
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn add-book btn-sm fw-semibold shadow-sm" (click)="goBack()">
+                    <i class="bi bi-arrow-left me-1"></i> Back
+                </button>
+            </div>
+        </div>
+
+        <!-- Search Row -->
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+            <div class="input-group input-group-sm search px-2">
+                <span class="input-group-text bg-transparent border-0 text-muted">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="input" placeholder="Search title..." [(ngModel)]="q" name="q" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======= Table ======= -->
+<div class="container py-4">
+    <div class="table-card mx-1">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-head">
+                    <tr>
+                        <th>Book</th>
+                        <th>Total copies</th>
+                        <th>Deleted copies</th>
+                        <th>Deleted at</th>
+                        <th class="text-end" style="width:140px;">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for(b of filteredBooks; track b._id){
+                    <tr class="row-hover">
+
+                        <!-- Book -->
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <img [src]="b.cover_url" alt="cover" class="cover-sm" />
+                                <div>
+                                    <div class="primary-text">{{ b.title }}</div>
+                                    <div class="sub-text"><i class="bi bi-hash me-1"></i> {{ b._id }}</div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- Total -->
+                        <td>
+                            <span class="badge rounded-pill text-bg-light border badge-soft">
+                                <i class="bi bi-collection me-1"></i> {{ b.total_copies }}
+                            </span>
+                        </td>
+
+                        <!-- Deleted -->
+                        <td>
+                            <span class="badge rounded-pill deleted-badge">
+                                <i class="bi bi-trash3 me-1"></i> {{ b.deleted_copies }}
+                            </span>
+                        </td>
+
+                        <!-- Deleted at -->
+                        <td>
+                            <div class="primary-text">{{ b.deleted_at | date:'mediumDate' }}</div>
+                            <div class="sub-text">{{ b.deleted_at | date:'yyyy-MM-dd HH:mm' }}</div>
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="text-end">
+                            <div class="side-actions">
+                                <button class="icon-btn restore" type="button" aria-label="Restore"
+                                    data-bs-toggle="modal" data-bs-target="#restoreConfirmModal"
+                                    (click)="openRestore(b)">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                </button>
+
+                                <button class="icon-btn danger" type="button" aria-label="Delete permanently"
+                                    data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" (click)="openDelete(b)">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </div>
+                        </td>
+
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ======= Small Confirm: Restore ======= -->
+<div class="modal fade" id="restoreConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content modal-soft">
+            <div class="modal-body modal-pad position-relative">
+                <button type="button" class="btn-close close-modal" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="topbar-icon" style="width:38px;height:38px;">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Restore book</div>
+                        <div class="text-muted small">Confirm restore</div>
+                    </div>
+                </div>
+
+                @if(restoreBook){
+
+                <div class="small text-muted mb-3">
+                    This will restore <b>{{ restoreBook.deleted_copies }}</b> copies back to inventory.
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end">
+                    <button class="btn btn-light btn-soft2" type="button" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-dark btn-save" type="button" (click)="confirmRestore()"
+                        data-bs-dismiss="modal">
+                        <i class="bi bi-check2-circle me-1"></i> Restore
+                    </button>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======= Small Confirm: Delete ======= -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content modal-soft">
+            <div class="modal-body modal-pad position-relative">
+                <button type="button" class="btn-close close-modal" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="topbar-icon" style="width:38px;height:38px;">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Delete permanently</div>
+                        <div class="text-muted small">This action cannot be undone</div>
+                    </div>
+                </div>
+
+                @if(deleteBook){
+                <div class="small text-muted mb-3">
+                    Are you sure to delete <b>{{ deleteBook.title }}</b> permanently?
+                </div>
+
+                <label class="mb-1 small text-muted">Type <b>DELETE</b> to confirm</label>
+                <input class="form-control inputs mb-3" [(ngModel)]="deleteText" name="deleteText"
+                    placeholder="DELETE" />
+
+                <div class="d-flex gap-2 justify-content-end">
+                    <button class="btn btn-light btn-soft2" type="button" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger btn-save" type="button" [disabled]="deleteText !== 'DELETE'"
+                        (click)="confirmDelete()" data-bs-dismiss="modal">
+                        <i class="bi bi-trash3 me-1"></i> Delete
+                    </button>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
