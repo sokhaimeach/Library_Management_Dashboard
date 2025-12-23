@@ -24,65 +24,81 @@
                     </a>
                 </li>
 
+                @if(user.role==='admin' || user.role==='librarian'){
                 <li class="nav-item" routerLinkActive="active">
                     <a class="nav-link" href="javascript:void(0)" routerLink="/admin/borrow-return">
                         <span class="nav-ico"><i class="bi bi-arrow-left-right"></i></span>
                         <span class="nav-text">Borrow & Return</span>
                     </a>
                 </li>
+                }
 
+                @if(user.role==='admin' || user.role==='librarian'){
                 <li class="nav-item" routerLinkActive="active">
                     <a class="nav-link" href="javascript:void(0)" routerLink="/admin/borrow-record">
                         <span class="nav-ico"><i class="bi bi-journal-check"></i></span>
                         <span class="nav-text">Borrow Record</span>
                     </a>
                 </li>
+                }
 
+                @if(user.role==='admin' || user.role==='stock-keeper'){
                 <li class="nav-item" routerLinkActive="active">
                     <a class="nav-link" href="javascript:void(0)" routerLink="/admin/book">
                         <span class="nav-ico"><i class="bi bi-book"></i></span>
                         <span class="nav-text">Book</span>
                     </a>
                 </li>
+                }
 
+                @if(user.role==='admin' || user.role==='stock-keeper'){
                 <li class="nav-item" routerLinkActive="active">
                     <a class="nav-link" href="javascript:void(0)" routerLink="/admin/author">
                         <span class="nav-ico"><i class="bi bi-feather"></i></span>
                         <span class="nav-text">Author</span>
                     </a>
                 </li>
+                }
 
+                @if(user.role==='admin' || user.role==='stock-keeper'){
                 <li class="nav-item" routerLinkActive="active">
                     <a class="nav-link" href="javascript:void(0)" routerLink="/admin/category">
                         <span class="nav-ico"><i class="bi bi-tags"></i></span>
                         <span class="nav-text">Category</span>
                     </a>
                 </li>
+                }
 
+                @if(user.role==='admin' || user.role==='librarian'){
                 <li class="nav-item" routerLinkActive="active">
                     <a class="nav-link" href="javascript:void(0)" routerLink="/admin/member">
                         <span class="nav-ico"><i class="bi bi-people"></i></span>
                         <span class="nav-text">Member</span>
                     </a>
                 </li>
+                }
 
+                @if(user.role==='admin' || user.role==='librarian'){
                 <li class="nav-item" routerLinkActive="active">
                     <a class="nav-link" href="javascript:void(0)" routerLink="/admin/penalty">
                         <span class="nav-ico"><i class="bi bi-receipt"></i></span>
                         <span class="nav-text">Penalty</span>
                     </a>
                 </li>
+                }
 
+                @if(user.role==='admin'){
                 <li class="nav-item" routerLinkActive="active">
                     <a class="nav-link" href="javascript:void(0)" routerLink="/admin/user">
                         <span class="nav-ico"><i class="bi bi-person-circle"></i></span>
                         <span class="nav-text">User</span>
                     </a>
                 </li>
+                }
             </ul>
             <div style="height: 100px;"></div>
         </div>
-        
+
 
         <div class="sidebar-foot">
             <!-- <div class="foot-card">
@@ -102,27 +118,33 @@
             <div class="topbar-left">
                 <div class="page-title">
                     <div class="fw-bold fs-6">MIS Library :: Book</div>
-                    <div class="text-muted small">Today, 14 Sun 2025</div>
+                    <div class="text-muted small">Today, {{present}}</div>
                 </div>
             </div>
 
             <div class="topbar-right">
-
+                <!-- Logout -->
                 <button class="logout-btn" type="button" (click)="logout()">
                     <i class="bi bi-box-arrow-left me-2"></i>
                     Logout
                 </button>
 
+                <!-- Account -->
                 <div class="account-pill">
+                    @if(user.image_url){
                     <div class="account-avatar">
-                        <img src="https://img.freepik.com/premium-vector/people-profile-graphic_24911-21373.jpg"
-                            alt="avatar" />
+                        <img [src]="user.image_url" alt="avatar" />
                     </div>
+                    } @else {
+                    <div class="account-avatar">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    }
                     <div class="account-meta">
                         <div class="account-hi">Welcome back!</div>
-                        <div class="account-name">Meach Sokhai</div>
+                        <div class="account-name">{{user.username}}</div>
                     </div>
-                    <div class="account-drop" [routerLink]="'/admin/user/account/'+userProfile._id">
+                    <div class="account-drop" [routerLink]="'/admin/user/account/'+user._id">
                         <i class="bi bi-chevron-down"></i>
                     </div>
                 </div>

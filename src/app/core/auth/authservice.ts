@@ -37,16 +37,34 @@ export class Authservice {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  getUserProfile(): UserProfile{
+  getUserProfile(): UserProfile | null{
     const user:any = localStorage.getItem('user_profile') || null;
     if(user){
       return JSON.parse(user);
     }
+    console.log(user)
     return user;
+  }
+
+
+  hasRole(requireRole: string[]){
+    let user: any = localStorage.getItem('user_profile') || null;
+    if(user){
+      try{
+        user = JSON.parse(user);
+      }catch{
+        user = null;
+      }
+      
+      if(user !== null){
+        return !!requireRole.includes(user.role);
+      }
+    }
+    return false;
   }
 }
 
-interface UserProfile {
+export interface UserProfile {
   _id: string;
   username: string;
   role: string;

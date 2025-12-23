@@ -1,18 +1,25 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLinkWithHref, RouterLinkActive, RouterLink, Router } from '@angular/router';
 import { Authservice } from '../../core/auth/authservice';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-admin-layout',
-  imports: [RouterOutlet, RouterLinkWithHref, RouterLinkActive, RouterLink],
+  imports: [RouterOutlet, RouterLinkWithHref, RouterLinkActive, RouterLink, CommonModule],
   templateUrl: './admin-layout.html',
   styleUrl: './admin-layout.css',
 })
-export class AdminLayout {
+export class AdminLayout implements OnInit {
 
-  userProfile: any;
-  constructor(private auth: Authservice, private router: Router) {
-    this.userProfile = this.auth.getUserProfile;
+  user:any;
+  present: string = new Date().toDateString();
+
+  constructor(public auth: Authservice, private router: Router) {
+    
+  }
+
+  ngOnInit():void {
+    this.user = this.auth.getUserProfile();
   }
 
   logout(){

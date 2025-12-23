@@ -1,3 +1,4 @@
+@defer(on timer(100)){
 <div class="container py-4" *ngIf="user as u">
 
     <!-- ======= Top Bar ======= -->
@@ -283,14 +284,15 @@
 
                                 <!-- Admin only: Update Status -->
                                 @if(userProfile && userProfile.role === 'admin'){
-                                <div class="col-12" *ngIf="canUpdateStatus">
+                                <div class="col-12">
                                     <div class="section-card">
                                         <div class="section-head">
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <div class="fw-semibold text-dark d-flex align-items-center gap-2">
                                                     <i class="bi bi-toggle2-on"></i> Update Status
                                                 </div>
-                                                <span class="badge rounded-pill text-bg-light border badge-soft">Admin action</span>
+                                                <span class="badge rounded-pill text-bg-light border badge-soft">Admin
+                                                    action</span>
                                             </div>
                                         </div>
 
@@ -316,8 +318,7 @@
                                                 </div>
 
                                                 <div class="text-muted small mt-2">
-                                                    Tip: disabling a user prevents login (depends on your backend
-                                                    logic).
+                                                    Note: disabling a user will prevents login and it's mean user not working.
                                                 </div>
                                             </form>
                                         </div>
@@ -395,7 +396,8 @@
                                                 <div class="fw-semibold text-dark d-flex align-items-center gap-2">
                                                     <i class="bi bi-arrow-counterclockwise"></i> Reset Password
                                                 </div>
-                                                <span class="badge rounded-pill text-bg-light border badge-soft">Admin action</span>
+                                                <span class="badge rounded-pill text-bg-light border badge-soft">Admin
+                                                    action</span>
                                             </div>
                                         </div>
 
@@ -424,7 +426,7 @@
                                                 </div>
 
                                                 <div class="text-muted small mt-2" *ngIf="!canResetPassword">
-                                                    Only admin can reset, usually for other users.
+                                                    Only admin can reset password.
                                                 </div>
                                             </form>
                                         </div>
@@ -443,7 +445,7 @@
 
     </div>
 </div>
-
+}
 
 <!-- ======= Small Confirm Modal (UPDATED STYLE) ======= -->
 <div class="modal fade" id="changePwConfirmModal" tabindex="-1" aria-hidden="true">

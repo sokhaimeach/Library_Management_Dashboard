@@ -255,6 +255,10 @@
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,.15);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: gray;
 }
 .account-avatar img{
   width: 100%;

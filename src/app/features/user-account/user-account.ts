@@ -8,6 +8,8 @@ import {
 } from '@angular/forms';
 import { Authservice } from '../../core/auth/authservice';
 import { ActivatedRoute } from '@angular/router';
+import { Role, UserDetail } from '../models/account.model';
+import { Userservice } from '../services/userservice/userservice';
 declare const bootstrap: any; // Bootstrap modal
 
 @Component({
@@ -21,9 +23,6 @@ export class UserAccount {
   userId: string | null = '';
 
   user: UserDetail | null = null;
-
-  // Example: current logged in user (replace from auth)
-  currentUser = { _id: '111', role: 'admin' as Role };
 
   changePwForm!: FormGroup;
   resetPwForm!: FormGroup;
@@ -41,14 +40,12 @@ export class UserAccount {
     private fb: FormBuilder,
     private auth: Authservice,
     private route: ActivatedRoute,
-    private location: Location
+    private location: Location,
+    private userservice: Userservice
   ) {
-    this.route.paramMap.subscribe((params) => {
-      this.userId = params.get('id');
-    });
 
     this.userProfile = this.auth.getUserProfile();
-    console.log('user profile', this.userProfile);
+    
     this.changePwForm = this.fb.group({
       currentPassword: ['', Validators.required],
       newPassword: ['', [Validators.required, Validators.minLength(4)]],
@@ -65,20 +62,13 @@ export class UserAccount {
   }
 
   ngOnInit(): void {
-    // demo data
-    this.user = {
-      contact: { phone_number: '0123456789', email: 'sokhai@gmail.com' },
-      address: { village: null, commune: null, district: null, city: null },
-      _id: '692c42b48ece5c4ecd48dcb8',
-      username: 'Sokhai',
-      role: 'admin',
-      image_url: null,
-      status: false,
-      start_date: '2025-11-30T13:12:20.417Z',
-    };
+    this.route.paramMap.subscribe((params) => {
+      this.userId = params.get('id');
+      this.getUserDetailInfo(this.userId);
+    });
 
-    // patch status form with user value
-    this.statusForm.patchValue({ status: this.user.status });
+
+    
 
     // init modal after view is ready (small hack using setTimeout)
     setTimeout(() => {
@@ -86,6 +76,23 @@ export class UserAccount {
       if (el) this.changePwModal = new bootstrap.Modal(el);
     });
   }
+
+  getUserDetailInfo(id: string | any){
+      this.userservice.getUserDetail(id).subscribe({
+        next: (res) => {
+          this.user = res;
+          // patch status form with user value
+          this.statusForm.patchValue({ status: this.user.status });
+        },
+        error: (err) => {
+          this.user = null;
+        }
+      });
+  }
+
+
+
+
 
   get pwMismatch(): boolean {
     const { newPassword, confirmPassword } = this.changePwForm.value;
@@ -95,15 +102,15 @@ export class UserAccount {
   }
 
   // Admin only update status
-  get canUpdateStatus(): boolean {
-    return this.currentUser.role === 'admin';
-  }
+  // get canUpdateStatus(): boolean {
+  //   return this.currentUser.role === 'admin';
+  // }
 
   // Admin reset password (usually for other users)
   get canResetPassword(): boolean {
     if (!this.user) return false;
-    const isAdmin = this.currentUser.role === 'admin';
-    const isOtherUser = this.currentUser._id !== this.user._id;
+    const isAdmin = this.userProfile.role === 'admin';
+    const isOtherUser = this.userProfile._id !== this.user._id;
     return isAdmin && isOtherUser;
   }
 
@@ -120,10 +127,6 @@ export class UserAccount {
     return parts.length ? parts.join(', ') : '-';
   }
 
-  onLogout(): void {
-    console.log('logout');
-    // auth.logout(); router.navigate(['/login'])
-  }
 
   // open confirm modal for changing password
   openChangePwConfirm(): void {
@@ -176,7 +179,7 @@ export class UserAccount {
   }
 
   async onUpdateStatus(): Promise<void> {
-    if (!this.user || !this.canUpdateStatus) return;
+    if (!this.user || this.userProfile !== 'admin') return;
 
     this.loading.updateStatus = true;
     try {
@@ -200,21 +203,4 @@ export class UserAccount {
   goBack() {
     this.location.back();
   }
-}
-
-type Role = 'admin' | 'librarian' | 'stock-keeper';
-interface UserDetail {
-  _id: string;
-  username: string;
-  role: Role;
-  image_url: string | null;
-  status: boolean; // true=Active, false=Disabled (based on your data)
-  start_date: string;
-  contact: { phone_number: string; email: string };
-  address: {
-    village: string | null;
-    commune: string | null;
-    district: string | null;
-    city: string | null;
-  };
 }
