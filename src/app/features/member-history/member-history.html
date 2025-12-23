@@ -323,12 +323,13 @@
                                             <div class="sub-text">Penalty ID: 69351b761f34e4d5156f6a2d</div>
                                         </td>
                                         <td class="text-end">
-                                            <button class="btn btn-light btn-soft2 btn-sm">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
-                                            <button class="btn btn-dark btn-sm btn-save ms-2">
-                                                <i class="bi bi-check2-circle me-1"></i> Mark Paid
-                                            </button>
+                                            <div class="side-actions">
+                                                <button class="icon-btn" type="button" aria-label="Update status"
+                                                    data-bs-toggle="modal" data-bs-target="#updatePenaltyStatusModal"
+                                                    (click)="openPenaltyModal({_id: '69351b761f34e4d5156f6a2d'})">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -365,7 +366,7 @@
                         <i class="bi bi-journal-check"></i>
                     </div>
                     <div>
-                        <div class="fw-bold">Update Status</div>
+                        <div class="fw-bold">Update Borrow Status</div>
                         <div class="text-muted small">#{{selectedBorrowId}}</div>
                     </div>
                 </div>
@@ -424,3 +425,42 @@
         </div>
     </div>
 </div>
+
+
+<!-- ===================== Small Modal: Update Penalty Status ===================== -->
+<div class="modal fade" id="updatePenaltyStatusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content modal-soft">
+            <div class="modal-body modal-pad position-relative">
+                <button type="button" class="btn-close close-modal" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="topbar-icon" style="width:38px;height:38px;">
+                        <i class="bi bi-journal-check"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Update Penalty Status</div>
+                        <div class="text-muted small">#{{selectPenaltyId}}</div>
+                    </div>
+                </div>
+
+                <label class="mb-1 small text-muted">Status</label>
+                <select class="form-select inputs mb-3" [(ngModel)]="selectPenaltyStatus" name="selectedPenaltyStatus">
+                    <option value="returned">Paid</option>
+                    <option value="late">Replaced</option>
+                    <option value="lost">Return</option>
+                </select>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button class="btn btn-light btn-soft2" type="button" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-dark btn-save" type="button" data-bs-dismiss="modal" (click)="savePenaltySatus()">
+                        <i class="bi bi-check2-circle me-1"></i> Save
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<app-alert-success></app-alert-success>

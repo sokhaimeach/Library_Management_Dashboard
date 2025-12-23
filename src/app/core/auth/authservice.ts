@@ -24,6 +24,11 @@ export class Authservice {
     return this.http.post(`${this.url}/auth/loginByEmail`, data);
   }
 
+  logout(){
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem('user_profile');
+  }
+
   isLoggedIn(): boolean {
     return !!localStorage.getItem(this.TOKEN_KEY);
   }

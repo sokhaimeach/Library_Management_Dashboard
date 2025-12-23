@@ -1,12 +1,12 @@
 import { Component, signal } from '@angular/core';
-import { Inputs } from '../../shared/components/inputs/inputs';
 import { Authservice } from '../../core/auth/authservice';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { FormsModule } from "@angular/forms";
 
 @Component({
   selector: 'app-auth-layout',
-  imports: [Inputs, CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './auth-layout.html',
   styleUrl: './auth-layout.css',
 })

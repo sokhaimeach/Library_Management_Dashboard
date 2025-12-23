@@ -221,7 +221,7 @@
                                 </div>
                                 <div class="d-flex justify-content-between mt-1">
                                     <div class="text-muted small">Amount</div>
-                                    <div class="fw-bold">{{ money(detail.amount.$numberDecimal) }}</div>
+                                    <div class="fw-bold">{{ detail.amount.$numberDecimal | currency}}</div>
                                 </div>
                                 <div class="d-flex justify-content-between mt-1">
                                     <div class="text-muted small">Created</div>
@@ -274,7 +274,7 @@
                                             detail.book.author_name }}</div>
                                         <div class="text-muted small">Copies: {{ detail.book.total_copies }}</div>
                                         <div class="small mt-2">
-                                            Price: <span class="fw-bold">{{ money(detail.book.price.$numberDecimal)
+                                            Price: <span class="fw-bold">{{ detail.book.price.$numberDecimal | currency
                                                 }}</span>
                                         </div>
                                     </div>

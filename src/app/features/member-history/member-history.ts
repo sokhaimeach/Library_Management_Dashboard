@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
-import { Inputs } from '../../shared/components/inputs/inputs';
 import { CommonModule, Location } from '@angular/common';
 import { Alertservice } from '../../shared/components/alert-success/alertservice';
 import { FormsModule } from '@angular/forms';
+import { AlertSuccess } from '../../shared/components/alert-success/alert-success';
 
 type BorrowStatus = "overdue" | "returned" | "lost" | "late" | "damaged";
 
 @Component({
   selector: 'app-member-history',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AlertSuccess],
   templateUrl: './member-history.html',
   styleUrl: './member-history.css',
 })
@@ -108,6 +108,21 @@ export class MemberHistory {
     if (!row) return;
 
     row.status = this.selectedStatus;
+  }
+
+
+
+  // update penalty status
+  selectPenaltyStatus: string = '';
+  selectPenaltyId: string = '';
+  openPenaltyModal(penalty: any){
+    this.selectPenaltyId = penalty._id;
+  }
+
+  savePenaltySatus(){
+    if(this.selectPenaltyStatus === '' || this.selectPenaltyId === '') return;
+
+    this.alert.showAlert('','Penalty status updated successfully!');
   }
 
 

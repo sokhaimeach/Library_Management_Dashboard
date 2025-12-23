@@ -148,11 +148,6 @@ selectBorrowId(borrow: any) {
     return meta[status];
   }
 
-  money(value?: string) {
-    const n = Number(value ?? 0);
-    return `$${n.toFixed(2)}`;
-  }
-
   formatTime(iso: string) {
     try {
       const d = new Date(iso);
