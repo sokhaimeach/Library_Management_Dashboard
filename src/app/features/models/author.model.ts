@@ -1,7 +1,7 @@
 export interface AuthorI {
   _id: string;
   name: string;
-  birth_date: { $date: string };
+  birth_date: string;
   nationality: string;
   biography: string;
 }

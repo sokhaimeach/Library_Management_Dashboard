@@ -1,5 +1,5 @@
 <!-- ======= Top Bar ======= -->
-<div class="container-fluid ps-3 pe-3 mt-4">
+<div class="container-fluid ps-3 pe-3 mt-3">
     <div class="topbar p-3 p-md-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
 
@@ -15,12 +15,12 @@
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-2 ms-md-3">
+                <!-- <div class="d-flex align-items-center gap-2 ms-md-3">
                     <div class="detail-box">
                         <div class="text-muted small">Member</div>
                         <div class="fw-semibold text-dark">5 members</div>
                     </div>
-                </div>
+                </div> -->
             </div>
 
             <!-- Right: Actions -->
@@ -36,9 +36,10 @@
         <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
             <div class="input-group input-group-sm search px-2">
                 <span class="input-group-text bg-transparent border-0 text-muted">
-                    <i class="bi bi-search"></i>
+                    <i class="bi bi-search" (click)="searchQuery? getAllMemberInfo():''"></i>
                 </span>
-                <input type="text" class="input" placeholder="Search member name, phone, email..." />
+                <input type="text" class="input" [(ngModel)]="searchQuery"
+                placeholder="Search member name, phone, email..." (keydown.Enter)="getAllMemberInfo()" />
             </div>
 
             <app-filter-dropdown [filters]="genreFilters" (filtersChange)="onFilterChange($event)">
@@ -64,7 +65,7 @@
                 </thead>
 
                 <tbody>
-                    @for(member of members; track $index){
+                    @for(member of members(); track $index){
                     <tr class="row-hover">
                         <td>
                             <div class="d-flex align-items-center gap-3">
@@ -93,8 +94,8 @@
                         </td>
 
                         <td>
-                            <div class="primary-text">{{member.join_date.$date | date}}</div>
-                            <div class="sub-text">yyyy-mm-dd</div>
+                            <div class="primary-text">{{(member.join_date | date) || "___"}}</div>
+                            <div class="sub-text">join_date</div>
                         </td>
 
                         <td>
@@ -143,7 +144,7 @@
                         aria-label="Close"></button>
                 </div>
 
-                <form>
+                <form (ngSubmit)="modalTitle !== 'Edit Member'? createMember():editMember()">
                     <div class="row mb-3">
                         <div class="col-12">
                             <label class="mb-1" for="">Name</label>

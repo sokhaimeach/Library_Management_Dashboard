@@ -3,6 +3,8 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AlertSuccess } from '../../shared/components/alert-success/alert-success';
 import { Alertservice } from '../../shared/components/alert-success/alertservice';
+import { Bookservices } from '../services/bookservices/bookservices';
+import { Book as BookI } from '../models/book.model';
 
 type BorrowStatus = 'returned' | 'late' | 'overdue' | 'lost' | 'damaged';
 
@@ -41,7 +43,7 @@ interface BorrowRecord {
 })
 export class BorrowReturn {
 
-  constructor(private alert: Alertservice) {}
+  constructor(private alert: Alertservice, private bookservice: Bookservices) {}
 
   memberItem = {
     name: '',
@@ -52,26 +54,7 @@ export class BorrowReturn {
   }
 
   // ===== Dummy data (replace with backend later) =====
-  books: Book[] = [
-    {
-      _id: '6933ab95048d8959faaab1fb',
-      title: 'Kolab Pailin',
-      cover_url: 'https://www.elibraryofcambodia.org/wp-content/uploads/2014/04/Kolab-Pailin-book-cover.jpg',
-      available_copies: 2,
-      author_name: 'Long',
-      category_name: 'Dramatic',
-      price: { $numberDecimal: '4.5' },
-    },
-    {
-      _id: '6939159896dc2afc0fd281ef',
-      title: 'Milea',
-      cover_url: 'https://www.elibraryofcambodia.org/wp-content/uploads/2014/04/Kolab-Pailin-book-cover.jpg',
-      available_copies: 3,
-      author_name: 'Long',
-      category_name: 'Dramatic',
-      price: { $numberDecimal: '4.5' },
-    },
-  ];
+  books: BookI[] = [];
 
   members: Member[] = [
     {
@@ -98,7 +81,7 @@ export class BorrowReturn {
     {
       _id: '6933ac30048d8959faaab20b',
       return_date: null,
-      status: 'damaged',
+      status: 'overdue',
       borrow_date: '2025-12-06T04:08:16.831Z',
       due_date: '2025-12-20T04:08:16.831Z',
       member_name: 'Makara1',
@@ -107,13 +90,26 @@ export class BorrowReturn {
     {
       _id: '694671033070e4a41546db90',
       return_date: null,
-      status: 'damaged',
+      status: 'overdue',
       borrow_date: '2025-12-20T09:48:51.416Z',
       due_date: '2025-12-27T09:48:51.416Z',
       member_name: 'Tri',
       book_title: 'Kolab Pailin',
     },
   ];
+
+  ngOnInit(): void {
+    this.getAllBook();
+  }
+
+  getAllBook() {
+    this.bookservice.getAllBooks("", "").subscribe({
+      next: (res: any) => {
+        this.books = res.data;
+        console.log(this.books)
+      }
+    });
+  }
 
   // ===== UI State =====
   tab: 'borrow' | 'return' = 'borrow';
@@ -202,7 +198,7 @@ export class BorrowReturn {
     );
   }
 
-  get filteredBooks(): Book[] {
+  get filteredBooks(): BookI[] {
     const q = this.bookQuery.trim().toLowerCase();
     return this.books.filter(b => {
       const matchText =

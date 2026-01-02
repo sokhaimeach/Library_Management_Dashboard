@@ -1,12 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FilterDropdown } from '../../shared/components/filter-dropdown/filter-dropdown';
 import { Bookservices } from '../services/bookservices/bookservices';
-import { Book as B } from '../models/book.model';
+import { Book as B, BookItem } from '../models/book.model';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AlertSuccess } from '../../shared/components/alert-success/alert-success';
 import { Alertservice } from '../../shared/components/alert-success/alertservice';
 import { RouterLink } from '@angular/router';
+import { AuthorI, AuthorItem } from '../models/author.model';
+import { CategoryI, CategoryItem } from '../models/category.model';
+import { Authorservice } from '../services/authorservice/authorservice';
+import { Categoryservice } from '../services/categoryservice/categoryservice';
 
 @Component({
   selector: 'app-book',
@@ -26,88 +30,24 @@ export class Book {
     cover_url: '',
   };
 
-  authorItem = {
+  authorItem:AuthorItem = {
     name: '',
     birth_date: '',
-    nationality: '',
+    nationality: 'Khmer',
     biography: '',
   };
 
-  categoryItem = {
+  categoryItem: CategoryItem = {
     name: '',
     description: '',
   };
 
-  authors = [
-    {
-      _id: '6933ab95048d8959faaab1a1',
-      name: 'Long',
-      birth_date: { $date: '2015-10-11T17:00:00.000Z' },
-      nationality: 'Khmer',
-      biography: 'Nothing',
-    },
-    {
-      _id: '6933ab95048d8959faaab1a2',
-      name: 'Sokha',
-      birth_date: { $date: '1998-03-22T17:00:00.000Z' },
-      nationality: 'Khmer',
-      biography: 'Writes modern Khmer short stories and essays.',
-    },
-    {
-      _id: '6933ab95048d8959faaab1a3',
-      name: 'Dara',
-      birth_date: { $date: '2001-07-08T17:00:00.000Z' },
-      nationality: 'Khmer',
-      biography: 'Focuses on education and self-development books.',
-    },
-    {
-      _id: '6933ab95048d8959faaab1a4',
-      name: 'Sopheak',
-      birth_date: { $date: '1995-12-01T17:00:00.000Z' },
-      nationality: 'Khmer',
-      biography: 'Enjoys writing romance novels and poetry.',
-    },
-    {
-      _id: '6933ab95048d8959faaab1a5',
-      name: 'Rithy',
-      birth_date: { $date: '1989-05-14T17:00:00.000Z' },
-      nationality: 'Khmer',
-      biography: 'Researcher and author of Cambodian history content.',
-    },
-  ];
+  books = signal<B[]>([]);
+  authors = signal<AuthorI[]>([]);
+  categories = signal<CategoryI[]>([]);
+  searchQuery: string = "";
+  filter: string = "";
 
-  categories = [
-    {
-      _id: '6933ab95048d8959faaab1a1',
-      name: 'Dramatic',
-      description:
-        'Fictional works that focus on emotional and relational development of characters.',
-    },
-    {
-      _id: '6933ab95048d8959faaab1a2',
-      name: 'Science Fiction',
-      description:
-        'Fiction based on imagined future scientific or technological advances and major social or environmental changes.',
-    },
-    {
-      _id: '6933ab95048d8959faaab1a3',
-      name: 'Biography',
-      description: "An account of someone's life written by someone else.",
-    },
-    {
-      _id: '6933ab95048d8959faaab1a4',
-      name: 'Self-Help',
-      description:
-        'Books intended to instruct readers on solving personal problems.',
-    },
-    {
-      _id: '6933ab95048d8959faaab1a5',
-      name: 'History',
-      description: 'Books that explore past events and contexts.',
-    },
-  ];
-
-  books: B[] = [];
   // remove quantity
   removeQuantity: number = 0;
   availableCopiesToRemove: number = 0;
@@ -115,14 +55,21 @@ export class Book {
   removeMessage: string = '';
   removeId: string = '';
 
-  constructor(private bookservice: Bookservices, private alert: Alertservice) {}
+  constructor(private bookservice: Bookservices,
+    private alert: Alertservice,
+    private authorservice: Authorservice,
+    private categoryservice: Categoryservice) {}
   ngOnInit(): void {
-    this.combineFilters();
-    // fetch initial book data from API here
-    this.bookservice.getAllBooks().subscribe({
+    this.getAllBooks();
+    this.getAllAuthors();
+    this.getAllCategories();
+  }
+
+  //get all books
+  getAllBooks() {
+    this.bookservice.getAllBooks(this.filter, this.searchQuery).subscribe({
       next: (res: any) => {
-        this.books = res.data;
-        console.log(this.books);
+        this.books.set(res.data);
       },
       error: (err) => {
         console.error(err);
@@ -130,9 +77,52 @@ export class Book {
     });
   }
 
-  onEdit(id: string) {
-    /* open edit modal */
+  // get all author
+  getAllAuthors() {
+    this.authorservice.getAllAuthors("", "").subscribe({
+      next: (res) => {
+        this.authors.set(res);
+      }
+    });
   }
+
+  // get all categories
+  getAllCategories() {
+    this.categoryservice.getAllCategories("").subscribe({
+      next: (res) => {
+        this.categories.set(res);
+        this.combineFilters(this.categories());
+      }
+    });
+  }
+
+  // create new book
+  createBook() {
+    this.bookservice.createNewBook(this.item).subscribe({
+      next: (res) => {
+        this.alert.showAlert("success", res.message);
+        this.getAllBooks();
+      },
+      error: (err) => {
+        this.alert.showAlert('error', err.error?.message);
+      }
+    });
+  }
+
+  // edit book infomation
+  editBookInfo() {
+    const { total_copies: _, ...book } = this.item;
+    this.bookservice.updateBook(this.updateBookId, book).subscribe({
+      next: (res) => {
+        this.alert.showAlert('success', res.message);
+        this.getAllBooks();
+      },
+      error: (err) => {
+        this.alert.showAlert('error', err.error?.message);
+      }
+    });
+  }
+
   onRemove() {
     if (
       this.removeQuantity <= 0 ||
@@ -142,24 +132,58 @@ export class Book {
       return;
     }
 
-    this.alert.showAlert('Success', 'Book copies removed successfully.');
-    /* call API to remove book copies */
+    this.bookservice.moveToRecycleBin(this.removeId, this.removeQuantity).subscribe({
+      next: (res) => {
+        this.alert.showAlert('success', res.message);
+        this.getAllBooks();
+      },
+      error: (err) => {
+        this.alert.showAlert('error', err.error?.message);
+      }
+    });
+    
   }
 
 
   // submit author 
   onSubmitAuthor() {
-    this.searchAuthorText = this.authorItem.name
+    this.authorservice.createNewAuthor(this.authorItem).subscribe({
+      next: (res) => {
+        this.searchAuthorText.set(this.authorItem.name);
+        this.item.author_id = res.id;
+
+        this.alert.showAlert('success', res.message);
+        this.getAllAuthors();
+      },
+      error: (err) => {
+        this.alert.showAlert('error', err.error?.message);
+      }
+    });
   }
 
   // submit category
   onSubmitCategory() {
-    this.searchCategoryText = this.item.category_id
+    this.categoryservice.createNewCategory(this.categoryItem).subscribe({
+      next: (res) => {
+        this.searchCategoryText.set(this.categoryItem.name);
+        this.item.category_id = res.id;
+
+        this.alert.showAlert('success', res.message);
+        this.getAllCategories();
+      },
+      error: (err) => {
+        this.alert.showAlert('error', err.error?.message);
+      }
+    });
   }
 
   modalTitle: string = 'Add New Book';
+  updateBookId: string = "";
+  isEdit: boolean = false;
   openModal(book: B){
+    this.isEdit = true;
     this.modalTitle = 'Edit Book Information';
+    this.updateBookId = book._id;
     this.item = {
       title: book.title,
       author_id: book.author_id,
@@ -170,8 +194,8 @@ export class Book {
       description: book.description,
       cover_url: book.cover_url,
     }
-    this.searchAuthorText = book.author_name;
-    this.searchCategoryText = book.category_name;
+    this.searchAuthorText.set(book.author_name);
+    this.searchCategoryText.set(book.category_name);
   }
   // clear modal data
   clearModalData() {
@@ -185,8 +209,9 @@ export class Book {
       description: '',
       cover_url: '',
     };
-    this.searchAuthorText = '';
-    this.searchCategoryText = '';
+    this.searchAuthorText.set('');
+    this.searchCategoryText.set("");
+    this.isEdit = false;
   }
 
 
@@ -208,24 +233,31 @@ export class Book {
     if (!this.isCustom) {
       this.removeQuantity = availableCopies;
     }
+    console.log(this.removeQuantity);
   }
 
 
   // design filter options
-  genreFilters: Filter[] = [];
-  combineFilters() {
-    this.categories.forEach(category => {
-      this.genreFilters.push({
+  genreFilters = signal<Filter[]>([]);
+  combineFilters(cate: CategoryI[]) {
+    let filter: Filter[] = [];
+    cate.forEach(category => {
+      filter.push({
         key: category._id,
         label: category.name,
         checked: false
       });
     });
+    this.genreFilters.set(filter);
   }
 
   onFilterChange(selected: string[]) {
-    // call API here
-    console.log(selected);
+    this.filter = "";
+    selected.forEach((select) => {
+      this.filter += select + ",";
+    });
+    console.log(this.filter);
+    this.getAllBooks();
   }
 
   secondModalTitle: string = 'Add New Author';
@@ -244,18 +276,18 @@ export class Book {
 
 
   // author dropdown search
-  searchAuthorText: string = '';
+  searchAuthorText = signal<string>("");
   filterAuthorData: any[] = [];
   openDropdown() {
     // keep dropdown open by ensuring it has items
-    this.filterAuthorData = this.authors;
+    this.filterAuthorData = this.authors();
   }
 
   onSearchChange() {
-    const q = (this.searchAuthorText || '').toLowerCase().trim();
+    const q = (this.searchAuthorText() || '').toLowerCase().trim();
     this.filterAuthorData = !q
-      ? [...this.authors]
-      : this.authors.filter(
+      ? [...this.authors()]
+      : this.authors().filter(
           (b) =>
             b.name.toLowerCase().includes(q) ||
             b._id.toLowerCase().includes(q)
@@ -263,26 +295,25 @@ export class Book {
   }
 
   selectAuthorId(author: any) {
-    this.searchAuthorText = author.name;
+    this.searchAuthorText.set(author.name);
     this.item.author_id = author._id;
-    // Bootstrap will auto-close dropdown after click (autoClose=true)
   }
 
 
 
   // category dropdown search
-  searchCategoryText: string = '';
+  searchCategoryText = signal<string>('');
   filterCategoryData: any[] = [];
   openDropdownCategory() {
     // keep dropdown open by ensuring it has items
-    this.filterCategoryData = this.categories;
+    this.filterCategoryData = this.categories();
   }
 
   onSearchChangeCategory() {
-    const q = (this.searchCategoryText || '').toLowerCase().trim();
+    const q = (this.searchCategoryText() || '').toLowerCase().trim();
     this.filterCategoryData = !q
-      ? [...this.categories]
-      : this.categories.filter(
+      ? [...this.categories()]
+      : this.categories().filter(
           (b) =>
             b.name.toLowerCase().includes(q) ||
             b._id.toLowerCase().includes(q)
@@ -294,18 +325,6 @@ export class Book {
     this.item.category_id = category._id;
     // Bootstrap will auto-close dropdown after click (autoClose=true)
   }
-}
-
-
-interface BookItem {
-  title: string;
-  author_id: string;
-  category_id: string;
-  published_date: string | null;
-  price: { $numberDecimal: string } | number;
-  total_copies: number;
-  description: string | null;
-  cover_url: string;
 }
 
 interface Filter {

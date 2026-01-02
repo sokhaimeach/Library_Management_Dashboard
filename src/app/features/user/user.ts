@@ -1,21 +1,25 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { FilterDropdown } from '../../shared/components/filter-dropdown/filter-dropdown';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from "@angular/router";
+import { UserI } from '../models/user.model';
+import { Userservice } from '../services/userservice/userservice';
+import { AlertSuccess } from '../../shared/components/alert-success/alert-success';
+import { Alertservice } from '../../shared/components/alert-success/alertservice';
 
 @Component({
   selector: 'app-user',
-  imports: [CommonModule, FilterDropdown, FormsModule, RouterLink],
+  imports: [CommonModule, FilterDropdown, FormsModule, RouterLink, AlertSuccess],
   templateUrl: './user.html',
   styleUrl: './user.css',
 })
-export class User {
+export class User implements OnInit {
 
-  item = {
+  item: UserI = {
     username: '',
     password: '',
-    role: '',
+    role: 'librarian',
     image_url: '',
     contact: {
       phone_number: '',
@@ -29,95 +33,71 @@ export class User {
     },
   };
 
-  users = [
-    {
-      _id: '692c42b48ece5c4ecd48dcb8',
-      username: 'Sokhai',
-      role: 'admin',
-      image_url: null,
-      status: false,
-      contact: { phone_number: '0123456789', email: 'vannak@gmail.com' },
-      start_date: '2025-11-30T13:12:20.417Z',
-      address: {
-        village: null,
-        commune: null,
-        district: null,
-        city: null,
+  users = signal<UserI[]>([]);
+  // handle error
+  errorMessage: string = '';
+  isError:boolean = false;
+
+  constructor(
+    private userservice: Userservice,
+    private alert: Alertservice,
+    ) {}
+
+  ngOnInit(): void {
+    this.getAllUserInfo();
+  }
+
+  // get all users
+  async getAllUserInfo(){
+    await this.userservice.getAllUsers().subscribe({
+      next: (res) => {
+        this.users.set(res);
       },
-    },
-    {
-      _id: '69498aa3300c1e05752bac12',
-      username: 'Tola',
-      role: 'librarian',
-      image_url: 'https://i.pravatar.cc/150?img=12',
-      status: true,
-      contact: { phone_number: '010222333', email: 'vannak@gmail.com' },
-      start_date: '2025-10-15T09:22:10.000Z',
-      address: {
-        village: null,
-        commune: null,
-        district: null,
-        city: null,
+      error: (err) => {
+        this.isError = true;
+        this.errorMessage = err.error?.message;
+      }
+    });
+  }
+
+  // create user
+  createNewUser() {
+    this.userservice.createUser(this.item).subscribe({
+      next: (res) => {
+        this.alert.showAlert('success', res?.message);
+        this.getAllUserInfo();
       },
-    },
-    {
-      _id: '692c42b48ece5c4ecd48dcba',
-      username: 'Sreymom',
-      role: 'stock-keeper',
-      image_url: 'https://i.pravatar.cc/150?img=32',
-      status: true,
-      contact: { phone_number: '096888777', email: 'vannak@gmail.com' },
-      start_date: '2025-12-01T02:10:00.000Z',
-      address: {
-        village: null,
-        commune: null,
-        district: null,
-        city: null,
+      error: (err) => {
+        this.alert.showAlert('error', err.error?.message);
+      }
+    });
+  }
+
+  // editt user info
+  async editUserInfo(){
+    let {_id:_, role, status, start_date, password,...userInfo} = this.item;
+    await this.userservice.updateUser(this.editUserId, userInfo).subscribe({
+      next: (res) => {
+        this.alert.showAlert('success', res?.message);
+        setTimeout(() => {
+          this.getAllUserInfo();
+        }, 1000);
       },
-    },
-    {
-      _id: '692c42b48ece5c4ecd48dcbb',
-      username: 'Vannak',
-      role: 'librarian',
-      image_url: null,
-      status: false,
-      contact: {
-        phone_number: '078111222',
-        email: 'vannak@gmail.com',
-      },
-      start_date: '2025-09-20T14:05:44.000Z',
-      address: {
-        village: null,
-        commune: null,
-        district: null,
-        city: null,
-      },
-    },
-    {
-      _id: '692c42b48ece5c4ecd48dcbc',
-      username: 'Piseth',
-      role: 'stock-keeper',
-      image_url: 'https://i.pravatar.cc/150?img=5',
-      status: true,
-      contact: { phone_number: '070555444', email: 'vannak@gmail.com' },
-      start_date: '2025-11-05T18:30:00.000Z',
-      address: {
-        village: null,
-        commune: null,
-        district: null,
-        city: null,
-      },
-    },
-  ];
+      error: (err) => {
+        this.alert.showAlert('error', err.error?.message);
+      }
+    });
+  }
 
   // edit modal
   modalTitle = 'Add New User';
   isEditModalOpen = false;
+  editUserId: string = '';
   openEditModal(user: any) {
     this.isEditModalOpen = true;
     this.modalTitle = 'Edit User';
     this.item = { ...user };
-    console.log(this.item);
+    this.editUserId = user._id;
   }
 
   clearItem() {
@@ -126,7 +106,7 @@ export class User {
     this.item = {
       username: '',
       password: '',
-      role: '',
+      role: 'librarian',
       image_url: '',
       contact: {
         phone_number: '',

@@ -1,12 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FilterDropdown } from '../../shared/components/filter-dropdown/filter-dropdown';
 import { FormsModule } from '@angular/forms';
 import { AuthorI, AuthorItem } from '../models/author.model';
+import { Authorservice } from '../services/authorservice/authorservice';
+import { AlertSuccess } from '../../shared/components/alert-success/alert-success';
+import { Alertservice } from '../../shared/components/alert-success/alertservice';
 
 @Component({
   selector: 'app-author',
-  imports: [CommonModule, FilterDropdown, FormsModule],
+  imports: [CommonModule, FilterDropdown, FormsModule, AlertSuccess],
   templateUrl: './author.html',
   styleUrl: './author.css',
 })
@@ -18,43 +21,72 @@ export class Author {
     biography: '',
   };
 
-  authors: AuthorI[] = [
-    {
-      _id: '6933ab95048d8959faaab1a1',
-      name: 'Long',
-      birth_date: { $date: '2015-10-11T17:00:00.000Z' },
-      nationality: 'Khmer',
-      biography: 'Nothing',
-    },
-    {
-      _id: '6933ab95048d8959faaab1a2',
-      name: 'Sokha',
-      birth_date: { $date: '1998-03-22T17:00:00.000Z' },
-      nationality: 'Khmer',
-      biography: 'Writes modern Khmer short stories and essays.',
-    },
-    {
-      _id: '6933ab95048d8959faaab1a3',
-      name: 'Dara',
-      birth_date: { $date: '2001-07-08T17:00:00.000Z' },
-      nationality: 'Khmer',
-      biography: 'Focuses on education and self-development books.',
-    },
-    {
-      _id: '6933ab95048d8959faaab1a4',
-      name: 'Sopheak',
-      birth_date: { $date: '1995-12-01T17:00:00.000Z' },
-      nationality: 'Khmer',
-      biography: 'Enjoys writing romance novels and poetry.',
-    },
-    {
-      _id: '6933ab95048d8959faaab1a5',
-      name: 'Rithy',
-      birth_date: { $date: '1989-05-14T17:00:00.000Z' },
-      nationality: 'Khmer',
-      biography: 'Researcher and author of Cambodian history content.',
-    },
-  ];
+  filter: string = "";
+  searchQuery: string = "";
+
+  authors = signal<AuthorI[]>([]);
+
+  constructor(
+    private authorservice: Authorservice,
+    private alert: Alertservice
+  ) {}
+  ngOnInit(): void {
+    this.getAllAuthorInfo(this.filter, this.searchQuery);
+  }
+
+  // get all authors
+  getAllAuthorInfo(query: string, search: string) {
+    this.authorservice.getAllAuthors(query, search).subscribe({
+      next: (res) => {
+        this.authors.set(res);
+        console.log(this.authors())
+      },
+    });
+  }
+
+  // create new author
+  createAuthor() {
+    this.authorservice.createNewAuthor(this.item).subscribe({
+      next: (res) => {
+        this.alert.showAlert('success', res.message);
+        this.getAllAuthorInfo(this.filter, this.searchQuery);
+      },
+      error: (err) => {
+        this.alert.showAlert('error', err.error.message);
+      },
+    });
+  }
+
+  // edite author info
+  editAuthor() {
+    this.authorservice.putAuthor(this.updateAuthorId, this.item).subscribe({
+      next: (res) => {
+        this.alert.showAlert('success', res.message);
+        this.getAllAuthorInfo(this.filter, this.searchQuery);
+      },
+      error: (err) => {
+        this.alert.showAlert('error', err.error.message);
+      },
+    });
+  }
+
+  // remove author
+  removeAuthor() {
+    this.authorservice.deleteAuthor(this.deleteAuthorId).subscribe({
+      next: (res) => {
+        this.alert.showAlert('success', res.message);
+        this.getAllAuthorInfo(this.filter, this.searchQuery);
+      },
+      error: (err) => {
+        this.alert.showAlert('error', err.error.message);
+      },
+    });
+  }
+
+  // seaerch
+  search(){
+    this.getAllAuthorInfo(this.filter, this.searchQuery);
+  }
 
   // delete author
   deleteAuthorId: string = '';
@@ -65,8 +97,11 @@ export class Author {
   }
 
   // open edit author
+  updateAuthorId: string = '';
   ModalTitle: string = 'Add new Author';
   openEdit(author: any) {
+    this.updateAuthorId = author._id;
+    console.log(this.updateAuthorId);
     this.ModalTitle = 'Edit Author';
     this.item = {
       name: author.name,
@@ -96,6 +131,15 @@ export class Author {
 
   onFilterChange(selected: string[]) {
     // call API here
-    console.log(selected);
+    this.filter = "";
+    this.genreFilters.forEach(gen => {
+      if(gen.checked){
+        this.filter += (gen.key + ",");
+      }
+    });
+
+    this.getAllAuthorInfo(this.filter, this.searchQuery);
+
+    console.log(this.filter);
   }
 }

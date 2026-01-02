@@ -11,26 +11,6 @@
                 <div class="text-muted small">Overview & daily operations</div>
             </div>
         </div>
-
-        <!-- <div class="d-flex align-items-center gap-2 flex-wrap">
-            <div class="input-group search-group">
-                <span class="input-group-text bg-white border-0">
-                    <i class="bi bi-search"></i>
-                </span>
-                <input type="text" class="form-control border-0" placeholder="Search member / book..."
-                    [(ngModel)]="searchText" [ngModelOptions]="{ standalone: true }" />
-            </div>
-
-            <button class="btn btn-black-soft" type="button" (click)="onQuickAction('add_member')">
-                <i class="bi bi-person-plus me-2"></i> Add Member
-            </button>
-            <button class="btn btn-black-soft" type="button" (click)="onQuickAction('add_book')">
-                <i class="bi bi-book me-2"></i> Add Book
-            </button>
-            <button class="btn btn-black-soft" type="button" (click)="onQuickAction('create_borrow')">
-                <i class="bi bi-box-arrow-up-right me-2"></i> Create Borrow
-            </button>
-        </div> -->
     </div>
 
     <!-- KPI cards -->
@@ -106,22 +86,22 @@
 
                 <div class="row g-2">
                     <div class="col-6">
-                        <button class="btn btn-white-action w-100" (click)="onQuickAction('return_book')">
+                        <button class="btn btn-white-action w-100" (click)="onQuickAction('/admin/borrow-return')">
                             <i class="bi bi-box-arrow-in-left me-2"></i> Return
                         </button>
                     </div>
                     <div class="col-6">
-                        <button class="btn btn-white-action w-100" (click)="onQuickAction('create_penalty')">
+                        <button class="btn btn-white-action w-100" (click)="onQuickAction('/admin/penalty')">
                             <i class="bi bi-receipt me-2"></i> Penalty
                         </button>
                     </div>
                     <div class="col-6">
-                        <button class="btn btn-white-action w-100" (click)="onQuickAction('members')">
+                        <button class="btn btn-white-action w-100" (click)="onQuickAction('/admin/member')">
                             <i class="bi bi-people me-2"></i> Members
                         </button>
                     </div>
                     <div class="col-6">
-                        <button class="btn btn-white-action w-100" (click)="onQuickAction('books')">
+                        <button class="btn btn-white-action w-100" (click)="onQuickAction('/admin/book')">
                             <i class="bi bi-journal-bookmark me-2"></i> Books
                         </button>
                     </div>
@@ -186,52 +166,54 @@
             <div class="table-card">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                     <div class="fw-semibold"><i class="bi bi-clock-history me-2"></i> Recent Borrows</div>
-                    <button class="btn btn-sm btn-black-soft" (click)="onQuickAction('borrows')">
+                    <button class="btn btn-sm btn-black-soft" (click)="onQuickAction('/admin/borrow-record')">
                         View All
                     </button>
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table align-middle mb-0">
-                        <thead class="table-head-dark">
-                            <tr>
-                                <th>Member</th>
-                                <th>Book</th>
-                                <th>Due</th>
-                                <th>Status</th>
-                                <th class="text-end">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="row-hover" *ngFor="let b of recentBorrows">
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div>
-                                            <div class="fw-semibold">{{ b.member_name }}</div>
+                    <div class="table-border">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-head-dark">
+                                <tr>
+                                    <th>Member</th>
+                                    <th>Book</th>
+                                    <th>Due</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="row-hover" *ngFor="let b of recentBorrows">
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div>
+                                                <div class="fw-semibold">{{ b.member_name }}</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td class="fw-semibold">{{ b.book_title }}</td>
-                                <!-- <td class="text-muted">{{ b.borrow_date | date:'MMM d, y' }}</td> -->
-                                <td class="text-muted">{{ b.due_date | date:'MMM d, y' }}</td>
-                                <td>
-                                    <span class="chip" [ngClass]="statusChipClass(b.status)">{{ b.status }}</span>
-                                </td>
-                                <td class="text-end">
-                                    <button class="btn btn-icon-soft me-1" (click)="openDetail('borrow', b._id)">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-icon-soft danger" (click)="openStatusModal('borrow', b._id)">
-                                        <i class="bi bi-arrow-repeat"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr *ngIf="recentBorrows.length === 0">
-                                <td colspan="6" class="text-center text-muted py-4">No recent borrows</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    </td>
+                                    <td class="fw-semibold">{{ b.book_title }}</td>
+                                    <!-- <td class="text-muted">{{ b.borrow_date | date:'MMM d, y' }}</td> -->
+                                    <td class="text-muted">{{ b.due_date | date:'MMM d, y' }}</td>
+                                    <td>
+                                        <span class="chip" [ngClass]="statusChipClass(b.status)">{{ b.status }}</span>
+                                    </td>
+                                    <td class="text-end d-flex justify-content-end">
+                                        <button class="btn btn-icon-soft me-1" (click)="openDetail('borrow', b._id)" routerLink="/admin/borrow-record">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-icon-soft danger" (click)="openStatusModal('borrow', b._id)">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+    
+                                <tr *ngIf="recentBorrows.length === 0">
+                                    <td colspan="6" class="text-center text-muted py-4">No recent borrows</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -240,42 +222,44 @@
             <div class="table-card">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                     <div class="fw-semibold"><i class="bi bi-receipt-cutoff me-2"></i> Penalties</div>
-                    <button class="btn btn-sm btn-black-soft" (click)="onQuickAction('penalties')">
+                    <button class="btn btn-sm btn-black-soft" (click)="onQuickAction('/admin/penalty')">
                         View All
                     </button>
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table align-middle mb-0">
-                        <thead class="table-head-dark">
-                            <tr>
-                                <th>Member</th>
-                                <th>Type</th>
-                                <th>Amount</th>
-                                <th class="text-end">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="row-hover" *ngFor="let p of penalties">
-                                <td class="fw-semibold">{{ p.member_name }}</td>
-                                <td class="text-muted">{{ p.penalty_type }}</td>
-                                <td class="fw-semibold">${{ p.amount }}</td>
-                                <td class="text-end">
-                                    <button class="btn btn-icon-soft me-1" (click)="openDetail('penalty', p._id)">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-icon-soft danger"
-                                        (click)="openStatusModal('penalty', p._id)">
-                                        <i class="bi bi-arrow-repeat"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr *ngIf="penalties.length === 0">
-                                <td colspan="5" class="text-center text-muted py-4">No penalties</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-border">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-head-dark">
+                                <tr>
+                                    <th>Member</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="row-hover" *ngFor="let p of penalties">
+                                    <td class="fw-semibold">{{ p.member_name }}</td>
+                                    <td class="text-muted">{{ p.penalty_type }}</td>
+                                    <td class="fw-semibold">${{ p.amount }}</td>
+                                    <td class="text-end d-flex justify-content-end">
+                                        <button class="btn btn-icon-soft me-1" (click)="openDetail('penalty', p._id)" routerLink="/admin/penalty">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-icon-soft danger"
+                                            (click)="openStatusModal('penalty', p._id)">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+    
+                                <tr *ngIf="penalties.length === 0">
+                                    <td colspan="5" class="text-center text-muted py-4">No penalties</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

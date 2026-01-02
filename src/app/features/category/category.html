@@ -1,5 +1,5 @@
 <!-- ======= Top Bar ======= -->
-<div class="container-fluid ps-3 pe-3 mt-4">
+<div class="container-fluid ps-3 pe-3 mt-3">
     <div class="topbar p-3 p-md-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
 
@@ -15,12 +15,12 @@
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-2 ms-md-3">
+                <!-- <div class="d-flex align-items-center gap-2 ms-md-3">
                     <div class="detail-box">
                         <div class="text-muted small">Category</div>
                         <div class="fw-semibold text-dark">6 categories</div>
                     </div>
-                </div>
+                </div> -->
             </div>
 
             <!-- Right: Actions -->
@@ -36,9 +36,10 @@
         <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
             <div class="input-group input-group-sm search px-2">
                 <span class="input-group-text bg-transparent border-0 text-muted">
-                    <i class="bi bi-search"></i>
+                    <i class="bi bi-search" (click)="searchQuery? getAllCategoriesInfo():''"></i>
                 </span>
-                <input type="text" class="input" placeholder="Search category name..." />
+                <input type="text" class="input" [(ngModel)]="searchQuery"
+                placeholder="Search category name..." (keydown.Enter)="getAllCategoriesInfo()" />
             </div>
 
             <!-- optional: filter placeholder -->
@@ -62,7 +63,7 @@
                 </thead>
 
                 <tbody>
-                    @for(category of categories; track $index){
+                    @for(category of categories(); track $index){
                     <tr class="row-hover">
                         <td>
                             <div class="primary-text">{{$index + 1}}</div>
@@ -89,13 +90,14 @@
 
                         <td class="text-end">
                             <div class="side-actions">
-                                <button class="icon-btn" type="button" aria-label="Edit category"
-                                data-bs-toggle="modal" data-bs-target="#exampleModal" (click)="opneEdit(category)">
+                                <button class="icon-btn" type="button" aria-label="Edit category" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal" (click)="opneEdit(category)">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
 
                                 <button class="icon-btn danger" type="button" aria-label="Delete permanently"
-                                    data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" (click)="openDeleteModal(category)">
+                                    data-bs-toggle="modal" data-bs-target="#deleteConfirmModal"
+                                    (click)="openDeleteModal(category)">
                                     <i class="bi bi-trash3"></i>
                                 </button>
                             </div>
@@ -123,7 +125,7 @@
                         aria-label="Close"></button>
                 </div>
 
-                <form>
+                <form (ngSubmit)="modalTitle !== 'Edit Category'? createCategory():editCategory()">
                     <div class="row mb-3">
                         <div class="col-12">
                             <label class="mb-1" for="">Name</label>
@@ -138,7 +140,7 @@
                             <!-- IMPORTANT: add name="" for ngModel inside form -->
                             <textarea class="description" name="description" placeholder="Write category description..."
                                 [(ngModel)]="item.description">
-              </textarea>
+                            </textarea>
                         </div>
                     </div>
 
@@ -181,8 +183,8 @@
 
                 <div class="d-flex gap-2 justify-content-end">
                     <button class="btn btn-light btn-soft2" type="button" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-danger btn-save" type="button"
-                         data-bs-dismiss="modal" (click)="onDeleteCategory()">
+                    <button class="btn btn-danger btn-save" type="button" data-bs-dismiss="modal"
+                        (click)="onDeleteCategory()">
                         <i class="bi bi-trash3 me-1"></i> Delete
                     </button>
                 </div>

@@ -96,6 +96,22 @@
   font-weight: 700;
 }
 
+.avatar-img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-fallback{
+  width: 100%;
+  height: 100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 22px;
+  color: rgba(0,0,0,.55);
+}
+
 /* Clamp description */
 .bio-clamp{
   display: -webkit-box;

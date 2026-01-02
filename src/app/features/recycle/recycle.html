@@ -1,5 +1,5 @@
 <!-- ======= Top Bar ======= -->
-<div class="container-fluid ps-3 pe-3 mt-4">
+<div class="container-fluid ps-3 pe-3 mt-3">
     <div class="topbar p-3 p-md-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
 
@@ -29,9 +29,10 @@
         <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
             <div class="input-group input-group-sm search px-2">
                 <span class="input-group-text bg-transparent border-0 text-muted">
-                    <i class="bi bi-search"></i>
+                    <i class="bi bi-search" (click)="searchQuery? getAllRemoveBooks():''"></i>
                 </span>
-                <input type="text" class="input" placeholder="Search title..." [(ngModel)]="q" name="q" />
+                <input type="text" class="input" placeholder="Search title..." [(ngModel)]="searchQuery" name="q"
+                (keydown.Enter)="getAllRemoveBooks()" />
             </div>
         </div>
     </div>
@@ -53,7 +54,7 @@
                 </thead>
 
                 <tbody>
-                    @for(b of filteredBooks; track b._id){
+                    @for(b of deletedBooks(); track b._id){
                     <tr class="row-hover">
 
                         <!-- Book -->
@@ -185,3 +186,5 @@
         </div>
     </div>
 </div>
+
+<app-alert-success></app-alert-success>

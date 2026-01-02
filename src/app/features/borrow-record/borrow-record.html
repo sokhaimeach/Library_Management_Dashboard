@@ -1,5 +1,5 @@
 <!-- ======= Top Bar ======= -->
-<div class="container-fluid ps-3 pe-3 mt-4">
+<div class="container-fluid ps-3 pe-3 mt-3">
     <div class="topbar p-3 p-md-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
 
@@ -15,12 +15,12 @@
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-2 ms-md-3">
+                <!-- <div class="d-flex align-items-center gap-2 ms-md-3">
                     <div class="detail-box">
                         <div class="text-muted small">Borrow</div>
-                        <div class="fw-semibold text-dark">{{ borrows.length }} records</div>
+                        <div class="fw-semibold text-dark">{{ borrows().length }} records</div>
                     </div>
-                </div>
+                </div> -->
             </div>
 
             <!-- Right: Actions (no add required here) -->
@@ -33,26 +33,14 @@
         <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
             <div class="input-group input-group-sm search px-2">
                 <span class="input-group-text bg-transparent border-0 text-muted">
-                    <i class="bi bi-search"></i>
+                    <i class="bi bi-search" (click)="searchQuery? getAllBorrowRecords():''"></i>
                 </span>
-                <input type="text" class="input" placeholder="Search member, book title..." [(ngModel)]="q" name="q" />
+                <input type="text" class="input" placeholder="Search member, book title..." [(ngModel)]="searchQuery"
+                    name="search" (keydown.Enter)="getAllBorrowRecords()" />
             </div>
 
             <app-filter-dropdown [filters]="genreFilters"
                 (filtersChange)="onFilterChange($event)"></app-filter-dropdown>
-            <!-- <div class="detail-box d-flex align-items-center gap-2" style="padding: 8px 12px;">
-                <i class="bi bi-filter"></i>
-                <select class="form-select form-select-sm inputs" style="height: 34px; padding: 6px 10px;"
-                    [(ngModel)]="statusFilter" name="statusFilter">
-                    <option value="all">All status</option>
-                    <option value="borrowed">Borrowed</option>
-                    <option value="returned">Returned</option>
-                    <option value="late">Late</option>
-                    <option value="overdue">Overdue</option>
-                    <option value="lost">Lost</option>
-                    <option value="damaged">Damaged</option>
-                </select>
-            </div> -->
         </div>
     </div>
 </div>
@@ -75,7 +63,7 @@
                 </thead>
 
                 <tbody>
-                    @for(b of borrows; track b._id){
+                    @for(b of borrows(); track b._id){
                     <tr class="row-hover">
 
                         <td>
@@ -124,14 +112,13 @@
                         <td class="text-end">
                             <div class="side-actions">
                                 <!-- View detail -->
-                                <button class="icon-btn eye" type="button" aria-label="View detail"
-                                    data-bs-toggle="modal" data-bs-target="#borrowDetailModal"
-                                    (click)="openDetail(b._id)">
+                                <button class="icon-btn eye" type="button" (click)="openDetail(b._id)">
                                     <i class="bi bi-eye"></i>
                                 </button>
 
                                 <!-- Update status (small modal) -->
-                                <button class="icon-btn" type="button" aria-label="Update status" data-bs-toggle="modal"
+                                <button class="icon-btn" type="button" [disabled]="b.status !== 'overdue'? true : false"
+                                    aria-label="Update status" data-bs-toggle="modal"
                                     data-bs-target="#updateStatusModal" (click)="openUpdateStatus(b)">
                                     <i class="bi bi-arrow-repeat"></i>
                                 </button>
@@ -170,7 +157,7 @@
                     <option value="returned" selected>Returned</option>
                     <option value="late">Late</option>
                     <option value="lost">Lost</option>
-                    <option value="damaged">Damaged</option>
+                    <option value="damaged" (click)="checkDamageType(true)">Damaged</option>
                 </select>
 
                 @if(selectedStatus === 'damaged'){
@@ -179,18 +166,19 @@
                     <div class="d-flex"></div>
                     <div class="d-flex">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" 
-                            name="radioDefault" id="radioDefault1"checked (click)="checkDamageType(true)">
+                            <input class="form-check-input" type="radio" name="radioDefault" id="radioDefault1" checked
+                                (click)="checkDamageType(true)">
                             <label class="form-check-label" for="radioDefault1">
                                 Can use
                             </label>
                         </div>
-                        <input type="number" class="form-control ms-2" [disabled]="!isLittleDamage" [(ngModel)]="item.damage_fee"
-                    style="width: 140px; height: 30px; border-radius: 8px;" placeholder="Damage fine">
+                        <input type="number" class="form-control ms-2" [disabled]="!isLittleDamage"
+                            [(ngModel)]="item.damage_fee" style="width: 140px; height: 30px; border-radius: 8px;"
+                            placeholder="Damage fine">
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="radioDefault" id="radioDefault2" 
-                        (click)="checkDamageType(false)">
+                        <input class="form-check-input" type="radio" name="radioDefault" id="radioDefault2"
+                            (click)="checkDamageType(false)">
                         <label class="form-check-label" for="radioDefault2">
                             Can not use
                         </label>
@@ -210,7 +198,7 @@
 
                 <div class="d-flex gap-2 justify-content-end">
                     <button class="btn btn-light btn-soft2" type="button" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-dark btn-save" type="button" (click)="saveStatus()">
+                    <button class="btn btn-dark btn-save" type="button" data-bs-dismiss="modal" (click)="saveStatus()">
                         <i class="bi bi-check2-circle me-1"></i> Save
                     </button>
                 </div>
@@ -226,87 +214,87 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content modal-soft">
             <div class="modal-body modal-pad">
-
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h1 class="modal-title fs-5 fw-bold m-0">Borrow Detail</h1>
-                        <div class="text-muted small">#{{ detail._id }}</div>
-                    </div>
-                    <button type="button" class="btn-close close-modal" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-
-                <div class="row g-3">
-                    <!-- Left: Member/User -->
-                    <div class="col-12 col-lg-7">
-                        <div class="detail-card">
-                            <div class="fw-semibold mb-2">Member</div>
-
-                            <div class="d-flex align-items-start justify-content-between">
-                                <div>
-                                    <div class="fw-semibold">{{ detail.member.name }}</div>
-                                    <div class="text-muted small">
-                                        {{ detail.member.contact.phone_number }} • {{ detail.member.contact.email }}
-                                    </div>
-                                    <div class="text-muted small">
-                                        Member Type: <span class="fw-medium">{{ detail.member.member_type }}</span>
-                                    </div>
-                                    <div class="text-muted small">
-                                        Join date: {{ detail.member.join_date | date:'mediumDate' }}
-                                    </div>
-                                </div>
-                            </div>
+                <ng-container *ngIf="detail() as d">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h1 class="modal-title fs-5 fw-bold m-0">Borrow Detail</h1>
+                            <div class="text-muted small">#{{ d._id }}</div>
                         </div>
-
-                        <div class="detail-card mt-3">
-                            <div class="fw-semibold mb-2">Handled by (User)</div>
-                            <div class="fw-semibold">{{ detail.user.username }}</div>
-                            <div class="text-muted small">
-                                {{ detail.user.contact.phone_number }} • {{ detail.user.contact.email }}
-                            </div>
-                        </div>
+                        <button type="button" class="btn-close close-modal" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
 
-                    <!-- Right: Book -->
-                    <div class="col-12 col-lg-5">
-                        <div class="detail-card">
-                            <div class="fw-semibold mb-2">Book</div>
+                    <div class="row g-3">
+                        <!-- Left: Member/User -->
+                        <div class="col-12 col-lg-7">
+                            <div class="detail-card">
+                                <div class="fw-semibold mb-2">Member</div>
 
-                            <div class="d-flex gap-2">
-                                <img class="book-cover" [src]="detail.book.cover_url" alt="cover" />
-                                <div class="flex-grow-1">
-                                    <div class="fw-semibold">{{ detail.book.title }}</div>
-                                    <div class="text-muted small">{{ detail.book.category }} • {{
-                                        detail.book.author_name }}</div>
-                                    <div class="text-muted small">Copies: {{ detail.book.total_copies }}</div>
-                                    <div class="small mt-2">
-                                        Price: <span class="fw-bold">{{ detail.book.price.$numberDecimal }}</span>
+                                <div class="d-flex align-items-start justify-content-between" *ngIf="d.member">
+                                    <div>
+                                        <div class="fw-semibold">{{ d.member.name }}</div>
+                                        <div class="text-muted small">
+                                            {{ d.member.contact.phone_number }} • {{ d.member.contact.email }}
+                                        </div>
+                                        <div class="text-muted small">
+                                            Member Type: <span class="fw-medium">{{ d.member.member_type }}</span>
+                                        </div>
+                                        <div class="text-muted small">
+                                            Join date: {{ d.member.join_date | date:'mediumDate' }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <hr class="my-2" />
-
-                            <div class="d-flex justify-content-between small">
-                                <span class="text-muted">Current status</span>
-                                <span class="fw-semibold">{{ selectedBorrowStatusDisplay }}</span>
+                            <div class="detail-card mt-3" *ngIf="d.user">
+                                <div class="fw-semibold mb-2">Handled by (User)</div>
+                                <div class="fw-semibold">{{ d.user.username }}</div>
+                                <div class="text-muted small">
+                                    {{ d.user.contact.phone_number }} • {{ d.user.contact.email }}
+                                </div>
                             </div>
+                        </div>
 
-                            <div class="d-flex justify-content-end mt-3">
-                                <button class="btn btn-dark btn-save" type="button" data-bs-dismiss="modal"
-                                    data-bs-toggle="modal" data-bs-target="#updateStatusModal" (click)="removeFailed=false">
-                                    <i class="bi bi-arrow-repeat me-1"></i> Update status
-                                </button>
+                        <!-- Right: Book -->
+                        <div class="col-12 col-lg-5">
+                            <div class="detail-card">
+                                <div class="fw-semibold mb-2">Book</div>
+
+                                <div class="d-flex gap-2" *ngIf="d.book">
+                                    <img class="book-cover" [src]="d.book.cover_url" alt="cover" />
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold">{{ d.book.title }}</div>
+                                        <div class="text-muted small">{{ d.book.category }} • {{
+                                            d.book.author_name }}</div>
+                                        <div class="text-muted small">Copies: {{ d.book.total_copies }}</div>
+                                        <div class="small mt-2">
+                                            Price: <span class="fw-bold">{{ d.book.price.$numberDecimal }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr class="my-2" />
+
+                                <div class="d-flex justify-content-between small">
+                                    <span class="text-muted">Current status</span>
+                                    <span class="fw-semibold">{{ selectedBorrowStatusDisplay }}</span>
+                                </div>
+
+                                <div class="d-flex justify-content-end mt-3">
+                                    <button class="btn btn-dark btn-save" type="button" data-bs-dismiss="modal"
+                                        data-bs-toggle="modal" data-bs-target="#updateStatusModal"
+                                        (click)="openUpdateStatus({_id: d._id})" [disabled]="d.status !== 'overdue'? true:false">
+                                        <i class="bi bi-arrow-repeat me-1"></i> Update status
+                                    </button>
+                                </div>
+
                             </div>
-
                         </div>
                     </div>
-                </div>
-
+                </ng-container>
             </div>
         </div>
     </div>
 </div>
-
 
 <app-alert-success></app-alert-success>

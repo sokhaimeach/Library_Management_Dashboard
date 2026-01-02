@@ -1,4 +1,4 @@
-<div class="container py-4">
+<div class="container py-3">
 
   <!-- ======= Header ======= -->
   <div class="topbar p-3 p-md-4">
@@ -164,6 +164,7 @@
                 </div>
               </div>
 
+              @defer (on timer(100)) {
               <div class="row g-3">
                 @for(b of filteredBooks; track b._id){
                 <div class="col-12 col-md-6">
@@ -178,7 +179,7 @@
                         <div class="mt-2 d-flex flex-wrap gap-2">
                           <span class="badge rounded-pill text-bg-dark">Available : {{ b.available_copies }}</span>
                           <span class="badge rounded-pill text-bg-light border">
-                            ${{ b.price?.$numberDecimal || '-' }}
+                            ${{ b.price.$numberDecimal || '-' }}
                           </span>
                         </div>
 
@@ -205,6 +206,7 @@
                 </div>
                 }
               </div>
+              }
 
             </div>
           </div>

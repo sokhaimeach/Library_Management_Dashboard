@@ -9,4 +9,10 @@ import { Alertservice } from './alertservice';
 })
 export class AlertSuccess {
   constructor(public alertservice: Alertservice) {}
+
+  hide: string = '';
+
+  hideAlert(){
+    this.hide = 'hide';
+  }
 }

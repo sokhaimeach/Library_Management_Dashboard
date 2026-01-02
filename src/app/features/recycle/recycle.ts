@@ -1,86 +1,93 @@
 import { CommonModule, Location } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RemoveBookI } from '../models/book.model';
+import { Bookservices } from '../services/bookservices/bookservices';
+import { Alertservice } from '../../shared/components/alert-success/alertservice';
+import { AlertSuccess } from '../../shared/components/alert-success/alert-success';
 
 @Component({
   selector: 'app-recycle',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AlertSuccess],
   templateUrl: './recycle.html',
   styleUrl: './recycle.css',
 })
 export class Recycle {
-
-  constructor(private location: Location) {}
 
   goBack() {
     this.location.back();
   }
 
 
+  deletedBooks = signal<RemoveBookI[]>([]);
 
-  q = '';
+  restoreBook: RemoveBookI | null = null;
+  deleteBook: RemoveBookI | null = null;
 
-  deletedBooks: DeletedBook[] = [
-    {
-      _id: "6933ab95048d8959faaab1fb",
-      title: "Kolab Pailin",
-      cover_url: "https://www.elibraryofcambodia.org/wp-content/uploads/2014/04/Kolab-Pailin-book-cover.jpg",
-      total_copies: 0,
-      deleted_copies: 3,
-      deleted_at: "2025-12-21T14:38:13.609Z"
-    }
-  ];
-
-  restoreBook: DeletedBook | null = null;
-  deleteBook: DeletedBook | null = null;
+  searchQuery: string = "";
 
   deleteText = '';
 
-  get filteredBooks() {
-    const q = (this.q || '').toLowerCase().trim();
-    if (!q) return this.deletedBooks;
-    return this.deletedBooks.filter(b => b.title.toLowerCase().includes(q));
+  constructor(private location: Location,
+    private bookservice: Bookservices,
+    private alert: Alertservice) {}
+  ngOnInit(): void {
+    this.getAllRemoveBooks();
   }
 
-  openRestore(b: DeletedBook) {
+  // get all remove books
+  getAllRemoveBooks() {
+    this.bookservice.getRemoveBook(this.searchQuery).subscribe({
+      next: (res) => {
+        this.deletedBooks.set(res.data);
+      }
+    });
+  }
+
+
+
+
+
+
+
+  openRestore(b: RemoveBookI) {
     this.restoreBook = b;
   }
 
-  openDelete(b: DeletedBook) {
+  openDelete(b: RemoveBookI) {
     this.deleteBook = b;
     this.deleteText = '';
   }
 
   confirmRestore() {
-    if (!this.restoreBook) return;
+    if (!this.restoreBook?._id) return;
 
-    // simulate restore: move deleted copies back into total
-    this.restoreBook.total_copies += this.restoreBook.deleted_copies;
-    this.restoreBook.deleted_copies = 0;
-
-    // remove from restore list (optional, common for restore page)
-    this.deletedBooks = this.deletedBooks.filter(x => x._id !== this.restoreBook!._id);
-
-    this.restoreBook = null;
+    this.bookservice.restoreBook(this.restoreBook._id).subscribe({
+      next: (res) => {
+        this.alert.showAlert('success', res.message);
+        this.getAllRemoveBooks();
+      },
+      error: (err) => {
+        this.alert.showAlert('error', err.error?.message);
+      }
+    });
   }
 
   confirmDelete() {
     if (!this.deleteBook) return;
     if (this.deleteText !== 'DELETE') return;
 
-    // simulate permanent delete: remove from list
-    this.deletedBooks = this.deletedBooks.filter(x => x._id !== this.deleteBook!._id);
+    this.bookservice.deletePermanently(this.deleteBook._id).subscribe({
+      next: (res) => {
+        this.alert.showAlert("success", res.message);
+        this.getAllRemoveBooks();
+      },
+      error: (err) => {
+        this.alert.showAlert('error', err.error?.message);
+      }
+    });
 
     this.deleteBook = null;
     this.deleteText = '';
   }
 }
-
-type DeletedBook = {
-  _id: string;
-  title: string;
-  cover_url: string;
-  total_copies: number;
-  deleted_copies: number;
-  deleted_at: string;
-};

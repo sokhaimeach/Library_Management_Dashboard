@@ -1,4 +1,4 @@
-<div class="container py-4">
+<div class="container py-3">
 
     <!-- ======= Top Bar ======= -->
     <div class="topbar p-3 p-md-4">
@@ -31,19 +31,20 @@
     <div class="row g-3 mt-1">
 
         <!-- Profile -->
+        @if(member()){
         <div class="col-12 col-lg-6">
             <div class="panel-card h-100">
                 <div class="panel-head d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center gap-2">
                         <div class="panel-icon"><i class="bi bi-person"></i></div>
                         <div>
-                            <div class="fw-semibold">Profile</div>
-                            <div class="text-muted small">Joined: 2025-12-01</div>
+                            <div class="fw-semibold">{{member()?.name}}</div>
+                            <div class="text-muted small">Joined: {{member()?.join_date | date}}</div>
                         </div>
                     </div>
 
                     <span class="badge rounded-pill text-bg-light border badge-soft">
-                        <i class="bi bi-shield-exclamation me-1"></i> Type: blacklist
+                        <i class="bi bi-shield-exclamation me-1"></i> Type: {{member()?.member_type}}
                     </span>
                 </div>
 
@@ -51,11 +52,11 @@
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
                             <div class="text-muted small">Phone</div>
-                            <div class="fw-semibold">0123456789</div>
+                            <div class="fw-semibold">{{member()?.contact?.phone_number || "___"}}</div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="text-muted small">Email</div>
-                            <div class="fw-semibold">makara1@gmail.com</div>
+                            <div class="fw-semibold">{{member()?.contact?.email || "___"}}</div>
                         </div>
                     </div>
 
@@ -64,20 +65,21 @@
                     <div class="row g-3">
                         <div class="col-6">
                             <div class="stat-box">
-                                <div class="text-muted small">Current Borrow</div>
-                                <div class="fs-5 fw-bold">0</div>
+                                <div class="text-muted small">Borrow Records</div>
+                                <div class="fs-5 fw-bold">{{borrowRecords().length}}</div>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="stat-box">
-                                <div class="text-muted small">Lost Records</div>
-                                <div class="fs-5 fw-bold">1</div>
+                                <div class="text-muted small">Penalty Records</div>
+                                <div class="fs-5 fw-bold">{{penalties().length}}</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        }
 
         <!-- Change Member Type -->
         <div class="col-12 col-lg-6">
@@ -95,12 +97,12 @@
                 <div class="panel-body">
                     <div class="mb-3">
                         <label class="form-label small text-muted mb-1">Current Type</label>
-                        <input class="form-control inputs" value="blacklist" disabled />
+                        <input class="form-control inputs" [value]="member()?.member_type" disabled />
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label small text-muted mb-1">New Type</label>
-                        <select class="form-select inputs" aria-label="Member type">
+                        <select class="form-select inputs" aria-label="Member type" [(ngModel)]="changeType">
                             <option value="regular" selected>Regular</option>
                             <option value="vip">VIP</option>
                             <option value="blacklist">Blacklist</option>
@@ -138,7 +140,7 @@
 
                             <div class="detail-box mb-3">
                                 <div class="text-muted small">Change</div>
-                                <div class="fw-semibold text-dark">blacklist → regular</div>
+                                <div class="fw-semibold text-dark">{{member()?.member_type + " → " + changeType}}</div>
                             </div>
 
                             <div class="small text-muted mb-3">
@@ -147,7 +149,8 @@
 
                             <div class="d-flex justify-content-end gap-2">
                                 <button class="btn btn-light btn-soft2" data-bs-dismiss="modal">Cancel</button>
-                                <button class="btn btn-dark btn-save" data-bs-dismiss="modal">Confirm</button>
+                                <button class="btn btn-dark btn-save" data-bs-dismiss="modal"
+                                    (click)="updateMemberType()">Confirm</button>
                             </div>
                         </div>
                     </div>
@@ -180,7 +183,7 @@
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-penalties" type="button">
                         <i class="bi bi-exclamation-triangle me-1"></i> Penalties
-                        <span class="badge rounded-pill text-bg-light border ms-1">1</span>
+                        <span class="badge rounded-pill text-bg-light border ms-1">{{penalties().length}}</span>
                     </button>
                 </li>
             </ul>
@@ -194,15 +197,17 @@
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                         <div class="input-group input-group-sm search px-2">
                             <span class="input-group-text bg-transparent border-0 text-muted">
-                                <i class="bi bi-search"></i>
+                                <i class="bi bi-search" (click)="getBorrowHistory()"></i>
                             </span>
-                            <input type="text" class="input" placeholder="Search book title..." />
+                            <input type="text" class="input" placeholder="Search book title..."
+                                [(ngModel)]="searchBorrow" (keydown.Enter)="getBorrowHistory()" />
                         </div>
 
                         <div class="detail-box d-flex align-items-center gap-2">
                             <i class="bi bi-funnel"></i>
-                            <select class="form-select form-select-sm filter-select" aria-label="Filter status">
-                                <option selected>All status</option>
+                            <select class="form-select form-select-sm filter-select" [(ngModel)]="filterBorrow"
+                                aria-label="Filter status" (change)="getBorrowHistory()">
+                                <option value="">All status</option>
                                 <option value="returned">Returned</option>
                                 <option value="late">Late</option>
                                 <option value="overdue">Overdue</option>
@@ -227,7 +232,7 @@
                                 </thead>
 
                                 <tbody>
-                                    @for(borrow of borrowRecords; track $index){
+                                    @for(borrow of borrowRecords(); track $index){
                                     <tr class="row-hover">
                                         <td>
                                             <div class="primary-text">{{borrow.book_title}}</div>
@@ -236,12 +241,12 @@
 
                                         <td>
                                             <div class="primary-text">{{borrow.borrow_date | date}}</div>
-                                            <div class="sub-text">yyyy-mm-dd</div>
+                                            <div class="sub-text">borrow_date</div>
                                         </td>
 
                                         <td>
                                             <div class="primary-text">{{borrow.due_date | date}}</div>
-                                            <div class="sub-text">yyyy-mm-dd</div>
+                                            <div class="sub-text">due_date</div>
                                         </td>
 
                                         <td>
@@ -260,6 +265,7 @@
                                         <td class="text-end">
                                             <div class="side-actions">
                                                 <button class="icon-btn" type="button" aria-label="Update status"
+                                                    [disabled]="borrow.status !== 'overdue'? true : false"
                                                     data-bs-toggle="modal" data-bs-target="#updateBorrowStatusModal"
                                                     (click)="openUpdateStatus(borrow)">
                                                     <i class="bi bi-pencil-square"></i>
@@ -273,6 +279,14 @@
                         </div>
                     </div>
 
+                    @if(borrowRecords().length === 0){
+                    <!-- empty state -->
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-shield-check fs-2 d-block mb-2"></i>
+                        No borrows found.
+                    </div>
+                    }
+
                 </div>
 
                 <!-- ================= PENALTIES TAB ================= -->
@@ -281,15 +295,17 @@
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                         <div class="input-group input-group-sm search px-2">
                             <span class="input-group-text bg-transparent border-0 text-muted">
-                                <i class="bi bi-search"></i>
+                                <i class="bi bi-search" (click)="getPenaltyHistory()"></i>
                             </span>
-                            <input type="text" class="input" placeholder="Search penalty..." />
+                            <input type="text" class="input" placeholder="Search penalty..." [(ngModel)]="searchPenalty"
+                                (keydown.Enter)="getPenaltyHistory()" />
                         </div>
 
                         <div class="detail-box d-flex align-items-center gap-2">
                             <i class="bi bi-funnel"></i>
-                            <select class="form-select form-select-sm filter-select" aria-label="Filter penalty status">
-                                <option selected>All status</option>
+                            <select class="form-select form-select-sm filter-select" aria-label="Filter penalty status"
+                                [(ngModel)]="filterPenalty" (change)="getPenaltyHistory()">
+                                <option value="">All status</option>
                                 <option value="paid">Paid</option>
                                 <option value="pending">Pending</option>
                                 <option value="replaced">Replaced</option>
@@ -312,33 +328,36 @@
                                 </thead>
 
                                 <tbody>
+                                    @for(penalty of penalties(); track $index){
                                     <tr class="row-hover">
-                                        <td class="fw-semibold">lost</td>
-                                        <td>$4.50</td>
+                                        <td class="fw-semibold">{{penalty.penalty_type}}</td>
+                                        <td>{{penalty.amount.$numberDecimal | currency}}</td>
                                         <td>
-                                            <span class="badge rounded-pill text-bg-warning">pending</span>
+                                            <span class="badge rounded-pill text-bg-warning">{{penalty.status}}</span>
                                         </td>
                                         <td>
-                                            <div class="fw-semibold">Book lost</div>
-                                            <div class="sub-text">Penalty ID: 69351b761f34e4d5156f6a2d</div>
+                                            <div class="fw-semibold">{{penalty.note}}</div>
+                                            <div class="sub-text">Penalty ID: {{penalty._id}}</div>
                                         </td>
                                         <td class="text-end">
                                             <div class="side-actions">
                                                 <button class="icon-btn" type="button" aria-label="Update status"
+                                                    [disabled]="penalty.status !== 'pending'? true : false"
                                                     data-bs-toggle="modal" data-bs-target="#updatePenaltyStatusModal"
-                                                    (click)="openPenaltyModal({_id: '69351b761f34e4d5156f6a2d'})">
+                                                    (click)="openPenaltyModal(penalty)">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
+                                    }
                                 </tbody>
 
                             </table>
                         </div>
                     </div>
 
-                    @if(penalties.length === 0){
+                    @if(penalties().length === 0){
                     <!-- empty state -->
                     <div class="text-center text-muted py-5">
                         <i class="bi bi-shield-check fs-2 d-block mb-2"></i>
@@ -376,7 +395,7 @@
                     <option value="returned" selected>Returned</option>
                     <option value="late">Late</option>
                     <option value="lost">Lost</option>
-                    <option value="damaged">Damaged</option>
+                    <option value="damaged" (click)="checkDamageType(true)">Damaged</option>
                 </select>
 
                 @if(selectedStatus === 'damaged'){
@@ -416,7 +435,8 @@
 
                 <div class="d-flex justify-content-end gap-2">
                     <button class="btn btn-light btn-soft2" type="button" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-dark btn-save" type="button" data-bs-dismiss="modal" (click)="saveStatus()">
+                    <button class="btn btn-dark btn-save" type="button" data-bs-dismiss="modal"
+                        (click)="saveBorrowStatus()">
                         <i class="bi bi-check2-circle me-1"></i> Save
                     </button>
                 </div>
@@ -446,14 +466,15 @@
 
                 <label class="mb-1 small text-muted">Status</label>
                 <select class="form-select inputs mb-3" [(ngModel)]="selectPenaltyStatus" name="selectedPenaltyStatus">
-                    <option value="returned">Paid</option>
-                    <option value="late">Replaced</option>
-                    <option value="lost">Return</option>
+                    <option value="paid">Paid</option>
+                    <option value="replaced">Replaced</option>
+                    <option value="returned">Returned</option>
                 </select>
 
                 <div class="d-flex justify-content-end gap-2">
                     <button class="btn btn-light btn-soft2" type="button" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-dark btn-save" type="button" data-bs-dismiss="modal" (click)="savePenaltySatus()">
+                    <button class="btn btn-dark btn-save" type="button" data-bs-dismiss="modal"
+                        (click)="savePenaltySatus()">
                         <i class="bi bi-check2-circle me-1"></i> Save
                     </button>
                 </div>

@@ -1,5 +1,5 @@
 <!-- ======= Top Bar ======= -->
-<div class="container-fluid ps-3 pe-3 mt-4">
+<div class="container-fluid ps-3 pe-3 mt-3">
     <div class="topbar p-3 p-md-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
 
@@ -15,12 +15,12 @@
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-2 ms-md-3">
+                <!-- <div class="d-flex align-items-center gap-2 ms-md-3">
                     <div class="detail-box">
                         <div class="text-muted small">Book</div>
                         <div class="fw-semibold text-dark">18 books</div>
                     </div>
-                </div>
+                </div> -->
             </div>
 
             <!-- Right: Actions -->
@@ -36,13 +36,14 @@
         <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
             <div class="input-group input-group-sm search px-2">
                 <span class="input-group-text bg-transparent border-0 text-muted">
-                    <i class="bi bi-search"></i>
+                    <i class="bi bi-search" (click)="searchQuery? getAllBooks():''"></i>
                 </span>
-                <input type="text" class="input" placeholder="Search title, author, category..." />
+                <input type="text" class="input" placeholder="Search title, author, category..." name="search"
+                [(ngModel)]="searchQuery" (keydown.Enter)="getAllBooks()" />
             </div>
 
             <div class="d-flex justify-content-between w-100">
-                <app-filter-dropdown [filters]="genreFilters" (filtersChange)="onFilterChange($event)">
+                <app-filter-dropdown [filters]="genreFilters()" (filtersChange)="onFilterChange($event)">
                 </app-filter-dropdown>
                 <button class="btn add-book btn-sm fw-semibold shadow-sm" routerLink="/admin/book/recycle">
                     <i class="bi bi-trash3 me-1"></i> Trash
@@ -53,10 +54,9 @@
 </div>
 
 
-<!-- ======= Book Card List (KEEP SAME) ======= -->
-@defer (on timer(100ms)) {
+<!-- ======= Book Card List ======= -->
 <div class="px-3 gap-2 main-card">
-    @for(book of books; track $index){
+    @for(book of books(); track $index){
     <div class="book-card" role="group" [attr.aria-label]="'Book: ' + book.title">
         <div class="cover">
             <img [src]="book.cover_url" [alt]="book.title + ' cover'" loading="lazy" />
@@ -103,12 +103,12 @@
                 <button class="btn-primary-soft btn-sm" type="button" data-bs-toggle="collapse"
                     [attr.data-bs-target]="'#collapse'+book._id" aria-expanded="false"
                     [attr.aria-controls]="'#collapse'+book._id">
-                    Read More
+                    <i class="bi bi-chevron-down me-1"></i> Read More
                 </button>
             </div>
 
             <div class="side-actions">
-                <button class="icon-btn" type="button" (click)="onEdit(book._id); openModal(book)"
+                <button class="icon-btn" type="button" (click)="openModal(book)"
                     aria-label="Edit book" data-bs-toggle="modal" data-bs-target="#exampleModal">
                     <i class="bi bi-pencil-square"></i>
                 </button>
@@ -120,20 +120,19 @@
                 </button>
             </div>
 
-            <!-- start collapse -->
+            <!-- collapse -->
             <div class="collapse mt-2" [id]="'collapse'+book._id">
-                <div class="card card-body">
-                    {{book.description}}
+                <div class="collapse-box">
+                    {{ book.description }}
                 </div>
             </div>
         </div>
     </div>
     }
 </div>
-}
 
 
-<!-- ======= Main Modal (Styled) ======= -->
+<!-- ======= Main Modal ======= -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content modal-soft">
@@ -148,7 +147,7 @@
                         aria-label="Close"></button>
                 </div>
 
-                <form (submit)="$event.preventDefault()">
+                <form (submit)=" this.modalTitle !== 'Edit Book Information'? createBook():editBookInfo();$event.preventDefault()">
                     <div class="row">
                         <div class="col-6">
                             <label class="mb-1" for="">Title</label>
@@ -262,7 +261,7 @@
                         <div class="col-6">
                             <label class="mb-1" for="">Total copies</label>
                             <input type="number" class="form-control inputs" name="total_copies"
-                                [(ngModel)]="item.total_copies">
+                                [(ngModel)]="item.total_copies" [disabled]="isEdit">
                         </div>
                     </div>
 
@@ -277,8 +276,8 @@
                     <div class="row mb-3">
                         <div class="col-12 d-flex flex-column">
                             <label class="mb-1">Description</label>
-                            <textarea class="description" name="description"
-                                placeholder="Write book description..."></textarea>
+                            <textarea class="description" name="description" [(ngModel)]="item.description"
+                            placeholder="Write book description..."></textarea>
                         </div>
                     </div>
 
@@ -322,7 +321,7 @@
                                 <div class="col-12">
                                     <label class="mb-1">Nationality</label>
                                     <select class="form-select mb-3 inputs" [(ngModel)]="authorItem.nationality"
-                                        aria-label="Nationality">
+                                        aria-label="Nationality" name="nationality">
                                         <option value="Khmer" selected>Khmer</option>
                                         <option value="American">American</option>
                                         <option value="Chinese">Chinese</option>
@@ -342,7 +341,7 @@
                                 <div class="col-12 d-flex flex-column">
                                     <label class="mb-1">Biography</label>
                                     <textarea class="description" name="biography" [(ngModel)]="authorItem.biography"
-                                        placeholder="Write short biography..."></textarea>
+                                        placeholder="Write short biography..." name="author_description"></textarea>
                                 </div>
                             </div>
 
@@ -356,6 +355,7 @@
                             </div>
                         </form>
                         } @else {
+
                         <!-- Category form -->
                         <form (submit)="onSubmitCategory(); $event.preventDefault()">
                             <div class="row mb-3">

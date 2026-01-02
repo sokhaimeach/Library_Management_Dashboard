@@ -1,13 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
+import { Authservice } from '../../core/auth/authservice';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -85,9 +87,9 @@ export class Dashboard implements AfterViewInit {
   ];
 
   inventory = {
-    available: 260,
-    borrowed: 40,
-    borrowedPct: 0
+    available: 250,
+    borrowed: 50,
+    borrowedPct: 50
   };
 
   kpis: Array<{ label: string; value: string | number; delta: number; deltaText: string; icon: string }> = [];
@@ -103,7 +105,7 @@ export class Dashboard implements AfterViewInit {
     allowed: [] as string[]
   };
 
-  constructor() {
+  constructor(private router: Router, private auth: Authservice) {
     this.recompute();
   }
 
@@ -156,7 +158,7 @@ export class Dashboard implements AfterViewInit {
   // ---------- Actions (hook backend later) ----------
   onQuickAction(action: string): void {
     console.log('Quick action:', action);
-    // Example: this.router.navigate(['/members']) etc...
+    this.router.navigate([action]);
   }
 
   openDetail(type: 'borrow' | 'penalty', id: string): void {
@@ -165,11 +167,13 @@ export class Dashboard implements AfterViewInit {
   }
 
   openStatusModal(type: 'borrow' | 'penalty', id: string): void {
+    if(this.auth.getUserProfile()?.role === 'stock-keeper') return;
+
     this.modalTarget.type = type;
     this.modalTarget.id = id;
 
     if (type === 'borrow') {
-      this.modalTarget.allowed = ['returned', 'overdue', 'late', 'lost', 'damaged'];
+      this.modalTarget.allowed = ['returned', 'late', 'lost', 'damaged'];
       this.modalTarget.newStatus = 'returned';
     } else {
       this.modalTarget.allowed = ['pending', 'paid', 'replaced', 'returned'];
@@ -214,14 +218,14 @@ export class Dashboard implements AfterViewInit {
     const totalBooks = 300;   // replace with API
     const totalMembers = 120; // replace with API
 
-    this.inventory.available = Math.max(totalBooks - borrowedNow, 0);
-    this.inventory.borrowed = borrowedNow;
-    this.inventory.borrowedPct = totalBooks ? (borrowedNow / totalBooks) * 100 : 0;
+    // this.inventory.available = Math.max(totalBooks - borrowedNow, 0);
+    // this.inventory.borrowed = borrowedNow;
+    // this.inventory.borrowedPct = totalBooks ? (borrowedNow / totalBooks) * 100 : 0;
 
     this.kpis = [
       { label: 'Total Books', value: totalBooks, delta: 3, deltaText: '+3 this week', icon: 'bi-book' },
       { label: 'Total Members', value: totalMembers, delta: 2, deltaText: '+2 this week', icon: 'bi-people' },
-      { label: 'Borrowed Now', value: borrowedNow, delta: 1, deltaText: '+1 today', icon: 'bi-box-arrow-up-right' },
+      { label: 'Borrowed', value: 50, delta: 1, deltaText: '+1 today', icon: 'bi-box-arrow-up-right' },
       { label: 'Overdue', value: overdue, delta: -1, deltaText: '-1 vs last week', icon: 'bi-alarm' },
       { label: 'Penalties Pending', value: pendingPenalties, delta: 0, deltaText: `$${pendingAmount.toFixed(2)} total`, icon: 'bi-receipt' },
       { label: 'Damaged/Lost', value: this.recentBorrows.filter(b => b.status === 'damaged' || b.status === 'lost').length, delta: 0, deltaText: 'needs action', icon: 'bi-shield-exclamation' }

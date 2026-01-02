@@ -99,7 +99,11 @@
 }
 
 /* Tables */
-.table-card { padding: 14px 16px; }
+.table-border {
+  border-radius: 12px;
+  overflow: hidden;
+}
+.table-card { padding: 14px 16px;}
 .table-head-dark th {
   background: #111 !important;
   color: #fff !important;
@@ -132,6 +136,9 @@
   border-radius: 12px;
   border: 1px solid #eef0f3;
   background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .btn-icon-soft:hover {
   box-shadow: 0 10px 24px rgba(18, 38, 63, 0.12);

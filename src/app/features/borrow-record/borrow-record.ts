@@ -1,9 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FilterDropdown } from '../../shared/components/filter-dropdown/filter-dropdown';
 import { AlertSuccess } from '../../shared/components/alert-success/alert-success';
 import { Alertservice } from '../../shared/components/alert-success/alertservice';
+import { BorrowDatail, BorrowI, BorrowStatus, ReturnI } from '../models/borrow.model';
+import { Borrowservice } from '../services/borrowservice/borrowservice';
+declare const bootstrap: any;
 
 @Component({
   selector: 'app-borrow-record',
@@ -12,66 +15,34 @@ import { Alertservice } from '../../shared/components/alert-success/alertservice
   styleUrl: './borrow-record.css',
 })
 export class BorrowRecord {
-
-  constructor(private alert: Alertservice) {}
-
-  item = {
+  item:ReturnI = {
     status: '',
-    damage_type: '',
-    damage_fee: 0
-  }
-
-
-
-  q = '';
-  statusFilter = 'all';
+    damage_type: 'can',
+    damage_fee: 0,
+  };
 
   // borrow data
-  borrows: BorrowRow[] = [
-    {
-      _id: '6933ac30048d8959faaab20b',
-      return_date: null,
-      status: 'damaged',
-      borrow_date: '2025-12-06T04:08:16.831Z',
-      due_date: '2025-12-20T04:08:16.831Z',
-      member_name: 'Makara1',
-      book_title: 'Kolab Pailin',
-    },
-    {
-      _id: '694671033070e4a41546db90',
-      return_date: null,
-      status: 'damaged',
-      borrow_date: '2025-12-20T09:48:51.416Z',
-      due_date: '2025-12-27T09:48:51.416Z',
-      member_name: 'Tri',
-      book_title: 'Kolab Pailin',
-    },
-  ];
+  borrows = signal<BorrowI[]>([]);
+  detail = signal<BorrowDatail | null>(null);
+  filter: string = '';
+  searchQuery: string = '';
 
-  // detail sample (you can replace by API later)
-  detail: any = {
-    _id: '694671033070e4a41546db90',
-    member: {
-      _id: '692dbfa43ca0f71609d7e265',
-      name: 'Tri',
-      contact: { phone_number: '0123456789', email: 'tri@gmail.com' },
-      member_type: 'regular',
-      join_date: '2025-12-01T16:17:40.255Z',
-    },
-    book: {
-      title: 'Kolab Pailin',
-      cover_url:
-        'https://www.elibraryofcambodia.org/wp-content/uploads/2014/04/Kolab-Pailin-book-cover.jpg',
-      price: { $numberDecimal: '4.5' },
-      total_copies: 3,
-      category: 'Dramatic',
-      author_name: 'Long',
-    },
-    user: {
-      username: 'Sokhai',
-      contact: { phone_number: '0123456789', email: 'sokhai@gmail.com' },
-    },
-  };
+  constructor(
+    private alert: Alertservice,
+    private borrowservice: Borrowservice
+  ) {}
+  ngOnInit(): void {
+    this.getAllBorrowRecords();
+  }
+
+  // get all borrow records
+  getAllBorrowRecords() {
+    this.borrowservice.getAllBorrows(this.filter, this.searchQuery).subscribe({
+      next: (res) => {
+        this.borrows.set(res);
+      },
+    });
+  }
 
   // selected for update modal
   selectedBorrowId = '';
@@ -82,15 +53,23 @@ export class BorrowRecord {
 
   // actions
   openDetail(id: string) {
-    // later: call API to load detail by id
-    // now: just update a label based on list
-    const row = this.borrows.find((x) => x._id === id);
-    this.selectedBorrowStatusDisplay = row ? this.titleCase(row.status) : '—';
+    this.borrowservice.getBorrowDetail(id).subscribe({
+      next: (res) => {
+        this.detail.set(res);
+
+        const modalEl = document.getElementById('borrowDetailModal');
+        if (!modalEl) return;
+
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+      },
+    });
   }
 
   openUpdateStatus(b: any) {
     this.selectedBorrowId = b._id;
     this.removeFailed = false;
+    console.log(this.selectedBorrowId)
   }
 
   // damage type helpers
@@ -99,7 +78,7 @@ export class BorrowRecord {
   checkDamageType(type: boolean) {
     this.isLittleDamage = type;
 
-    if(type) {
+    if (type) {
       this.item.damage_type = 'can';
     } else {
       this.item.damage_type = 'cannot';
@@ -107,18 +86,25 @@ export class BorrowRecord {
   }
 
   saveStatus() {
-
-    if(this.item.damage_fee <=0 && this.selectedStatus === 'damaged' && this.isLittleDamage) {
+    if (
+      this.item.damage_fee && this.item.damage_fee <= 0 &&
+      this.selectedStatus === 'damaged' &&
+      this.isLittleDamage
+    ) {
       this.removeFailed = true;
       return;
     }
 
     this.item.status = this.selectedStatus;
-    this.alert.showAlert('','Borrow status updated successfully!');
-    const row = this.borrows.find((x) => x._id === this.selectedBorrowId);
-    if (!row) return;
-
-    row.status = this.selectedStatus;
+    this.borrowservice.updateBorrowStatus(this.selectedBorrowId, this.item).subscribe({
+      next: (res) => {
+        this.alert.showAlert('success', res.message);
+        this.getAllBorrowRecords();
+      },
+      error: (err) => {
+        this.alert.showAlert('error', err.error.message);
+      }
+    });
   }
 
   // helpers for UI badges
@@ -150,17 +136,6 @@ export class BorrowRecord {
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
-  private toDateInput(iso: string) {
-    // convert ISO to yyyy-mm-dd for input[type=date]
-    const d = new Date(iso);
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-  }
-
-
-
   // design filter options
   genreFilters = [
     { key: 'overdue', label: 'Overdue', checked: false },
@@ -171,19 +146,10 @@ export class BorrowRecord {
   ];
 
   onFilterChange(selected: string[]) {
-    // call API here
-    console.log(selected);
+    this.filter = "";
+    selected.forEach((select) => {
+      this.filter += select + ",";
+    });
+    this.getAllBorrowRecords();
   }
-}
-
-type BorrowStatus = "overdue" | "returned" | "lost" | "late" | "damaged";
-
-interface BorrowRow {
-  _id: string;
-  return_date: string | null;  // ✅ important
-  status: BorrowStatus;
-  borrow_date: string;
-  due_date: string;
-  member_name: string;
-  book_title: string;
 }

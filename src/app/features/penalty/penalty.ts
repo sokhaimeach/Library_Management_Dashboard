@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FilterDropdown } from '../../shared/components/filter-dropdown/filter-dropdown';
 import { Inputs } from '../../shared/components/inputs/inputs';
+import { PenaltyDetail, PenaltyListItem, PenaltyStatus } from '../models/penalty.model';
 declare const bootstrap: any;
 
 @Component({
@@ -64,20 +65,7 @@ selectBorrowId(borrow: any) {
   statusFilter: 'all' | PenaltyStatus = 'all';
 
   // data
-  penalties: PenaltyListItem[] = [
-    {
-      _id: '69351b761f34e4d5156f6a2d',
-      penalty_type: 'lost',
-      amount: { $numberDecimal: '4.5' },
-      status: 'pending',
-      note: 'Book lost',
-      received_at: null,
-      created_at: '2025-12-07T06:15:18.888Z',
-      member_name: 'Makara1',
-      phone_number: '0123456789',
-    },
-    // add more demo items if you want
-  ];
+  penalties: PenaltyListItem[] = [];
 
   filtered: PenaltyListItem[] = [];
 
@@ -176,7 +164,7 @@ selectBorrowId(borrow: any) {
     this.detail = {
       _id: '69351b761f34e4d5156f6a2d',
       penalty_type: 'lost',
-      amount: { $numberDecimal: '4.5' },
+      amount: {$numberDecimal: "4.5"},
       status: 'pending',
       note: 'Book lost',
       received_at: null,
@@ -197,7 +185,7 @@ selectBorrowId(borrow: any) {
       book: {
         title: 'Kolab Pailin',
         cover_url: 'https://www.elibraryofcambodia.org/wp-content/uploads/2014/04/Kolab-Pailin-book-cover.jpg',
-        price: { $numberDecimal: '4.5' },
+        price: { $numberDecimal: "4.5"},
         total_copies: 3,
         category: 'Dramatic',
         author_name: 'Long',
@@ -262,7 +250,7 @@ selectBorrowId(borrow: any) {
     const newItem: PenaltyListItem = {
       _id: crypto?.randomUUID?.() ?? `id_${Date.now()}`,
       penalty_type: this.createForm.penalty_type,
-      amount: { $numberDecimal: String(this.createForm.amount ?? 0) },
+      amount: { $numberDecimal: String(this.createForm.amount ?? 0)},
       status: 'pending',
       note: this.createForm.note,
       received_at: null,
@@ -304,55 +292,4 @@ onFilterChange(selected: string[]) {
   // call API here
   console.log(selected);
 }
-}
-
-
-
-type PenaltyStatus = 'pending' | 'paid' | 'replaced' | 'returned';
-
-interface MoneyDecimal {
-  $numberDecimal: string;
-}
-
-interface PenaltyListItem {
-  _id: string;
-  penalty_type: string;
-  amount: MoneyDecimal;
-  status: PenaltyStatus;
-  note: string;
-  received_at: string | null;
-  created_at: string;
-  member_name: string;
-  phone_number: string;
-}
-
-interface PenaltyDetail {
-  _id: string;
-  penalty_type: string;
-  amount: MoneyDecimal;
-  status: PenaltyStatus;
-  note: string;
-  received_at: string | null;
-  created_at: string;
-  member: {
-    _id: string;
-    name: string;
-    contact: { phone_number: string; email: string };
-    member_type: string;
-    join_date: string;
-  };
-  borrow_info: {
-    return_date: string | null;
-    status: string;
-    borrow_date: string;
-    due_date: string;
-  };
-  book: {
-    title: string;
-    cover_url: string;
-    price: MoneyDecimal;
-    total_copies: number;
-    category: string;
-    author_name: string;
-  };
 }
