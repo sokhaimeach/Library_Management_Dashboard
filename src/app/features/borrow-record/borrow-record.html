@@ -155,7 +155,6 @@
                 <label class="mb-1 small text-muted">Status</label>
                 <select class="form-select inputs mb-3" [(ngModel)]="selectedStatus" name="selectedStatus">
                     <option value="returned" selected>Returned</option>
-                    <option value="late">Late</option>
                     <option value="lost">Lost</option>
                     <option value="damaged" (click)="checkDamageType(true)">Damaged</option>
                 </select>
@@ -268,7 +267,7 @@
                                             d.book.author_name }}</div>
                                         <div class="text-muted small">Copies: {{ d.book.total_copies }}</div>
                                         <div class="small mt-2">
-                                            Price: <span class="fw-bold">{{ d.book.price.$numberDecimal }}</span>
+                                            Price: <span class="fw-bold">{{ d.book.price }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -277,7 +276,7 @@
 
                                 <div class="d-flex justify-content-between small">
                                     <span class="text-muted">Current status</span>
-                                    <span class="fw-semibold">{{ selectedBorrowStatusDisplay }}</span>
+                                    <span class="fw-semibold">{{ d.status }}</span>
                                 </div>
 
                                 <div class="d-flex justify-content-end mt-3">

@@ -1,15 +1,31 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  effect,
+  ElementRef,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { Authservice } from '../../core/auth/authservice';
+import { AvaiVsBorI, KpiI } from '../models/report.model';
+import { Reportservice } from '../services/reportservice/reportservice';
+import { BorrowI, BorrowStatus, ReturnI } from '../models/borrow.model';
+import { PenaltyListItem, PenaltyStatus, PenaltyType } from '../models/penalty.model';
+import { Borrowservice } from '../services/borrowservice/borrowservice';
+import { Alertservice } from '../../shared/components/alert-success/alertservice';
+import { Penaltyservice } from '../services/penaltyservice/penaltyservice';
+import { AlertSuccess } from '../../shared/components/alert-success/alert-success';
+import { TruncatePipe } from '../../shared/pipes/truncate-pipe';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, AlertSuccess, TruncatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -18,218 +34,281 @@ export class Dashboard implements AfterViewInit {
   @ViewChild('statusCanvas') statusCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('categoryCanvas') categoryCanvas!: ElementRef<HTMLCanvasElement>;
 
-  searchText = '';
 
-  // Replace these with backend calls
-  recentBorrows: BorrowRecord[] = [
-    {
-      _id: '6933ac30048d8959faaab20b',
-      member_name: 'Makara1',
-      book_title: 'Kolab Pailin',
-      borrow_date: '2025-12-06T04:08:16.831Z',
-      due_date: '2025-12-20T04:08:16.831Z',
-      status: 'damaged'
-    },
-    {
-      _id: '694671033070e4a41546db90',
-      member_name: 'Tri',
-      book_title: 'Kolab Pailin',
-      borrow_date: '2025-12-20T09:48:51.416Z',
-      due_date: '2025-12-27T09:48:51.416Z',
-      status: 'late'
-    },
-    {
-      _id: '694671033070e4a41546db91',
-      member_name: 'Sok',
-      book_title: 'Angkor Story',
-      borrow_date: '2025-12-19T07:10:10.000Z',
-      due_date: '2025-12-21T07:10:10.000Z',
-      status: 'overdue'
-    },
-    {
-      _id: '694671033070e4a41546db92',
-      member_name: 'Nita',
-      book_title: 'Khmer Tales',
-      borrow_date: '2025-12-18T06:00:00.000Z',
-      due_date: '2025-12-25T06:00:00.000Z',
-      status: 'returned'
-    }
-  ];
-
-  penalties: PenaltyRecord[] = [
-    { _id: 'p1', member_name: 'Makara1', penalty_type: 'lost', amount: 4.5, status: 'pending' },
-    { _id: 'p2', member_name: 'Tri', penalty_type: 'late', amount: 1.0, status: 'paid' },
-    { _id: 'p3', member_name: 'Sok', penalty_type: 'damaged', amount: 2.25, status: 'pending' }
-  ];
-
-  alerts: AlertItem[] = [
-    {
-      type: 'Overdue',
-      title: '1 borrow overdue today',
-      subtitle: 'Sok • Angkor Story • Due: Dec 21, 2025',
-      refType: 'borrow',
-      refId: '694671033070e4a41546db91'
-    },
-    {
-      type: 'Overdue',
-      title: '1 borrow overdue today',
-      subtitle: 'Sok • Angkor Story • Due: Dec 21, 2025',
-      refType: 'borrow',
-      refId: '694671033070e4a41546db91'
-    },
-    {
-      type: 'Overdue',
-      title: '1 borrow overdue today',
-      subtitle: 'Sok • Angkor Story • Due: Dec 21, 2025',
-      refType: 'borrow',
-      refId: '694671033070e4a41546db91'
-    },
-  ];
-
-  inventory = {
-    available: 250,
-    borrowed: 50,
-    borrowedPct: 50
-  };
-
-  kpis: Array<{ label: string; value: string | number; delta: number; deltaText: string; icon: string }> = [];
+  recentBorrows = signal<BorrowI[]>([]);
+  recentPenalties = signal<PenaltyListItem[]>([]);
+  overdueBorrows = signal<BorrowI[]>([]);
+  inventory = signal<AvaiVsBorI>({ available: 0, borrowed: 0, borrowedPct: 0 });
+  kpis = signal<KpiI[]>([]);
+  trendData = signal<number[]>([]);
+  statusBreakdown = signal<{ labels: string[]; data: number[] }>({
+    labels: ['', '', '', '', ''],
+    data: [0, 0, 0, 0, 0],
+  });
+  topCategories = signal<{ labels: string[]; data: number[] }>({
+    labels: [],
+    data: [],
+  });
 
   private trendChart?: Chart;
   private statusChart?: Chart;
   private categoryChart?: Chart;
 
-  modalTarget = {
-    type: 'borrow' as 'borrow' | 'penalty',
-    id: '',
-    newStatus: '',
-    allowed: [] as string[]
-  };
+  constructor(
+    private router: Router,
+    private auth: Authservice,
+    private reportservice: Reportservice,
+    private borrowservice: Borrowservice,
+    private alert: Alertservice,
+    private penaltyservice: Penaltyservice
+  ) {}
 
-  constructor(private router: Router, private auth: Authservice) {
-    this.recompute();
+  ngOnInit(): void {
+    this.getTrend();
+    this.getStatusBreakdownData();
+    this.getTopCategoriesData();
+    this.getKpis();
+    this.getOverdueData();
+    this.getAvaiVsBor();
+    this.getRecentBorrowData();
+    this.getRecentPenaltyData();
   }
 
   ngAfterViewInit(): void {
     this.initCharts();
   }
 
+  // get kpis data
+  getKpis() {
+    this.reportservice.getKpiData().subscribe({
+      next: (res) => {
+        this.kpis.set(res);
+      },
+    });
+  }
+
+  // get overdue borrows
+  getOverdueData() {
+    this.reportservice.getOverdueBorrows().subscribe({
+      next: (res) => {
+        this.overdueBorrows.set(res);
+      },
+    });
+  }
+
+  // get available vs borrowed
+  getAvaiVsBor() {
+    this.reportservice.getAvailableVsBorrowed().subscribe({
+      next: (res) => {
+        this.inventory.set(res);
+      },
+    });
+  }
+
+  // get borrow trend data
+  getTrend() {
+    this.reportservice.getTrendBorrow().subscribe({
+      next: (res) => {
+        this.trendData.set(res);
+        console.log(this.trendData());
+      },
+    });
+  }
+
+  // get status breakdown
+  getStatusBreakdownData() {
+    this.reportservice.getStatusBreakdown().subscribe({
+      next: (res) => {
+        this.statusBreakdown.set(res);
+      },
+    });
+  }
+
+  // get top categories
+  getTopCategoriesData() {
+    this.reportservice.getTopCategory().subscribe({
+      next: (res) => {
+        this.topCategories.set(res);
+      },
+    });
+  }
+
+  // get recent borrows
+  getRecentBorrowData() {
+    this.reportservice.getRecentBorrows().subscribe({
+      next: (res) => {
+        this.recentBorrows.set(res);
+      },
+    });
+  }
+
+  // get recent penalties
+  getRecentPenaltyData() {
+    this.reportservice.getRecentPenalty().subscribe({
+      next: (res) => {
+        this.recentPenalties.set(res);
+      },
+    });
+  }
+
+  // ================= UPDATE BORROW STATUS =====================
+  item: ReturnI = {
+    status: '',
+    damage_type: 'can',
+    damage_fee: 0,
+  };
+  selectedBorrowId = '';
+  selectedStatus: BorrowStatus = 'returned';
+
+  openUpdateStatus(b: any) {
+    this.selectedBorrowId = b._id;
+    this.removeFailed = false;
+    console.log(this.selectedBorrowId);
+  }
+
+  // damage type helpers
+  removeFailed: boolean = false;
+  isLittleDamage: boolean = true;
+  checkDamageType(type: boolean) {
+    this.isLittleDamage = type;
+
+    if (type) {
+      this.item.damage_type = 'can';
+    } else {
+      this.item.damage_type = 'cannot';
+    }
+  }
+
+  saveStatus() {
+    if (
+      this.item.damage_fee &&
+      this.item.damage_fee <= 0 &&
+      this.selectedStatus === 'damaged' &&
+      this.isLittleDamage
+    ) {
+      this.removeFailed = true;
+      return;
+    }
+
+    this.item.status = this.selectedStatus;
+    this.borrowservice
+      .updateBorrowStatus(this.selectedBorrowId, this.item)
+      .subscribe({
+        next: (res) => {
+          this.alert.showAlert('success', res.message);
+          this.getRecentBorrowData();
+          this.getOverdueData();
+        },
+        error: (err) => {
+          this.alert.showAlert('error', err.error.message);
+        },
+      });
+  }
+
+  // ============== UPDATE PENALTY STATUS ===============
+  selectPenaltyStatus: string = 'paid';
+  selectPenaltyId: string = '';
+  selectPenaltyType: PenaltyType = 'lost';
+  openPenaltyModal(penalty: PenaltyListItem) {
+    this.selectPenaltyId = penalty._id;
+    this.selectPenaltyType = penalty.penalty_type;
+  }
+
+  savePenaltySatus() {
+    if (this.selectPenaltyStatus === '' || this.selectPenaltyId === '') return;
+
+    this.penaltyservice
+      .updatePenaltyStatus(this.selectPenaltyId, this.selectPenaltyStatus)
+      .subscribe({
+        next: (res) => {
+          this.alert.showAlert('success', res.message);
+          this.getRecentPenaltyData();
+        },
+        error: (err) => {
+          this.alert.showAlert('error', err.error?.message);
+        },
+      });
+  }
+
+  // return status
+  returnStatus(status: PenaltyType): PenaltyStatus[] {
+    if (status === 'lost') {
+      return ['paid', 'replaced', 'returned'];
+    } else if (status === 'late') {
+      return ['paid'];
+    } else {
+      return ['paid', 'replaced'];
+    }
+  }
+
   // ---------- UI Helpers ----------
-  statusChipClass(status: BorrowStatus): string {
-    const map: Record<BorrowStatus, string> = {
-      returned: 'chip-success',
-      overdue: 'chip-danger',
-      late: 'chip-warning',
-      lost: 'chip-dark',
-      damaged: 'chip-danger'
-    };
-    return map[status] || 'chip-gray';
+
+  chipClass(date: string): string {
+    return this.calculateDate(date) < 0 ? 'chip-warning' : 'chip-danger';
   }
 
-  penaltyChipClass(status: PenaltyStatus): string {
-    const map: Record<PenaltyStatus, string> = {
-      pending: 'chip-warning',
-      paid: 'chip-success',
-      replaced: 'chip-dark',
-      returned: 'chip-success'
-    };
-    return map[status] || 'chip-gray';
+  alertIcon(date: string): string {
+    return this.calculateDate(date) < 0 ? 'bi-hourglass-split' : 'bi-alarm';
   }
 
-  chipClass(type: AlertItem['type']): string {
-    const map: Record<AlertItem['type'], string> = {
-      'Overdue': 'chip-danger',
-      'Due Soon': 'chip-warning',
-      'Penalty': 'chip-warning',
-      'Damaged/Lost': 'chip-danger'
-    };
-    return map[type] || 'chip-gray';
+  calculateDate(date: string): number {
+    const due = new Date(date);
+    due.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return (today.getTime() - due.getTime()) / (1000 * 24 * 60 * 60);
   }
 
-  alertIcon(type: AlertItem['type']): string {
-    const map: Record<AlertItem['type'], string> = {
-      'Overdue': 'bi-alarm',
-      'Due Soon': 'bi-hourglass-split',
-      'Penalty': 'bi-receipt',
-      'Damaged/Lost': 'bi-shield-exclamation'
+  toKHR(usd: number): number {
+    return usd * 4018;
+  }
+
+  overdueTitle(date: string): string {
+    const over_day = this.calculateDate(date);
+    if (over_day == 0) {
+      return 'Due today';
+    } else if (over_day > 0) {
+      return `Overdue by ${over_day} ${over_day === 1 ? 'day' : 'days'}`;
+    } else {
+      return `Due in ${-over_day} ${over_day === -1 ? 'day' : 'days'} more`;
+    }
+  }
+
+  statusClass(status: string) {
+    return {
+      'status-borrowed': status === 'borrowed',
+      'status-returned': status === 'returned',
+      'status-late': status === 'late',
+      'status-overdue': status === 'overdue',
+      'status-lost': status === 'lost',
+      'status-damaged': status === 'damaged' || status === 'damage',
+      'status-pending': status === 'pending',
+      'status-replaced': status === 'replaced',
+      'status-paid': status === 'paid',
     };
-    return map[type] || 'bi-info-circle';
+  }
+
+  statusIcon(status: string) {
+    const map: any = {
+      borrowed: 'bi-box-arrow-in-right',
+      returned: 'bi-check-circle-fill',
+      late: 'bi-exclamation-circle-fill',
+      overdue: 'bi-alarm-fill',
+      lost: 'bi-x-circle-fill',
+      damaged: 'bi-tools',
+      damage: 'bi-tools',
+      pending: 'bi-hourglass-split',
+      paid: 'bi-check-circle-fill',
+      replaced: 'bi-arrow-repeat',
+    };
+    return map[status] || 'bi-dot';
   }
 
   // ---------- Actions (hook backend later) ----------
   onQuickAction(action: string): void {
     console.log('Quick action:', action);
     this.router.navigate([action]);
-  }
-
-  openDetail(type: 'borrow' | 'penalty', id: string): void {
-    console.log('Open detail:', type, id);
-    // Example: navigate to detail page
-  }
-
-  openStatusModal(type: 'borrow' | 'penalty', id: string): void {
-    if(this.auth.getUserProfile()?.role === 'stock-keeper') return;
-
-    this.modalTarget.type = type;
-    this.modalTarget.id = id;
-
-    if (type === 'borrow') {
-      this.modalTarget.allowed = ['returned', 'late', 'lost', 'damaged'];
-      this.modalTarget.newStatus = 'returned';
-    } else {
-      this.modalTarget.allowed = ['pending', 'paid', 'replaced', 'returned'];
-      this.modalTarget.newStatus = 'paid';
-    }
-
-    // bootstrap modal (no extra TS library)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const bootstrapAny = (window as any).bootstrap;
-    const el = document.getElementById('statusModal');
-    if (bootstrapAny && el) {
-      bootstrapAny.Modal.getOrCreateInstance(el).show();
-    }
-  }
-
-  confirmUpdateStatus(): void {
-    console.log('Update status:', this.modalTarget);
-
-    // You can call backend here
-    // Example:
-    // if (this.modalTarget.type === 'borrow') PATCH /borrows/:id { status }
-    // if (this.modalTarget.type === 'penalty') PATCH /penalties/:id { status }
-
-    // Close modal
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const bootstrapAny = (window as any).bootstrap;
-    const el = document.getElementById('statusModal');
-    if (bootstrapAny && el) {
-      bootstrapAny.Modal.getOrCreateInstance(el).hide();
-    }
-  }
-
-  // ---------- Compute KPI / inventory ----------
-  private recompute(): void {
-    const borrowedNow = this.recentBorrows.filter(b => b.status !== 'returned').length;
-    const overdue = this.recentBorrows.filter(b => b.status === 'overdue').length;
-    const pendingPenalties = this.penalties.filter(p => p.status === 'pending').length;
-    const pendingAmount = this.penalties
-      .filter(p => p.status === 'pending')
-      .reduce((s, p) => s + p.amount, 0);
-
-    const totalBooks = 300;   // replace with API
-    const totalMembers = 120; // replace with API
-
-    // this.inventory.available = Math.max(totalBooks - borrowedNow, 0);
-    // this.inventory.borrowed = borrowedNow;
-    // this.inventory.borrowedPct = totalBooks ? (borrowedNow / totalBooks) * 100 : 0;
-
-    this.kpis = [
-      { label: 'Total Books', value: totalBooks, delta: 3, deltaText: '+3 this week', icon: 'bi-book' },
-      { label: 'Total Members', value: totalMembers, delta: 2, deltaText: '+2 this week', icon: 'bi-people' },
-      { label: 'Borrowed', value: 50, delta: 1, deltaText: '+1 today', icon: 'bi-box-arrow-up-right' },
-      { label: 'Overdue', value: overdue, delta: -1, deltaText: '-1 vs last week', icon: 'bi-alarm' },
-      { label: 'Penalties Pending', value: pendingPenalties, delta: 0, deltaText: `$${pendingAmount.toFixed(2)} total`, icon: 'bi-receipt' },
-      { label: 'Damaged/Lost', value: this.recentBorrows.filter(b => b.status === 'damaged' || b.status === 'lost').length, delta: 0, deltaText: 'needs action', icon: 'bi-shield-exclamation' }
-    ];
   }
 
   // ---------- Charts ----------
@@ -241,8 +320,6 @@ export class Dashboard implements AfterViewInit {
 
     // Trend (7 days)
     const trendLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const trendData = [8, 10, 6, 12, 9, 14, 11]; // replace with API
-
     this.trendChart = new Chart(this.trendCanvas.nativeElement, {
       type: 'line',
       data: {
@@ -250,91 +327,72 @@ export class Dashboard implements AfterViewInit {
         datasets: [
           {
             label: 'Borrows',
-            data: trendData,
+            data: this.trendData(),
             tension: 0.35,
             fill: false,
-            pointRadius: 3
-          }
-        ]
+            pointRadius: 3,
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: true } }
-      }
+        plugins: { legend: { display: true } },
+      },
     });
 
     // Status doughnut
-    const statusCount = this.countBorrowStatuses(this.recentBorrows);
     this.statusChart = new Chart(this.statusCanvas.nativeElement, {
       type: 'doughnut',
       data: {
-        labels: Object.keys(statusCount),
+        labels: this.statusBreakdown().labels,
         datasets: [
           {
             label: 'Status',
-            data: Object.values(statusCount)
-          }
-        ]
+            data: this.statusBreakdown().data,
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom' } }
-      }
+        plugins: { legend: { position: 'bottom' } },
+      },
     });
 
     // Category bar (sample)
     this.categoryChart = new Chart(this.categoryCanvas.nativeElement, {
       type: 'bar',
       data: {
-        labels: ['Novel', 'History', 'Science', 'Kids', 'Poetry'],
-        datasets: [
-          { label: 'Borrows', data: [22, 14, 9, 17, 6] }
-        ]
+        labels: this.topCategories().labels,
+        datasets: [{ label: 'Borrows', data: this.topCategories().data }],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } }
-      }
+        plugins: { legend: { display: false } },
+      },
     });
   }
 
-  private countBorrowStatuses(rows: BorrowRecord[]): Record<BorrowStatus, number> {
-    const base: Record<BorrowStatus, number> = {
-      returned: 0, overdue: 0, late: 0, lost: 0, damaged: 0
-    };
-    for (const r of rows) base[r.status] = (base[r.status] || 0) + 1;
-    return base;
-  }
-}
+  private _syncChart = effect(() => {
+    const data = this.trendData();
+    const statusData = this.statusBreakdown();
+    const topData = this.topCategories();
 
+    if (!this.trendChart) return;
 
-type BorrowStatus = 'returned' | 'overdue' | 'late' | 'lost' | 'damaged';
-type PenaltyStatus = 'pending' | 'paid' | 'replaced' | 'returned';
+    this.trendChart.data.datasets[0].data = data;
+    this.trendChart.update();
 
-interface BorrowRecord {
-  _id: string;
-  member_name: string;
-  book_title: string;
-  borrow_date: string | Date;
-  due_date: string | Date;
-  status: BorrowStatus;
-}
+    if (!this.statusChart) return;
+    this.statusChart.data.labels = statusData.labels;
+    this.statusChart.data.datasets[0].data = statusData.data;
+    this.statusChart.update();
 
-interface PenaltyRecord {
-  _id: string;
-  member_name: string;
-  penalty_type: 'lost' | 'damaged' | 'late';
-  amount: number;
-  status: PenaltyStatus;
-}
-
-interface AlertItem {
-  type: 'Overdue' | 'Due Soon' | 'Penalty' | 'Damaged/Lost';
-  title: string;
-  subtitle: string;
-  refType: 'borrow' | 'penalty';
-  refId: string;
+    if (!this.categoryChart) return;
+    this.categoryChart.data.labels = topData.labels;
+    this.categoryChart.data.datasets[0].data = topData.data;
+    this.categoryChart.update();
+  });
 }

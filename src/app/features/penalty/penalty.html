@@ -17,12 +17,12 @@
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-2 ms-md-3">
+                <!-- <div class="d-flex align-items-center gap-2 ms-md-3">
                     <div class="detail-box">
                         <div class="text-muted small">Penalty</div>
                         <div class="fw-semibold text-dark">1 penalty</div>
                     </div>
-                </div>
+                </div> -->
             </div>
 
             <!-- Right: Actions -->
@@ -38,9 +38,10 @@
         <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
             <div class="input-group input-group-sm search px-2 w-100">
                 <span class="input-group-text bg-transparent border-0 text-muted">
-                    <i class="bi bi-search"></i>
+                    <i class="bi bi-search" (click)="searchQuery? getAllPenalties() : ''"></i>
                 </span>
-                <input type="text" class="input" placeholder="Search member, phone, borrow_id..." />
+                <input type="text" class="input" placeholder="Search member, phone..." [(ngModel)]="searchQuery"
+                (keydown.Enter)="getAllPenalties()" />
             </div>
 
             <app-filter-dropdown [filters]="genreFilters"
@@ -51,7 +52,7 @@
 
     <!-- ======= Cards Grid (UPDATED UI, SAME FLOW) ======= -->
     <div class="row g-3 mt-2">
-        @for(p of filtered; track p._id){
+        @for(p of penalties(); track p._id){
         <div class="col-12 col-md-6 col-xl-4">
             <div class="penalty-card penalty-card-v2">
 
@@ -113,7 +114,7 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="me-2 min-w-0">
                             <div class="small fw-medium text-truncate" style="max-width: 260px;">
-                                {{ p.note || '—' }}
+                                {{ (p.note | truncate) || '—' }}
                             </div>
                             <div class="text-muted small text-truncate" style="max-width: 260px;">
                                 {{ p.penalty_type | titlecase }} penalty
@@ -126,7 +127,7 @@
                                     <i class="bi bi-telephone me-1"></i>{{ p.phone_number }}
                                 </span>
                             </div>
-                            <div class="small fw-semibold">{{ p.amount.$numberDecimal| currency}}</div>
+                            <div class="small fw-semibold">{{ p.amount | currency}}</div>
                         </div>
                     </div>
                 </div>
@@ -136,25 +137,26 @@
 
                 <!-- Actions -->
                 <div class="d-flex gap-2">
-                    <button class="btn btn-light-soft btn-sm flex-fill" style="border-radius: 12px;" 
+                    <button class="btn btn-light-soft btn-sm flex-fill" style="border-radius: 12px;" data-bs-toggle="modal" data-bs-target="#penaltyDetailModal"
                     (click)="openDetail(p._id)">
                         <i class="bi bi-eye me-1"></i> See Details
                     </button>
 
-                    <button class="btn btn-pay btn-sm flex-fill" [disabled]="p.status === 'paid'"
+                    <button class="btn btn-pay btn-sm flex-fill" [disabled]="p.status !== 'pending'? true : false"
                         (click)="setStatus(p._id, 'paid')">
                         <i class="bi bi-cash-coin me-1"></i>
                         {{ p.status === 'paid' ? 'Paid' : 'Mark Paid' }}
                     </button>
 
                     <div class="dropdown">
-                        <button class="btn btn-icon btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-icon btn-sm" data-bs-toggle="dropdown" aria-expanded="false" 
+                        [disabled]="p.status !== 'pending'? true : false">
                             <i class="bi bi-three-dots-vertical"></i>
                         </button>
 
                         <ul class="dropdown-menu dropdown-menu-end dropdown-soft">
                             <li class="dropdown-header">Change status</li>
-                            @for(s of statuses; track $index){
+                            @for(s of returnStatus(p.penalty_type); track $index){
                             <li>
                                 <button class="dropdown-item" (click)="setStatus(p._id, s)">
                                     <i class="bi me-2" [ngClass]="statusMeta(s).icon"></i> {{ s | titlecase }}
@@ -180,18 +182,18 @@
     </div>
 
     <!-- ======= Detail Modal ======= -->
-    <div class="modal fade" id="penaltyDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="penaltyDetailModal" tabindex="-1" aria-hidden="true" *ngIf="detail() as d">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content" style="border-radius: 30px;">
                 <div class="modal-header px-4">
                     <div>
                         <div class="fw-semibold">Penalty Detail</div>
-                        <div class="text-muted small">#{{ detail?._id }}</div>
+                        <div class="text-muted small">#{{ d?._id }}</div>
                     </div>
                     <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                @if(detail){
+                @if(d){
                 <div class="modal-body px-4">
                     <div class="row g-3">
                         <!-- Left -->
@@ -199,17 +201,17 @@
                             <div class="detail-card">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <div class="fw-semibold">{{ detail.member.name }}</div>
+                                        <div class="fw-semibold">{{ d.member.name }}</div>
                                         <div class="text-muted small">
-                                            {{ detail.member.contact.phone_number }} • {{ detail.member.contact.email }}
+                                            {{ d.member.contact.phone_number }} • {{ d.member.contact.email }}
                                         </div>
                                         <div class="text-muted small">
-                                            Member Type: <span class="fw-medium">{{ detail.member.member_type }}</span>
+                                            Member Type: <span class="fw-medium">{{ d.member.member_type }}</span>
                                         </div>
                                     </div>
-                                    <span class="status-pill" [ngClass]="statusMeta(detail.status).pillClass">
-                                        <i class="bi me-1" [ngClass]="statusMeta(detail.status).icon"></i>
-                                        {{ detail.status | titlecase }}
+                                    <span class="status-pill" [ngClass]="statusMeta(d.status).pillClass">
+                                        <i class="bi me-1" [ngClass]="statusMeta(d.status).icon"></i>
+                                        {{ d.status | titlecase }}
                                     </span>
                                 </div>
 
@@ -217,46 +219,46 @@
 
                                 <div class="d-flex justify-content-between">
                                     <div class="text-muted small">Penalty Type</div>
-                                    <div class="fw-medium">{{ detail.penalty_type | titlecase }}</div>
+                                    <div class="fw-medium">{{ d.penalty_type | titlecase }}</div>
                                 </div>
                                 <div class="d-flex justify-content-between mt-1">
                                     <div class="text-muted small">Amount</div>
-                                    <div class="fw-bold">{{ detail.amount.$numberDecimal | currency}}</div>
+                                    <div class="fw-bold">{{ d.amount | currency}}</div>
                                 </div>
                                 <div class="d-flex justify-content-between mt-1">
                                     <div class="text-muted small">Created</div>
-                                    <div class="small">{{ formatDate(detail.created_at) }}</div>
+                                    <div class="small">{{ formatDate(d.created_at) }}</div>
                                 </div>
                                 <div class="d-flex justify-content-between mt-1">
                                     <div class="text-muted small">Received At</div>
-                                    <div class="small">{{ detail.received_at ? formatDate(detail.received_at) : '—' }}
+                                    <div class="small">{{ d.received_at ? formatDate(d.received_at) : '—' }}
                                     </div>
                                 </div>
 
                                 <hr class="my-2" />
 
                                 <div class="text-muted small mb-1">Note</div>
-                                <div class="small">{{ detail.note || '—' }}</div>
+                                <div class="small">{{ d.note || '—' }}</div>
                             </div>
 
                             <div class="detail-card mt-3">
                                 <div class="fw-semibold mb-2">Borrow Info</div>
                                 <div class="d-flex justify-content-between small">
                                     <span class="text-muted">Borrow Date</span>
-                                    <span>{{ formatDate(detail.borrow_info.borrow_date) }}</span>
+                                    <span>{{ formatDate(d.borrow_info.borrow_date) }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between small mt-1">
                                     <span class="text-muted">Due Date</span>
-                                    <span>{{ formatDate(detail.borrow_info.due_date) }}</span>
+                                    <span>{{ formatDate(d.borrow_info.due_date) }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between small mt-1">
                                     <span class="text-muted">Return Date</span>
-                                    <span>{{ detail.borrow_info.return_date ? formatDate(detail.borrow_info.return_date)
+                                    <span>{{ d.borrow_info.return_date ? formatDate(d.borrow_info.return_date)
                                         : '—' }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between small mt-1">
                                     <span class="text-muted">Status</span>
-                                    <span class="fw-medium">{{ detail.borrow_info.status | titlecase }}</span>
+                                    <span class="fw-medium">{{ d.borrow_info.status | titlecase }}</span>
                                 </div>
                             </div>
                         </div>
@@ -267,14 +269,14 @@
                                 <div class="fw-semibold mb-2">Book</div>
 
                                 <div class="d-flex gap-2">
-                                    <img class="book-cover" [src]="detail.book.cover_url" alt="cover" />
+                                    <img class="book-cover" [src]="d.book.cover_url" alt="cover" />
                                     <div class="flex-grow-1">
-                                        <div class="fw-semibold">{{ detail.book.title }}</div>
-                                        <div class="text-muted small">{{ detail.book.category }} • {{
-                                            detail.book.author_name }}</div>
-                                        <div class="text-muted small">Copies: {{ detail.book.total_copies }}</div>
+                                        <div class="fw-semibold">{{ d.book.title }}</div>
+                                        <div class="text-muted small">{{ d.book.category }} • {{
+                                            d.book.author_name }}</div>
+                                        <div class="text-muted small">Copies: {{ d.book.total_copies }}</div>
                                         <div class="small mt-2">
-                                            Price: <span class="fw-bold">{{ detail.book.price.$numberDecimal | currency
+                                            Price: <span class="fw-bold">{{ d.book.price | currency
                                                 }}</span>
                                         </div>
                                     </div>
@@ -284,20 +286,21 @@
 
                                 <label class="form-label small text-muted">Update Status</label>
                                 <div class="d-flex gap-2">
-                                    <select class="form-select form-select-sm inputs" style="height: 30px;" [(ngModel)]="detail.status">
-                                        @for(s of statuses; track $index){
+                                    <select class="form-select form-select-sm inputs" [(ngModel)]="detailStatus"
+                                    [disabled]="d.status !== 'pending'? true : false">
+                                        @for(s of returnStatus(d.penalty_type); track $index){
                                         <option [value]="s">{{ s }}</option>
                                         }
                                     </select>
                                     <button class="btn btn-dark btn-sm" style="width: 100px; border-radius: 12px;"
-                                        (click)="saveDetailStatus()">
+                                        (click)="saveDetailStatus()" [disabled]="d.status !== 'pending'? true : false">
                                         <i class="bi bi-check2 me-1"></i> Save
                                     </button>
                                 </div>
 
                                 <div class="d-flex gap-2 mt-3">
-                                    <button class="btn btn-pay btn-sm flex-fill" (click)="setStatus(detail._id, 'paid')"
-                                        [disabled]="detail.status==='paid'">
+                                    <button class="btn btn-pay flex-fill" (click)="setStatus(d._id, 'paid')"
+                                        [disabled]="d.status !== 'pending'? true : false">
                                         <i class="bi bi-cash-coin me-1"></i> Mark Paid
                                     </button>
                                 </div>
@@ -332,7 +335,7 @@
                 </div>
 
                 <!-- KEEP YOUR FORM CONTENT -->
-                <form>
+                <form (ngSubmit)="createPenalty()">
                     <div class="row mb-3">
                         <div class="col-12">
                             <label class="mb-1">Borrow id</label>
@@ -353,12 +356,12 @@
                                         <li><span class="dropdown-item-text text-muted">No results</span></li>
                                         }
 
-                                        @for(borrow of filterBorrowData; track borrow.borrow_id){
+                                        @for(borrow of filterBorrowData; track borrow._id){
                                         <li>
                                             <button type="button" class="dropdown-item rounded-3"
                                                 (click)="selectBorrowId(borrow)">
                                                 <div class="fw-semibold">{{ borrow.member_name }}</div>
-                                                <div class="small text-muted">borrow_id: {{ borrow.borrow_id }}</div>
+                                                <div class="small text-muted">borrow_id: {{ borrow._id }}</div>
                                             </button>
                                         </li>
                                         }
@@ -411,7 +414,7 @@
 <!-- ======= /Add Penalty Modal ======= -->
 
 
-<!-- ======= Small Confirm: Delete ======= -->
+<!-- ======= Small Confirm Delete ======= -->
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content modal-soft">
@@ -443,3 +446,6 @@
         </div>
     </div>
 </div>
+
+
+<app-alert-success></app-alert-success>

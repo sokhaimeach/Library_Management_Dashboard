@@ -27,4 +27,8 @@ export class Borrowservice {
   getBorrowDetail(id: string): Observable<BorrowDatail>{
     return this.http.get<BorrowDatail>(this.url+id+"/detail");
   }
+
+  createNewBorrow(payload: {member_id: string, book_id: string}): Observable<{message: string}> {
+    return this.http.post<{message: string}>(this.url, payload);
+  }
 }

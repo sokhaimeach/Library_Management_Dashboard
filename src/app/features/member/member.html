@@ -95,7 +95,7 @@
 
                         <td>
                             <div class="primary-text">{{(member.join_date | date) || "___"}}</div>
-                            <div class="sub-text">join_date</div>
+                            <div class="sub-text">{{member.join_date | date:'yyyy-MM-dd'}}</div>
                         </td>
 
                         <td>
@@ -115,10 +115,10 @@
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
 
-                                <button class="icon-btn danger" type="button" aria-label="Delete permanently"
+                                <!-- <button class="icon-btn danger" type="button" aria-label="Delete permanently"
                                     data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" (click)="openDeleteModal(member)">
                                     <i class="bi bi-trash3"></i>
-                                </button>
+                                </button> -->
                             </div>
                         </td>
                     </tr>

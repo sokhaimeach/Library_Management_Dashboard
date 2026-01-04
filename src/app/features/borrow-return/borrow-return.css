@@ -183,3 +183,14 @@
 .inputs:focus {
   outline: 2px solid blue;
 }
+
+
+
+
+
+
+.status-overdue{
+  background: rgba(14, 165, 164, .12);
+  color: #0f766e;
+  border-color: rgba(14, 165, 164, .22);
+}

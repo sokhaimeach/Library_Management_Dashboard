@@ -1,8 +1,7 @@
 /* Base cards */
 .topbar-card,
 .card-soft,
-.kpi-card,
-.table-card {
+.kpi-card {
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 10px 26px rgba(18, 38, 63, 0.08);
@@ -99,23 +98,45 @@
 }
 
 /* Tables */
+.main-table {
+  background-color: white;
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+  border-radius: 18px;
+  padding: 10px;
+}
+
 .table-border {
   border-radius: 12px;
   overflow: hidden;
 }
-.table-card { padding: 14px 16px;}
-.table-head-dark th {
-  background: #111 !important;
-  color: #fff !important;
-  border: none !important;
-  padding-top: 12px;
-  padding-bottom: 12px;
+.table-card{
+  overflow: hidden;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 1px 5px rgba(0,0,0,.05);
+  border: 1px solid rgba(0,0,0,.08);
+  font-size: 14px;
 }
-.row-hover:hover {
+.table-head th{
+  font-size: 12px;
+  color: #fff;
+  letter-spacing: .3px;
+  background: #000;
+  padding: 14px 16px;
+  text-transform: uppercase;
+}
+.table td{
+  padding: 14px 16px;
+  border-color: rgba(0,0,0,.06);
+}
+.row-hover{ transition: .15s ease; }
+.row-hover:hover{
+  background: rgba(0,0,0,.02);
   transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(18, 38, 63, 0.08);
 }
-.table td { border-color: #f0f2f5; }
+
+.primary-text{ font-weight: 600; }
+.sub-text{ font-size: 12px; color: rgba(0,0,0,.55); }
 
 .avatar {
   width: 40px;
@@ -156,13 +177,91 @@
   .chart-wrap { height: 240px; }
 }
 
-/* Modal */
-.modal-soft {
+/* ===== Modal ===== */
+.modal-soft{
   border-radius: 24px;
-  box-shadow: 0 18px 44px rgba(18, 38, 63, 0.16);
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 20px 60px rgba(0,0,0,.18);
 }
-.input-soft {
-  border-radius: 14px;
-  border: 1px solid #eef0f3;
-  padding: 10px 12px;
+.modal-pad{
+  padding: 26px;
 }
+
+.modal-body{
+  position: relative;
+}
+.close-modal{
+  position: absolute;
+  top: 18px;
+  right: 18px;
+}
+
+
+/* button  */
+.btn-soft2{
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.10);
+  background: #fff;
+}
+.btn-soft2:hover{
+  background: rgba(0,0,0,.03);
+}
+
+.btn-save{
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+
+/* Status badge styling */
+.status-badge{
+  border: 1px solid rgba(0,0,0,.10);
+  padding: 5px 8px;
+  font-weight: 600;
+}
+.status-borrowed{
+  background: rgba(13, 110, 253, .12);
+  color: #0b5ed7;
+  border-color: rgba(13, 110, 253, .25);
+}
+.status-returned{
+  background: rgba(22, 163, 74, .12);
+  color: #15803d;
+  border-color: rgba(22, 163, 74, .22);
+}
+.status-late{
+  background: rgba(245, 158, 11, .14);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, .22);
+}
+.status-overdue{
+  background: rgba(14, 165, 164, .12);
+  color: #0f766e;
+  border-color: rgba(14, 165, 164, .22);
+}
+.status-lost{
+  background: rgba(220, 53, 69, .10);
+  color: #b02a37;
+  border-color: rgba(220, 53, 69, .20);
+}
+.status-damaged{
+  background: rgba(108, 117, 125, .12);
+  color: #495057;
+  border-color: rgba(108, 117, 125, .25);
+}
+.status-pending {
+  background: rgba(22, 163, 74, 0.12);
+  color: #15803d;
+  border-color: rgba(22, 163, 74, 0.22);
+}
+.status-replaced {
+  background: rgba(245, 158, 11, 0.14);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.22);
+}
+.status-paid {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+  border-color: rgba(37, 99, 235, 0.22);
+}
+

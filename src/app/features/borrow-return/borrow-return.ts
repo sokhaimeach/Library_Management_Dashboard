@@ -1,10 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AlertSuccess } from '../../shared/components/alert-success/alert-success';
 import { Alertservice } from '../../shared/components/alert-success/alertservice';
 import { Bookservices } from '../services/bookservices/bookservices';
 import { Book as BookI } from '../models/book.model';
+import { Memberservice } from '../services/memberservice/memberservice';
+import { MemberI, MemberItem } from '../models/member.modal';
+import { Borrowservice } from '../services/borrowservice/borrowservice';
+import { BorrowI } from '../models/borrow.model';
 
 type BorrowStatus = 'returned' | 'late' | 'overdue' | 'lost' | 'damaged';
 
@@ -16,13 +20,6 @@ interface Book {
   author_name: string;
   category_name: string;
   price?: { $numberDecimal: string };
-}
-
-interface Member {
-  _id: string;
-  name: string;
-  member_type: 'regular' | 'blacklist';
-  contact: { phone_number: string; email: string };
 }
 
 interface BorrowRecord {
@@ -43,9 +40,12 @@ interface BorrowRecord {
 })
 export class BorrowReturn {
 
-  constructor(private alert: Alertservice, private bookservice: Bookservices) {}
+  constructor(private alert: Alertservice,
+    private bookservice: Bookservices,
+    private memberservice: Memberservice,
+    private borrowservice: Borrowservice) {}
 
-  memberItem = {
+  memberItem: MemberItem = {
     name: '',
     contact: {
       phone_number: '',
@@ -56,89 +56,105 @@ export class BorrowReturn {
   // ===== Dummy data (replace with backend later) =====
   books: BookI[] = [];
 
-  members: Member[] = [
-    {
-      _id: '692dbe226422a173616fcc4e',
-      name: 'Makara1',
-      member_type: 'blacklist',
-      contact: { phone_number: '0123456789', email: 'makara1@gmail.com' },
-    },
-    {
-      _id: '692dbfa43ca0f71609d7e265',
-      name: 'Tri',
-      member_type: 'regular',
-      contact: { phone_number: '0123456789', email: 'tri@gmail.com' },
-    },
-    {
-      _id: '692dbfa43ca0f71609d7e266',
-      name: 'Somnang',
-      member_type: 'regular',
-      contact: { phone_number: '0123456789', email: 'somnag@gmail.com' },
-    },
-  ];
+  members = signal<MemberI[]>([]);
 
-  borrowRecords: BorrowRecord[] = [
-    {
-      _id: '6933ac30048d8959faaab20b',
-      return_date: null,
-      status: 'overdue',
-      borrow_date: '2025-12-06T04:08:16.831Z',
-      due_date: '2025-12-20T04:08:16.831Z',
-      member_name: 'Makara1',
-      book_title: 'Kolab Pailin',
-    },
-    {
-      _id: '694671033070e4a41546db90',
-      return_date: null,
-      status: 'overdue',
-      borrow_date: '2025-12-20T09:48:51.416Z',
-      due_date: '2025-12-27T09:48:51.416Z',
-      member_name: 'Tri',
-      book_title: 'Kolab Pailin',
-    },
-  ];
+  borrowRecords = signal<BorrowI[]>([]);
 
   ngOnInit(): void {
     this.getAllBook();
+    this.getAllMemberInfo();
+    this.getBorrowRecord();
   }
 
   getAllBook() {
     this.bookservice.getAllBooks("", "").subscribe({
       next: (res: any) => {
         this.books = res.data;
-        console.log(this.books)
       }
     });
   }
 
+  // get all members
+  getAllMemberInfo() {
+    this.memberservice.getAllMembers("", "").subscribe({
+      next: (res) => {
+        this.members.set(res);
+      }
+    });
+  }
+
+  // create new member
+  createMember() {
+    this.memberservice.createNewMember(this.memberItem).subscribe({
+      next: (res) => {
+        this.alert.showAlert("success", res.message);
+        this.getAllMemberInfo();
+        this.selectMember(res.member);
+      },
+      error: (err) => {
+        this.alert.showAlert("error", err.error?.message);
+      }
+    });
+  }
+
+  // craete new borrow
+  createBorrow() {
+    const member_id = this.selectedMember()?._id || "";
+    const book_id = this.selectedBook()?._id || "";
+
+    if(!member_id || !book_id) return;
+
+    this.borrowservice.createNewBorrow({member_id, book_id}).subscribe({
+      next: (res) => {
+        this.alert.showAlert('success', res.message);
+        this.clearMember();
+        this.getBorrowRecord();
+        this.getAllBook();
+      },
+      error: (err) => {
+        this.alert.showAlert("error", err.error?.message);
+      }
+    });
+  }
+
+  // get all borrow record that has status overdue
+  getBorrowRecord() {
+    this.borrowservice.getAllBorrows("overdue", "").subscribe({
+      next: (res) => {
+        this.borrowRecords.set(res);
+      }
+    })
+  }
+
+
+
+
+
   // ===== UI State =====
-  tab: 'borrow' | 'return' = 'borrow';
 
   // search
-  memberQuery = '';
+  memberQuery: string = "";
   bookQuery = '';
   availabilityFilter: 'all' | 'available' = 'all';
 
   returnSearch = '';
 
   // selections
-  selectedMember: Member | null = null;
-  selectedBorrow: BorrowRecord | null = null;
-  selectedBook: Book | null = null;
+  selectedMember = signal<MemberI | null>(null);
+  selectedBorrow: BorrowI | null = null;
+  selectedBook = signal<BookI | null>(null);
 
   // small modal update status
   statusModalBorrow: BorrowRecord | null = null;
-  statuses: BorrowStatus[] = ['returned', 'late', 'lost', 'damaged'];
+  statuses: BorrowStatus[] = ['returned', 'lost', 'damaged'];
 
   // update status form (simple)
   updateStatus: BorrowStatus = 'returned';
-  // damage_type: '' | 'can' | 'torn' | 'wet' | 'other' = '';
-  // damage_fee: number | null = null;
 
   // damage type helpers
   statusItem = {
-    status: '',
-    damage_type: '',
+    status: 'returned',
+    damage_type: 'can',
     damage_fee: 0
   }
   removeFailed: boolean = false;
@@ -156,6 +172,10 @@ export class BorrowReturn {
   selectStatus(b: BorrowStatus){
     this.statusItem.status = b;
     this.updateStatus = b;
+
+    if(b === "damaged") {
+      this.checkDamageType(true);
+    }
   }
 
   // save status change
@@ -167,8 +187,15 @@ export class BorrowReturn {
 
     if(this.selectedBorrow === null) return;
 
-
-    this.alert.showAlert('','Update status successfully!');
+    this.borrowservice.updateBorrowStatus(this.selectedBorrow._id, this.statusItem).subscribe({
+      next: (res) => {
+        this.alert.showAlert("success", res.message);
+        this.getBorrowRecord();
+      },
+      error: (err) => {
+        this.alert.showAlert("error", err.error?.message);
+      }
+    })
 
     this.clearSelectUpdate();
     
@@ -178,7 +205,7 @@ export class BorrowReturn {
     this.updateStatus = 'returned';
     this.statusItem = {
       status: '',
-      damage_type: '',
+      damage_type: 'can',
       damage_fee: 0
     }
     this.isLittleDamage = true;
@@ -190,10 +217,10 @@ export class BorrowReturn {
 
 
   // ===== Derived Lists =====
-  get filteredMembers(): Member[] {
+  get filteredMembers(): MemberI[] {
     const q = this.memberQuery.trim().toLowerCase();
     if (!q) return [];
-    return this.members.filter(m =>
+    return this.members().filter(m =>
       m.name.toLowerCase().includes(q) || m._id.toLowerCase().includes(q)
     );
   }
@@ -215,12 +242,12 @@ export class BorrowReturn {
     });
   }
 
-  get activeBorrowRecords(): BorrowRecord[] {
+  get activeBorrowRecords(): BorrowI[] {
     // active = not returned_date yet
-    return this.borrowRecords.filter(r => r.return_date === null);
+    return this.borrowRecords().filter(r => r.return_date === null);
   }
 
-  get filteredBorrowRecords(): BorrowRecord[] {
+  get filteredBorrowRecords(): BorrowI[] {
     const q = this.returnSearch.trim().toLowerCase();
     const list = this.activeBorrowRecords;
 
@@ -237,34 +264,34 @@ export class BorrowReturn {
   // ===== Borrow rules (simple) =====
   get memberHasActiveBorrow(): boolean {
     if (!this.selectedMember) return false;
-    return this.borrowRecords.some(r => r.return_date === null && r.member_name === this.selectedMember!.name);
+    return this.borrowRecords().some(r => r.return_date === null && r.member_name === this.selectedMember!.name);
   }
 
-  canBorrowThisBook(book: Book): boolean {
-    if (!this.selectedMember) return false;
-    if (this.selectedMember.member_type === 'blacklist') return false;
+  canBorrowThisBook(book: BookI): boolean {
+    if (!this.selectedMember()) return false;
+    if (this.selectedMember()?.member_type === 'blacklist') return false;
     if (this.memberHasActiveBorrow) return false;
     if (book.available_copies <= 0) return false;
     return true;
   }
 
   // ===== Actions =====
-  selectMember(m: Member) {
-    this.selectedMember = m;
+  selectMember(m: MemberI) {
+    this.selectedMember.set(m)
     this.memberQuery = m.name;
   }
 
   clearMember() {
-    this.selectedMember = null;
-    this.memberQuery = '';
+    this.selectedMember.set(null);
+    this.memberQuery = "";
 
-    this.selectedBook = null;
+    this.selectedBook.set(null);
   }
 
-  borrowBook(book: Book) {
-    if (!this.selectedMember) return;
+  borrowBook(book: BookI) {
+    if (!this.selectedMember()) return;
 
-    this.selectedBook = book;
+    this.selectedBook.set(book);
   }
 
 

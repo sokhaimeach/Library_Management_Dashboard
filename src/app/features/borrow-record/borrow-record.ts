@@ -48,8 +48,6 @@ export class BorrowRecord {
   selectedBorrowId = '';
   selectedStatus: BorrowStatus = 'returned';
 
-  // for detail modal display
-  selectedBorrowStatusDisplay = '';
 
   // actions
   openDetail(id: string) {
@@ -129,11 +127,6 @@ export class BorrowRecord {
       damaged: 'bi-tools',
     };
     return map[status] || 'bi-dot';
-  }
-
-  private titleCase(s: string) {
-    if (!s) return '';
-    return s.charAt(0).toUpperCase() + s.slice(1);
   }
 
   // design filter options

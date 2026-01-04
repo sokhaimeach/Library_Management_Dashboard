@@ -5,7 +5,7 @@ export interface Book {
   author_id: string;
   category_id: string;
   published_date: null;
-  price: { $numberDecimal: string };
+  price: number;
   total_copies: number;
   description: string | null;
   available_copies: number;
@@ -18,7 +18,7 @@ export interface BookItem {
   author_id: string;
   category_id: string;
   published_date: string | null;
-  price: { $numberDecimal: string } | number;
+  price: number;
   total_copies?: number;
   description: string | null;
   cover_url: string;

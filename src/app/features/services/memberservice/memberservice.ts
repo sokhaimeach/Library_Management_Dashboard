@@ -20,8 +20,8 @@ export class Memberservice {
     return this.http.get<MemberI[]>(this.url, { params });
   }
 
-  createNewMember(member: MemberItem): Observable<{message: string}> {
-    return this.http.post<{message: string}>(this.url, member);
+  createNewMember(member: MemberItem): Observable<{message: string, member: MemberI}> {
+    return this.http.post<{message: string, member: MemberI}>(this.url, member);
   }
 
   updateMember(id: string, member: MemberItem): Observable<{message: string}> {

@@ -15,7 +15,7 @@
 
     <!-- KPI cards -->
     <div class="row g-3 mb-3">
-        <div class="col-12 col-sm-6 col-lg-3" *ngFor="let k of kpis">
+        <div class="col-12 col-sm-6 col-lg-3" *ngFor="let k of kpis()">
             <div class="kpi-card">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
@@ -42,36 +42,39 @@
                     <div class="fw-semibold">
                         <i class="bi bi-exclamation-triangle me-2"></i> Overdue Alerts
                     </div>
-                    <span class="badge rounded-pill text-bg-light border">Top {{ alerts.length }}</span>
+                    <span class="badge rounded-pill text-bg-light border">Top {{ overdueBorrows().length }}</span>
                 </div>
 
                 <div class="alert-list">
-                    <div class="alert-item" *ngFor="let a of alerts">
+                    <div class="alert-item" *ngFor="let a of overdueBorrows()">
                         <div class="d-flex align-items-start justify-content-between gap-2">
                             <div class="d-flex align-items-start gap-2">
-                                <span class="chip" [ngClass]="chipClass(a.type)">
-                                    <i class="bi me-1" [ngClass]="alertIcon(a.type)"></i>{{ a.type }}
-                                </span>
-                                <div>
-                                    <div class="fw-semibold">{{ a.title }}</div>
-                                    <div class="text-muted small">{{ a.subtitle }}</div>
-                                </div>
+                                <span class="chip" [ngClass]="chipClass(a.due_date)">
+                                    <i class="bi me-1" [ngClass]="alertIcon(a.due_date)"></i>{{
+                                    calculateDate(a.due_date) < 0 ? "Due soon" : "Overdue" }} </span>
+                                        <div>
+                                            <div class="fw-semibold">{{ overdueTitle(a.due_date) }}</div>
+                                            <div class="text-muted small">{{ a.member_name + ' • ' + a.book_title + ' •
+                                                Due: ' + (a.due_date | date) }}</div>
+                                        </div>
                             </div>
 
                             <div class="d-flex gap-2">
-                                <button class="btn btn-icon-soft" type="button"
+                                <!-- <button class="btn btn-icon-soft" type="button"
                                     (click)="openDetail(a.refType, a.refId)">
                                     <i class="bi bi-eye"></i>
-                                </button>
+                                </button> -->
                                 <button class="btn btn-icon-soft danger" type="button"
-                                    (click)="openStatusModal(a.refType, a.refId)">
+                                    [disabled]="a.status !== 'overdue'? true : false" aria-label="Update status"
+                                    data-bs-toggle="modal" data-bs-target="#updateStatusModal"
+                                    (click)="openUpdateStatus(a)">
                                     <i class="bi bi-arrow-repeat"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div *ngIf="alerts.length === 0" class="text-muted small py-3">
+                    <div *ngIf="overdueBorrows().length === 0" class="text-muted small py-3">
                         No alerts 🎉
                     </div>
                 </div>
@@ -112,15 +115,15 @@
                 <div class="detail-box">
                     <div class="d-flex align-items-center justify-content-between">
                         <span class="text-muted small">Available vs Borrowed</span>
-                        <span class="chip chip-dark">{{ inventory.available }} available</span>
+                        <span class="chip chip-dark">{{ inventory().available }} available</span>
                     </div>
                     <div class="progress mt-2" style="height: 10px;">
-                        <div class="progress-bar" role="progressbar" [style.width.%]="inventory.borrowedPct"
+                        <div class="progress-bar" role="progressbar" [style.width.%]="inventory().borrowedPct"
                             aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                     <div class="d-flex justify-content-between text-muted small mt-2">
-                        <span>{{ inventory.borrowed }} borrowed</span>
-                        <span>{{ inventory.borrowedPct | number:'1.0-0' }}%</span>
+                        <span>{{ inventory().borrowed }} borrowed</span>
+                        <span>{{ inventory().borrowedPct | number:'1.0-0' }}%</span>
                     </div>
                 </div>
             </div>
@@ -162,9 +165,9 @@
 
     <!-- Tables -->
     <div class="row g-3">
-        <div class="col-12 col-lg-7">
-            <div class="table-card">
-                <div class="d-flex align-items-center justify-content-between mb-2">
+        <div class="col-lg-6">
+            <div class="main-table">
+                <div class="d-flex align-items-center justify-content-between mb-2 top-table">
                     <div class="fw-semibold"><i class="bi bi-clock-history me-2"></i> Recent Borrows</div>
                     <button class="btn btn-sm btn-black-soft" (click)="onQuickAction('/admin/borrow-record')">
                         View All
@@ -172,9 +175,9 @@
                 </div>
 
                 <div class="table-responsive">
-                    <div class="table-border">
+                    <div class="table-card">
                         <table class="table align-middle mb-0">
-                            <thead class="table-head-dark">
+                            <thead class="table-head">
                                 <tr>
                                     <th>Member</th>
                                     <th>Book</th>
@@ -184,31 +187,41 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="row-hover" *ngFor="let b of recentBorrows">
+                                <tr class="row-hover" *ngFor="let b of recentBorrows()">
                                     <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div>
-                                                <div class="fw-semibold">{{ b.member_name }}</div>
-                                            </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ b.member_name }}</div>
+                                            <div class="sub-text">Member</div>
                                         </div>
                                     </td>
-                                    <td class="fw-semibold">{{ b.book_title }}</td>
-                                    <!-- <td class="text-muted">{{ b.borrow_date | date:'MMM d, y' }}</td> -->
-                                    <td class="text-muted">{{ b.due_date | date:'MMM d, y' }}</td>
-                                    <td>
-                                        <span class="chip" [ngClass]="statusChipClass(b.status)">{{ b.status }}</span>
+                                    <td class="fw-semibold">{{ b.book_title | truncate:12 }}</td>
+
+                                    <td class="text-muted" style="font-size: 14px;">
+                                        <div class="primary-text">{{ b.borrow_date | date:'mediumDate' }}</div>
+                                        <div class="sub-text">{{ b.borrow_date | date:'yyyy-MM-dd' }}</div>
                                     </td>
+
+                                    <td>
+                                        <span class="badge rounded-pill status-badge" [ngClass]="statusClass(b.status)">
+                                            <i class="bi me-1" [ngClass]="statusIcon(b.status)"></i>
+                                            {{ b.status | titlecase }}
+                                        </span>
+                                    </td>
+
                                     <td class="text-end d-flex justify-content-end">
-                                        <button class="btn btn-icon-soft me-1" (click)="openDetail('borrow', b._id)" routerLink="/admin/borrow-record">
+                                        <!-- <button class="btn btn-icon-soft me-1" (click)="openDetail('borrow', b._id)" routerLink="/admin/borrow-record">
                                             <i class="bi bi-eye"></i>
-                                        </button>
-                                        <button class="btn btn-icon-soft danger" (click)="openStatusModal('borrow', b._id)">
+                                        </button> -->
+                                        <button class="btn btn-icon-soft danger"
+                                            [disabled]="b.status !== 'overdue'? true : false" aria-label="Update status"
+                                            data-bs-toggle="modal" data-bs-target="#updateStatusModal"
+                                            (click)="openUpdateStatus(b)">
                                             <i class="bi bi-arrow-repeat"></i>
                                         </button>
                                     </td>
                                 </tr>
-    
-                                <tr *ngIf="recentBorrows.length === 0">
+
+                                <tr *ngIf="recentBorrows().length === 0">
                                     <td colspan="6" class="text-center text-muted py-4">No recent borrows</td>
                                 </tr>
                             </tbody>
@@ -218,43 +231,71 @@
             </div>
         </div>
 
-        <div class="col-12 col-lg-5">
-            <div class="table-card">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <div class="fw-semibold"><i class="bi bi-receipt-cutoff me-2"></i> Penalties</div>
+        <div class="col-lg-6">
+            <div class="main-table">
+                <div class="d-flex align-items-center justify-content-between mb-2 top-table">
+                    <div class="fw-semibold"><i class="bi bi-receipt-cutoff me-2"></i> Recent Penalties</div>
                     <button class="btn btn-sm btn-black-soft" (click)="onQuickAction('/admin/penalty')">
                         View All
                     </button>
                 </div>
 
                 <div class="table-responsive">
-                    <div class="table-border">
+                    <div class="table-card">
                         <table class="table align-middle mb-0">
-                            <thead class="table-head-dark">
+                            <thead class="table-head">
                                 <tr>
                                     <th>Member</th>
                                     <th>Type</th>
                                     <th>Amount</th>
+                                    <th>Status</th>
                                     <th class="text-end">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="row-hover" *ngFor="let p of penalties">
-                                    <td class="fw-semibold">{{ p.member_name }}</td>
-                                    <td class="text-muted">{{ p.penalty_type }}</td>
-                                    <td class="fw-semibold">${{ p.amount }}</td>
+                                <tr class="row-hover" *ngFor="let p of recentPenalties()">
+                                    <td>
+                                        <div>
+                                            <div class="fw-semibold">{{ p.member_name }}</div>
+                                            <div class="sub-text">Member</div>
+                                        </div>
+                                    </td>
+
+                                    <td class="text-muted">
+                                        <span class="badge rounded-pill status-badge"
+                                            [ngClass]="statusClass(p.penalty_type)">
+                                            <i class="bi me-1" [ngClass]="statusIcon(p.penalty_type)"></i>
+                                            {{ p.penalty_type | titlecase }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <div>
+                                            <div class="fw-semibold">{{ p.amount | currency }}</div>
+                                            <div class="sub-text">{{ toKHR(p.amount) | currency:' '}} KHR</div>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span class="badge rounded-pill status-badge" [ngClass]="statusClass(p.status)">
+                                            <i class="bi me-1" [ngClass]="statusIcon(p.status)"></i>
+                                            {{ p.status | titlecase }}
+                                        </span>
+                                    </td>
+
                                     <td class="text-end d-flex justify-content-end">
-                                        <button class="btn btn-icon-soft me-1" (click)="openDetail('penalty', p._id)" routerLink="/admin/penalty">
+                                        <!-- <button class="btn btn-icon-soft me-1" (click)="openDetail('penalty', p._id)" routerLink="/admin/penalty">
                                             <i class="bi bi-eye"></i>
-                                        </button>
-                                        <button class="btn btn-icon-soft danger"
-                                            (click)="openStatusModal('penalty', p._id)">
+                                        </button> -->
+                                        <button class="btn btn-icon-soft danger" aria-label="Update status"
+                                            [disabled]="p.status !== 'pending'? true : false" data-bs-toggle="modal"
+                                            data-bs-target="#updatePenaltyStatusModal" (click)="openPenaltyModal(p)">
                                             <i class="bi bi-arrow-repeat"></i>
                                         </button>
                                     </td>
                                 </tr>
-    
-                                <tr *ngIf="penalties.length === 0">
+
+                                <tr *ngIf="recentPenalties().length === 0">
                                     <td colspan="5" class="text-center text-muted py-4">No penalties</td>
                                 </tr>
                             </tbody>
@@ -265,38 +306,121 @@
         </div>
     </div>
 
-    <!-- Small Status Modal -->
-    <div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+    <!-- ============ SMALL MODAL: Update Borrow Status ============ -->
+    <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
             <div class="modal-content modal-soft">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-semibold">
-                        <i class="bi bi-arrow-repeat me-2"></i> Update Status
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
+                <div class="modal-body modal-pad position-relative">
 
-                <div class="modal-body pt-0">
-                    <div class="detail-box mb-3">
-                        <div class="text-muted small">Target</div>
-                        <div class="fw-semibold">{{ modalTarget.type }} • {{ modalTarget.id }}</div>
+                    <button type="button" class="btn-close close-modal" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="topbar-icon" style="width:38px;height:38px;">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">Update borrow status</div>
+                            <div class="text-muted small">#{{ selectedBorrowId }}</div>
+                        </div>
                     </div>
 
-                    <label class="text-muted small mb-2">Select status</label>
-                    <select class="form-select input-soft" [(ngModel)]="modalTarget.newStatus"
-                        [ngModelOptions]="{ standalone: true }">
-                        <option *ngFor="let s of modalTarget.allowed" [value]="s">{{ s }}</option>
+                    <label class="mb-1 small text-muted">Status</label>
+                    <select class="form-select inputs mb-3" [(ngModel)]="selectedStatus" name="selectedStatus">
+                        <option value="returned" selected>Returned</option>
+                        <option value="lost">Lost</option>
+                        <option value="damaged" (click)="checkDamageType(true)">Damaged</option>
                     </select>
-                </div>
 
-                <div class="modal-footer border-0">
-                    <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-black-soft" (click)="confirmUpdateStatus()">
-                        Save
-                    </button>
+                    @if(selectedStatus === 'damaged'){
+                    <p class="mt-2 mb-1">Damage Type</p>
+                    <div class="ms-2">
+                        <div class="d-flex"></div>
+                        <div class="d-flex">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="radioDefault" id="radioDefault1"
+                                    checked (click)="checkDamageType(true)">
+                                <label class="form-check-label" for="radioDefault1">
+                                    Can use
+                                </label>
+                            </div>
+                            <input type="number" class="form-control ms-2" [disabled]="!isLittleDamage"
+                                [(ngModel)]="item.damage_fee" style="width: 140px; height: 30px; border-radius: 8px;"
+                                placeholder="Damage fine">
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="radioDefault" id="radioDefault2"
+                                (click)="checkDamageType(false)">
+                            <label class="form-check-label" for="radioDefault2">
+                                Can not use
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-danger d-flex align-items-center"
+                        [ngClass]="removeFailed? 'd-block': 'd-none'" style="width: 100%; height: 30px !important;">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <p class="h-100" style="font-size: 12px;">
+                            Invalid damage fine
+                        </p>
+                    </div>
+                    <div class="mb-3"></div>
+                    }
+
+
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button class="btn btn-light btn-soft2" type="button" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-dark btn-save" type="button" data-bs-dismiss="modal"
+                            (click)="saveStatus()">
+                            <i class="bi bi-check2-circle me-1"></i> Save
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== Small Modal: Update Penalty Status ===================== -->
+    <div class="modal fade" id="updatePenaltyStatusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content modal-soft">
+                <div class="modal-body modal-pad position-relative">
+                    <button type="button" class="btn-close close-modal" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="topbar-icon" style="width:38px;height:38px;">
+                            <i class="bi bi-journal-check"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">Update Penalty Status</div>
+                            <div class="text-muted small">#{{selectPenaltyId}}</div>
+                        </div>
+                    </div>
+
+                    <label class="mb-1 small text-muted">Status</label>
+                    <select class="form-select inputs mb-3" [(ngModel)]="selectPenaltyStatus"
+                        name="selectedPenaltyStatus">
+                        @for(s of returnStatus(selectPenaltyType); track $index){
+                        <option [value]="s">{{s | titlecase}}</option>
+                        }
+                    </select>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="btn btn-light btn-soft2" type="button" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-dark btn-save" type="button" data-bs-dismiss="modal"
+                            (click)="savePenaltySatus()">
+                            <i class="bi bi-check2-circle me-1"></i> Save
+                        </button>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 
 </div>
+
+
+<app-alert-success></app-alert-success>

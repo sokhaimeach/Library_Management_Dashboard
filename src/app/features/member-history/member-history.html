@@ -241,24 +241,30 @@
 
                                         <td>
                                             <div class="primary-text">{{borrow.borrow_date | date}}</div>
-                                            <div class="sub-text">borrow_date</div>
+                                            <div class="sub-text">{{borrow.borrow_date | date:'yyyy-MM-dd'}}</div>
                                         </td>
 
                                         <td>
                                             <div class="primary-text">{{borrow.due_date | date}}</div>
-                                            <div class="sub-text">due_date</div>
+                                            <div class="sub-text">{{borrow.due_date | date:'yyyy-MM-dd'}}</div>
                                         </td>
 
                                         <td>
-                                            <div class="primary-text text-muted">
-                                                {{borrow.return_date!==null ? (borrow.return_date | date) : '____'}}
-                                            </div>
-                                            <div class="sub-text">return date</div>
-                                        </td>
-
-                                        <td>
+                                            @if(borrow.return_date){
+                                            <div class="primary-text">{{ borrow.return_date | date:'mediumDate' }}</div>
+                                            <div class="sub-text">{{ borrow.return_date | date:'yyyy-MM-dd' }}</div>
+                                            } @else {
                                             <span class="badge rounded-pill text-bg-light border badge-soft">
-                                                <i class="bi bi-info-circle me-1"></i> {{borrow.status}}
+                                                <i class="bi bi-dash-circle me-1"></i> Not returned
+                                            </span>
+                                            }
+                                        </td>
+
+                                        <td>
+                                            <span class="badge rounded-pill status-badge"
+                                                [ngClass]="statusClass(borrow.status)">
+                                                <i class="bi me-1" [ngClass]="statusIcon(borrow.status)"></i>
+                                                {{ borrow.status | titlecase }}
                                             </span>
                                         </td>
 
@@ -330,10 +336,23 @@
                                 <tbody>
                                     @for(penalty of penalties(); track $index){
                                     <tr class="row-hover">
-                                        <td class="fw-semibold">{{penalty.penalty_type}}</td>
-                                        <td>{{penalty.amount.$numberDecimal | currency}}</td>
                                         <td>
-                                            <span class="badge rounded-pill text-bg-warning">{{penalty.status}}</span>
+                                            <span class="badge rounded-pill status-badge"
+                                                [ngClass]="statusClass(penalty.penalty_type)">
+                                                <i class="bi me-1" [ngClass]="statusIcon(penalty.penalty_type)"></i>
+                                                {{ penalty.penalty_type | titlecase }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold">{{penalty.amount | currency}}</div>
+                                            <div class="sub-text">{{toKHR(penalty.amount) | currency:' '}} KHR</div>
+                                        </td>
+                                        <td>
+                                            <span class="badge rounded-pill status-badge"
+                                                [ngClass]="statusClass(penalty.status)">
+                                                <i class="bi me-1" [ngClass]="statusIcon(penalty.status)"></i>
+                                                {{ penalty.status | titlecase }}
+                                            </span>
                                         </td>
                                         <td>
                                             <div class="fw-semibold">{{penalty.note}}</div>
@@ -393,7 +412,6 @@
                 <label class="mb-1 small text-muted">Status</label>
                 <select class="form-select inputs mb-3" [(ngModel)]="selectedStatus" name="selectedStatus">
                     <option value="returned" selected>Returned</option>
-                    <option value="late">Late</option>
                     <option value="lost">Lost</option>
                     <option value="damaged" (click)="checkDamageType(true)">Damaged</option>
                 </select>
@@ -466,9 +484,9 @@
 
                 <label class="mb-1 small text-muted">Status</label>
                 <select class="form-select inputs mb-3" [(ngModel)]="selectPenaltyStatus" name="selectedPenaltyStatus">
-                    <option value="paid">Paid</option>
-                    <option value="replaced">Replaced</option>
-                    <option value="returned">Returned</option>
+                    @for(s of returnStatus(selectPenaltyType); track $index){
+                    <option [value]="s">{{s | titlecase}}</option>
+                    }
                 </select>
 
                 <div class="d-flex justify-content-end gap-2">

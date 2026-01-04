@@ -78,7 +78,7 @@
 
                 <span class="pill">
                     <i class="bi bi-cash-coin"></i>
-                    {{ book.price.$numberDecimal }}
+                    {{ book.price | currency}}
                 </span>
             </p>
 
@@ -95,7 +95,7 @@
 
                 <span class="muted">
                     <i class="bi bi-calendar3"></i>
-                    {{ book.published_date }}
+                    {{ book.published_date | date }}
                 </span>
             </p>
 

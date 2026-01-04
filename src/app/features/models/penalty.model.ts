@@ -1,9 +1,10 @@
 export type PenaltyStatus = 'pending' | 'paid' | 'replaced' | 'returned';
+export type PenaltyType = "lost" | "late" | "damage";
 
 export interface PenaltyListItem {
   _id: string;
-  penalty_type: string;
-  amount: {$numberDecimal: string};
+  penalty_type: PenaltyType;
+  amount: number;
   status: PenaltyStatus;
   note: string;
   received_at: string | null;
@@ -12,10 +13,17 @@ export interface PenaltyListItem {
   phone_number: string;
 }
 
+export interface PenaltyItem {
+  borrow_id: string;
+  penalty_type: PenaltyType;
+  amount: number;
+  note: string;
+}
+
 export interface PenaltyDetail {
   _id: string;
-  penalty_type: string;
-  amount: {$numberDecimal: string};
+  penalty_type: PenaltyType;
+  amount: number;
   status: PenaltyStatus;
   note: string;
   received_at: string | null;
@@ -36,7 +44,7 @@ export interface PenaltyDetail {
   book: {
     title: string;
     cover_url: string;
-    price: {$numberDecimal: string};
+    price: number;
     total_copies: number;
     category: string;
     author_name: string;

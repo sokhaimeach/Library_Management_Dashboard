@@ -30,7 +30,7 @@ export interface BorrowDatail {
   book: {
     title: string;
     cover_url: string;
-    price: { $numberDecimal: string | number };
+    price: number;
     total_copies: number;
     category: string;
     author_name: string;

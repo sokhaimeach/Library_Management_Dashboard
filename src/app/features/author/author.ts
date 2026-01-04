@@ -39,7 +39,6 @@ export class Author {
     this.authorservice.getAllAuthors(query, search).subscribe({
       next: (res) => {
         this.authors.set(res);
-        console.log(this.authors())
       },
     });
   }
