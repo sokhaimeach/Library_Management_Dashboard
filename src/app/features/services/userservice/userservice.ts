@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { enviroment } from '../../../../environments/environment';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { filter, Observable } from 'rxjs';
 import { UserDetail } from '../../models/account.model';
 import { UserI } from '../../models/user.model';
 
@@ -16,8 +16,13 @@ export class Userservice {
     return this.http.get<UserDetail>(this.url+'/users/details/'+id);
   }
 
-  getAllUsers():Observable<UserI[]> {
-    return this.http.get<UserI[]>(this.url + '/users');
+  getAllUsers(filter: string, status: string, search: string):Observable<UserI[]> {
+    let params = new HttpParams();
+    params = params.set("filter", filter);
+    params = params.set("filterStatus", status);
+    params = params.set("search", search);
+
+    return this.http.get<UserI[]>(this.url + '/users', { params });
   }
 
   createUser(user: UserI):Observable<{message: string, data: UserI}> {

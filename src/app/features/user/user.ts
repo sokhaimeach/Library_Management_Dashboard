@@ -34,6 +34,9 @@ export class User implements OnInit {
   };
 
   users = signal<UserI[]>([]);
+  searchQuery: string = "";
+  filter: string = "";
+  filterStatus: string = "";
   // handle error
   errorMessage: string = '';
   isError:boolean = false;
@@ -49,7 +52,7 @@ export class User implements OnInit {
 
   // get all users
   async getAllUserInfo(){
-    await this.userservice.getAllUsers().subscribe({
+    await this.userservice.getAllUsers(this.filter, this.filterStatus, this.searchQuery).subscribe({
       next: (res) => {
         this.users.set(res);
       },
@@ -131,7 +134,10 @@ export class User implements OnInit {
   ];
 
   onFilterChange(selected: string[]) {
-    // call API here
-    console.log(selected);
+    this.filter = "";
+    selected.forEach(select => {
+      this.filter += select + ",";
+    });
+    this.getAllUserInfo();
   }
 }
