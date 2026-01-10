@@ -1,4 +1,4 @@
 export const enviroment = {
     production: false,
-    apiUrl: 'http://localhost:7000/api',
+    apiUrl: 'https://library-management-api-d6xe.onrender.com/api',
 }
