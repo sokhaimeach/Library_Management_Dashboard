@@ -20,12 +20,14 @@ import { Alertservice } from '../../shared/components/alert-success/alertservice
 import { Penaltyservice } from '../services/penaltyservice/penaltyservice';
 import { AlertSuccess } from '../../shared/components/alert-success/alert-success';
 import { TruncatePipe } from '../../shared/pipes/truncate-pipe';
+import { LoadingService } from '../../core/services/loading.service';
+import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, FormsModule, AlertSuccess, TruncatePipe],
+  imports: [CommonModule, FormsModule, AlertSuccess, TruncatePipe, SkeletonLoaderComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -60,10 +62,12 @@ export class Dashboard implements AfterViewInit {
     private reportservice: Reportservice,
     private borrowservice: Borrowservice,
     private alert: Alertservice,
-    private penaltyservice: Penaltyservice
-  ) {}
+    private penaltyservice: Penaltyservice,
+    public loading: LoadingService
+  ) { }
 
   ngOnInit(): void {
+    this.loading.show();
     this.getTrend();
     this.getStatusBreakdownData();
     this.getTopCategoriesData();
@@ -138,7 +142,11 @@ export class Dashboard implements AfterViewInit {
     this.reportservice.getRecentBorrows().subscribe({
       next: (res) => {
         this.recentBorrows.set(res);
+        this.loading.hide();
       },
+      error: (err) => {
+        this.loading.hide();
+      }
     });
   }
 
@@ -313,6 +321,8 @@ export class Dashboard implements AfterViewInit {
 
   // ---------- Charts ----------
   private initCharts(): void {
+    if (!this.trendCanvas || !this.statusCanvas || !this.categoryCanvas) return;
+
     // Destroy if rerender
     this.trendChart?.destroy();
     this.statusChart?.destroy();
@@ -379,20 +389,32 @@ export class Dashboard implements AfterViewInit {
     const data = this.trendData();
     const statusData = this.statusBreakdown();
     const topData = this.topCategories();
+    const isLoading = this.loading.isLoading();
 
-    if (!this.trendChart) return;
+    if (isLoading) return;
 
-    this.trendChart.data.datasets[0].data = data;
-    this.trendChart.update();
+    // Use a small timeout to ensure the DOM has updated via @else
+    setTimeout(() => {
+      if (!this.trendChart) {
+        this.initCharts();
+      }
 
-    if (!this.statusChart) return;
-    this.statusChart.data.labels = statusData.labels;
-    this.statusChart.data.datasets[0].data = statusData.data;
-    this.statusChart.update();
+      if (this.trendChart) {
+        this.trendChart.data.datasets[0].data = data;
+        this.trendChart.update();
+      }
 
-    if (!this.categoryChart) return;
-    this.categoryChart.data.labels = topData.labels;
-    this.categoryChart.data.datasets[0].data = topData.data;
-    this.categoryChart.update();
+      if (this.statusChart) {
+        this.statusChart.data.labels = statusData.labels;
+        this.statusChart.data.datasets[0].data = statusData.data;
+        this.statusChart.update();
+      }
+
+      if (this.categoryChart) {
+        this.categoryChart.data.labels = topData.labels;
+        this.categoryChart.data.datasets[0].data = topData.data;
+        this.categoryChart.update();
+      }
+    }, 0);
   });
 }
