@@ -1,19 +1,19 @@
 <div class="container-fluid py-3">
 
     <!-- Topbar -->
-    <div class="topbar-card d-flex align-items-center justify-content-between gap-3 mb-3">
+    <div class="topbar-card d-flex align-items-center justify-content-between mb-4">
         <div class="d-flex align-items-center gap-3">
             <div class="topbar-icon d-flex align-items-center justify-content-center">
-                <i class="bi bi-speedometer2 fs-4"></i>
+                <i class="bi bi-grid-1x2 fs-5"></i>
             </div>
             <div>
-                <div class="fw-semibold fs-5 mb-0">Library Dashboard</div>
-                <div class="text-muted small">Overview & daily operations</div>
+                <h1 class="fw-bold fs-5 mb-0">Library Overview</h1>
+                <p class="text-secondary small mb-0">Management & Real-time Statistics</p>
             </div>
         </div>
     </div>
-
-    <div class="row g-3 mb-3">
+    <!-- KPI cards -->
+    <div class="row g-4 mb-4">
         @if (loading.isLoading()) {
         @for (i of [1,2,3,4]; track $index) {
         <div class="col-12 col-sm-6 col-lg-3">
@@ -24,11 +24,9 @@
                             [customStyle]="{width: '60%', height: '12px'}"></app-skeleton-loader>
                         <app-skeleton-loader type="title"
                             [customStyle]="{width: '40%', height: '32px', margin: '8px 0'}"></app-skeleton-loader>
-                        <app-skeleton-loader type="text"
-                            [customStyle]="{width: '30%', height: '10px'}"></app-skeleton-loader>
                     </div>
                     <app-skeleton-loader type="circle"
-                        [customStyle]="{width: '48px', height: '48px'}"></app-skeleton-loader>
+                        [customStyle]="{width: '44px', height: '44px'}"></app-skeleton-loader>
                 </div>
             </div>
         </div>
@@ -38,15 +36,16 @@
             <div class="kpi-card">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <div class="text-muted small">{{ k.label }}</div>
-                        <div class="fw-semibold fs-4">{{ k.value }}</div>
-                        <div class="small" [class.text-success]="k.delta >= 0" [class.text-danger]="k.delta < 0">
-                            <i class="bi" [ngClass]="k.delta >= 0 ? 'bi-arrow-up-right' : 'bi-arrow-down-right'"></i>
+                        <div class="text-secondary small fw-medium mb-1">{{ k.label }}</div>
+                        <div class="fw-bold fs-3 mb-1">{{ k.value }}</div>
+                        <div class="small fw-semibold" [class.text-success]="k.delta >= 0"
+                            [class.text-danger]="k.delta < 0">
+                            <i class="bi" [ngClass]="k.delta >= 0 ? 'bi-arrow-up-short' : 'bi-arrow-down-short'"></i>
                             {{ k.deltaText }}
                         </div>
                     </div>
                     <div class="kpi-icon d-flex align-items-center justify-content-center">
-                        <i class="bi fs-4" [ngClass]="k.icon"></i>
+                        <i class="bi fs-5" [ngClass]="k.icon"></i>
                     </div>
                 </div>
             </div>
@@ -55,14 +54,14 @@
     </div>
 
     <!-- Alerts + Quick actions -->
-    <div class="row g-3 mb-3">
+    <div class="row g-4 mb-4">
         <div class="col-12 col-lg-7">
-            <div class="card-soft">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <div class="fw-semibold">
-                        <i class="bi bi-exclamation-triangle me-2"></i> Overdue Alerts
+            <div class="card-soft h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="fw-bold">
+                        <i class="bi bi-clock-history me-2"></i> Overdue Alerts
                     </div>
-                    <span class="badge rounded-pill text-bg-light border">Top {{ overdueBorrows().length }}</span>
+                    <span class="small text-secondary fw-semibold">{{ overdueBorrows().length }} active</span>
                 </div>
 
                 <div class="alert-list">
@@ -72,7 +71,7 @@
                         <div class="d-flex align-items-start justify-content-between gap-2">
                             <div class="d-flex align-items-start gap-2 w-100">
                                 <app-skeleton-loader type="text"
-                                    [customStyle]="{width: '70px', height: '24px', borderRadius: '12px'}"></app-skeleton-loader>
+                                    [customStyle]="{width: '70px', height: '20px', borderRadius: '8px'}"></app-skeleton-loader>
                                 <div class="w-100">
                                     <app-skeleton-loader type="text"
                                         [customStyle]="{width: '40%', height: '16px'}"></app-skeleton-loader>
@@ -88,30 +87,30 @@
                     } @else {
                     <div class="alert-item" *ngFor="let a of overdueBorrows()">
                         <div class="d-flex align-items-start justify-content-between gap-2">
-                            <div class="d-flex align-items-start gap-2">
+                            <div class="d-flex align-items-start gap-3">
                                 <span class="chip" [ngClass]="chipClass(a.due_date)">
-                                    <i class="bi me-1" [ngClass]="alertIcon(a.due_date)"></i>{{
-                                    calculateDate(a.due_date) < 0 ? "Due soon" : "Overdue" }} </span>
+                                    {{ calculateDate(a.due_date) < 0 ? "Upcoming" : "Overdue" }} </span>
                                         <div>
-                                            <div class="fw-semibold">{{ overdueTitle(a.due_date) }}</div>
-                                            <div class="text-muted small">{{ a.member_name + ' • ' + a.book_title + ' •
-                                                Due: ' + (a.due_date | date) }}</div>
+                                            <div class="fw-semibold primary-text">{{ overdueTitle(a.due_date) }}
+                                            </div>
+                                            <div class="text-secondary small">{{ a.member_name }} • {{ a.book_title
+                                                | truncate:30 }}</div>
                                         </div>
                             </div>
 
                             <div class="d-flex gap-2">
                                 <button class="btn btn-icon-soft danger" type="button"
-                                    [disabled]="a.status !== 'overdue'? true : false" aria-label="Update status"
+                                    [disabled]="a.status !== 'overdue'" aria-label="Update status"
                                     data-bs-toggle="modal" data-bs-target="#updateStatusModal"
                                     (click)="openUpdateStatus(a)">
-                                    <i class="bi bi-arrow-repeat"></i>
+                                    <i class="bi bi-check2"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div *ngIf="overdueBorrows().length === 0" class="text-muted small py-3">
-                        No alerts 🎉
+                    <div *ngIf="overdueBorrows().length === 0" class="text-secondary small py-4 text-center">
+                        All caught up! 🎉
                     </div>
                     }
                 </div>
@@ -120,14 +119,14 @@
 
         <div class="col-12 col-lg-5">
             <div class="card-soft h-100">
-                <div class="fw-semibold mb-2">
-                    <i class="bi bi-lightning-charge me-2"></i> Quick Actions
+                <div class="fw-bold mb-3">
+                    <i class="bi bi-lightning-charge me-2"></i> Fast Access
                 </div>
 
                 <div class="row g-2">
                     <div class="col-6">
                         <button class="btn btn-white-action w-100" (click)="onQuickAction('/admin/borrow-return')">
-                            <i class="bi bi-box-arrow-in-left me-2"></i> Return
+                            <i class="bi bi-arrow-down-left me-2"></i> Return
                         </button>
                     </div>
                     <div class="col-6">
@@ -147,35 +146,30 @@
                     </div>
                 </div>
 
-                <hr class="my-3">
+                <hr class="my-4" style="opacity: 0.1">
 
                 <div class="detail-box">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <span class="text-muted small">Available vs Borrowed</span>
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-medium">Library Circulation</span>
                         @if (loading.isLoading()) {
                         <app-skeleton-loader type="text"
-                            [customStyle]="{width: '80px', height: '20px', borderRadius: '12px'}"></app-skeleton-loader>
+                            [customStyle]="{width: '60px', height: '18px', borderRadius: '6px'}"></app-skeleton-loader>
                         } @else {
-                        <span class="chip chip-dark">{{ inventory().available }} available</span>
+                        <span class="badge status-badge status-borrowed">{{ inventory().available }}
+                            Available</span>
                         }
                     </div>
                     @if (loading.isLoading()) {
                     <app-skeleton-loader type="text"
-                        [customStyle]="{width: '100%', height: '10px', marginTop: '12px', borderRadius: '5px'}"></app-skeleton-loader>
-                    <div class="d-flex justify-content-between mt-2">
-                        <app-skeleton-loader type="text"
-                            [customStyle]="{width: '30%', height: '12px'}"></app-skeleton-loader>
-                        <app-skeleton-loader type="text"
-                            [customStyle]="{width: '30px', height: '12px'}"></app-skeleton-loader>
-                    </div>
+                        [customStyle]="{width: '100%', height: '8px', marginTop: '12px', borderRadius: '4px'}"></app-skeleton-loader>
                     } @else {
-                    <div class="progress mt-2" style="height: 10px;">
+                    <div class="progress" style="height: 8px;">
                         <div class="progress-bar" role="progressbar" [style.width.%]="inventory().borrowedPct"
                             aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
-                    <div class="d-flex justify-content-between text-muted small mt-2">
-                        <span>{{ inventory().borrowed }} borrowed</span>
-                        <span>{{ inventory().borrowedPct | number:'1.0-0' }}%</span>
+                    <div class="d-flex justify-content-between text-secondary small mt-2">
+                        <span>{{ inventory().borrowed }} Books in use</span>
+                        <span class="fw-bold">{{ inventory().borrowedPct | number:'1.0-0' }}%</span>
                     </div>
                     }
                 </div>
@@ -184,17 +178,17 @@
     </div>
 
     <!-- Charts -->
-    <div class="row g-3 mb-3">
+    <div class="row g-4 mb-4">
         <div class="col-12 col-lg-6">
             <div class="card-soft">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <div class="fw-semibold"><i class="bi bi-graph-up me-2"></i> Borrow Trend (7 days)</div>
-                    <span class="badge rounded-pill text-bg-light border">Daily</span>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="fw-bold"><i class="bi bi-graph-up me-2"></i> Borrowing Trends</div>
+                    <span class="text-secondary small fw-medium">Weekly</span>
                 </div>
                 <div class="chart-wrap">
                     @if (loading.isLoading()) {
                     <app-skeleton-loader type="rect"
-                        [customStyle]="{width: '100%', height: '200px'}"></app-skeleton-loader>
+                        [customStyle]="{width: '100%', height: '220px'}"></app-skeleton-loader>
                     } @else {
                     <canvas #trendCanvas></canvas>
                     }
@@ -204,11 +198,11 @@
 
         <div class="col-12 col-lg-3">
             <div class="card-soft h-100">
-                <div class="fw-semibold mb-2"><i class="bi bi-pie-chart me-2"></i> Status Breakdown</div>
+                <div class="fw-bold mb-3"><i class="bi bi-pie-chart me-2"></i> Book Status</div>
                 <div class="chart-wrap">
                     @if (loading.isLoading()) {
                     <app-skeleton-loader type="circle"
-                        [customStyle]="{width: '180px', height: '180px', margin: 'auto'}"></app-skeleton-loader>
+                        [customStyle]="{width: '160px', height: '160px', margin: 'auto'}"></app-skeleton-loader>
                     } @else {
                     <canvas #statusCanvas></canvas>
                     }
@@ -218,7 +212,7 @@
 
         <div class="col-12 col-lg-3">
             <div class="card-soft h-100">
-                <div class="fw-semibold mb-2"><i class="bi bi-bar-chart me-2"></i> Top Categories</div>
+                <div class="fw-bold mb-3"><i class="bi bi-bar-chart me-2"></i> Categories</div>
                 <div class="chart-wrap">
                     @if (loading.isLoading()) {
                     <app-skeleton-loader type="rect"
@@ -247,11 +241,11 @@
                         <table class="table align-middle mb-0">
                             <thead class="table-head">
                                 <tr>
-                                    <th>Member</th>
-                                    <th>Book</th>
-                                    <th>Due</th>
+                                    <th>Member Details</th>
+                                    <th>Book Title</th>
+                                    <th>Due Date</th>
                                     <th>Status</th>
-                                    <th class="text-end">Action</th>
+                                    <th class="text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -265,9 +259,11 @@
                                             [customStyle]="{width: '40%', height: '10px'}"></app-skeleton-loader>
                                     </td>
                                     <td><app-skeleton-loader type="text"
-                                            [customStyle]="{width: '60%', height: '14px'}"></app-skeleton-loader></td>
+                                            [customStyle]="{width: '60%', height: '14px'}"></app-skeleton-loader>
+                                    </td>
                                     <td><app-skeleton-loader type="text"
-                                            [customStyle]="{width: '70%', height: '14px'}"></app-skeleton-loader></td>
+                                            [customStyle]="{width: '70%', height: '14px'}"></app-skeleton-loader>
+                                    </td>
                                     <td><app-skeleton-loader type="text"
                                             [customStyle]="{width: '70px', height: '22px', borderRadius: '11px'}"></app-skeleton-loader>
                                     </td>
@@ -333,11 +329,11 @@
                         <table class="table align-middle mb-0">
                             <thead class="table-head">
                                 <tr>
-                                    <th>Member</th>
-                                    <th>Type</th>
-                                    <th>Amount</th>
+                                    <th>Member Details</th>
+                                    <th>Fine Type</th>
+                                    <th>Amount Due</th>
                                     <th>Status</th>
-                                    <th class="text-end">Action</th>
+                                    <th class="text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
