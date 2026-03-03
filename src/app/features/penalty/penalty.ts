@@ -15,11 +15,13 @@ import { Borrowservice } from '../services/borrowservice/borrowservice';
 import { Alertservice } from '../../shared/components/alert-success/alertservice';
 import { AlertSuccess } from '../../shared/components/alert-success/alert-success';
 import { TruncatePipe } from '../../shared/pipes/truncate-pipe';
+import { LoadingService } from '../../core/services/loading.service';
+import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader';
 declare const bootstrap: any;
 
 @Component({
   selector: 'app-penalty',
-  imports: [FormsModule, CommonModule, FilterDropdown, AlertSuccess, TruncatePipe],
+  imports: [FormsModule, CommonModule, FilterDropdown, AlertSuccess, TruncatePipe, SkeletonLoaderComponent],
   templateUrl: './penalty.html',
   styleUrl: './penalty.css',
 })
@@ -77,8 +79,9 @@ export class Penalty implements OnInit {
   constructor(
     private penaltyservice: Penaltyservice,
     private borrowservice: Borrowservice,
-    private alert: Alertservice
-  ) {}
+    private alert: Alertservice,
+    public loading: LoadingService
+  ) { }
   ngOnInit(): void {
     this.getAllPenalties();
     this.getAllBorrow();
@@ -86,12 +89,18 @@ export class Penalty implements OnInit {
   }
 
   getAllPenalties() {
+    this.loading.show();
     this.penaltyservice
       .getAllPenalties(this.filter, this.searchQuery)
       .subscribe({
         next: (res) => {
           this.penalties.set(res.data);
+          this.loading.hide();
         },
+        error: (err) => {
+          console.error(err);
+          this.loading.hide();
+        }
       });
   }
 
@@ -124,7 +133,7 @@ export class Penalty implements OnInit {
 
   saveDetailStatus() {
     if (!this.detail() || !this.detailStatus) return;
-    
+
     this.setStatus(this.detail()._id, this.detailStatus);
   }
 
@@ -164,10 +173,10 @@ export class Penalty implements OnInit {
     this.filterBorrowData = !q
       ? [...this.borrowData]
       : this.borrowData.filter(
-          (b) =>
-            b.member_name.toLowerCase().includes(q) ||
-            b._id.toLowerCase().includes(q)
-        );
+        (b) =>
+          b.member_name.toLowerCase().includes(q) ||
+          b._id.toLowerCase().includes(q)
+      );
   }
 
   selectBorrowId(borrow: BorrowI) {
@@ -254,9 +263,9 @@ export class Penalty implements OnInit {
 
   // return status 
   returnStatus(status: PenaltyType): PenaltyStatus[] {
-    if(status === "lost"){
+    if (status === "lost") {
       return ["paid", "replaced", "returned"];
-    } else if(status === "late") {
+    } else if (status === "late") {
       return ["paid"];
     } else {
       return ["paid", "replaced"];

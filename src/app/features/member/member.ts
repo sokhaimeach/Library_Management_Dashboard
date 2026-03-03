@@ -8,6 +8,8 @@ import { AlertSuccess } from '../../shared/components/alert-success/alert-succes
 import { Alertservice } from '../../shared/components/alert-success/alertservice';
 import { RouterLink } from '@angular/router';
 import { Memberservice } from '../services/memberservice/memberservice';
+import { LoadingService } from '../../core/services/loading.service';
+import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader';
 
 @Component({
   selector: 'app-member',
@@ -18,6 +20,7 @@ import { Memberservice } from '../services/memberservice/memberservice';
     FormsModule,
     AlertSuccess,
     RouterLink,
+    SkeletonLoaderComponent
   ],
   templateUrl: './member.html',
   styleUrl: './member.css',
@@ -37,8 +40,9 @@ export class Member {
 
   constructor(
     private alert: Alertservice,
-    private memberservice: Memberservice
-  ) {}
+    private memberservice: Memberservice,
+    public loading: LoadingService
+  ) { }
   ngOnInit(): void {
     this.getAllMemberInfo();
   }
@@ -46,10 +50,16 @@ export class Member {
   // API Actions would go here
   // get all members
   getAllMemberInfo() {
+    this.loading.show();
     this.memberservice.getAllMembers(this.filter, this.searchQuery).subscribe({
       next: (res) => {
         this.members.set(res);
+        this.loading.hide();
       },
+      error: (err) => {
+        console.error(err);
+        this.loading.hide();
+      }
     });
   }
 

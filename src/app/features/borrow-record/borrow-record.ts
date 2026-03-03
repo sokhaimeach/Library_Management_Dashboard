@@ -6,16 +6,18 @@ import { AlertSuccess } from '../../shared/components/alert-success/alert-succes
 import { Alertservice } from '../../shared/components/alert-success/alertservice';
 import { BorrowDatail, BorrowI, BorrowStatus, ReturnI } from '../models/borrow.model';
 import { Borrowservice } from '../services/borrowservice/borrowservice';
+import { LoadingService } from '../../core/services/loading.service';
+import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader';
 declare const bootstrap: any;
 
 @Component({
   selector: 'app-borrow-record',
-  imports: [CommonModule, FormsModule, FilterDropdown, AlertSuccess],
+  imports: [CommonModule, FormsModule, FilterDropdown, AlertSuccess, SkeletonLoaderComponent],
   templateUrl: './borrow-record.html',
   styleUrl: './borrow-record.css',
 })
 export class BorrowRecord {
-  item:ReturnI = {
+  item: ReturnI = {
     status: '',
     damage_type: 'can',
     damage_fee: 0,
@@ -29,18 +31,25 @@ export class BorrowRecord {
 
   constructor(
     private alert: Alertservice,
-    private borrowservice: Borrowservice
-  ) {}
+    private borrowservice: Borrowservice,
+    public loading: LoadingService
+  ) { }
   ngOnInit(): void {
     this.getAllBorrowRecords();
   }
 
   // get all borrow records
   getAllBorrowRecords() {
+    this.loading.show();
     this.borrowservice.getAllBorrows(this.filter, this.searchQuery).subscribe({
       next: (res) => {
         this.borrows.set(res);
+        this.loading.hide();
       },
+      error: (err) => {
+        console.error(err);
+        this.loading.hide();
+      }
     });
   }
 

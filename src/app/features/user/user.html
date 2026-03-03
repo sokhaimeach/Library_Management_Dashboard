@@ -40,8 +40,8 @@
                 <span class="input-group-text bg-transparent border-0 text-muted">
                     <i class="bi bi-search" (click)="searchQuery? getAllUserInfo():''"></i>
                 </span>
-                <input type="text" class="input" placeholder="Search username, phone, email..." [(ngModel)]="searchQuery"
-                (keydown.Enter)="getAllUserInfo()" />
+                <input type="text" class="input" placeholder="Search username, phone, email..."
+                    [(ngModel)]="searchQuery" (keydown.Enter)="getAllUserInfo()" />
             </div>
 
             <div class="d-flex gap-2 align-items-center">
@@ -82,10 +82,38 @@
                 </thead>
 
                 <tbody>
+                    @if (loading.isLoading()) {
+                    @for (i of [1,2,3,4,5]; track $index) {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <app-skeleton-loader type="circle"
+                                    [customStyle]="{width: '32px', height: '32px'}"></app-skeleton-loader>
+                                <app-skeleton-loader type="title"
+                                    [customStyle]="{width: '120px'}"></app-skeleton-loader>
+                            </div>
+                        </td>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '120px'}"></app-skeleton-loader>
+                        </td>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '100px'}"></app-skeleton-loader>
+                        </td>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '130px'}"></app-skeleton-loader>
+                        </td>
+                        <td><app-skeleton-loader type="text"
+                                [customStyle]="{width: '80px', borderRadius: '20px'}"></app-skeleton-loader></td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <app-skeleton-loader type="circle"
+                                    [customStyle]="{width: '28px', height: '28px'}"></app-skeleton-loader>
+                                <app-skeleton-loader type="circle"
+                                    [customStyle]="{width: '28px', height: '28px'}"></app-skeleton-loader>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                    } @else {
                     @for(user of users(); track $index){
                     <tr class="row-hover">
-
-                        <!-- User -->
                         <td>
                             <div class="d-flex align-items-center gap-3">
                                 @if(user.image_url){
@@ -100,14 +128,11 @@
                                 }
                                 <div>
                                     <div class="primary-text">{{ user.username }}</div>
-                                    <div class="sub-text">
-                                        Id: {{ user._id }}
-                                    </div>
+                                    <div class="sub-text">Id: {{ user._id }}</div>
                                 </div>
                             </div>
                         </td>
 
-                        <!-- Role -->
                         <td>
                             <span class="badge rounded-pill role-badge" [class.role-admin]="user.role === 'admin'"
                                 [class.role-librarian]="user.role === 'librarian'"
@@ -116,7 +141,6 @@
                             </span>
                         </td>
 
-                        <!-- Phone -->
                         <td>
                             <span class="badge rounded-pill text-bg-light border badge-soft">
                                 <i class="bi bi-telephone me-1"></i> {{ user.contact.phone_number || '—' }}
@@ -124,13 +148,11 @@
                             <div class="sub-text mt-1">Contact</div>
                         </td>
 
-                        <!-- Start date -->
                         <td>
                             <div class="primary-text">{{ user.start_date | date:'mediumDate' }}</div>
                             <div class="sub-text">{{ user.start_date | date:'yyyy-MM-dd' }}</div>
                         </td>
 
-                        <!-- Status -->
                         <td>
                             <span class="badge rounded-pill status-badge" [class.status-active]="user.status"
                                 [class.status-disabled]="!user.status">
@@ -140,7 +162,6 @@
                             </span>
                         </td>
 
-                        <!-- Actions -->
                         <td class="text-end">
                             <div class="side-actions">
                                 <button class="icon-btn eye" type="button" aria-label="View detail"
@@ -155,6 +176,7 @@
                             </div>
                         </td>
                     </tr>
+                    }
                     }
                 </tbody>
             </table>

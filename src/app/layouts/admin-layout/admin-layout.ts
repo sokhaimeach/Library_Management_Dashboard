@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLinkWithHref, RouterLinkActive, RouterLink, Router } from '@angular/router';
 import { Authservice } from '../../core/auth/authservice';
 import { CommonModule } from '@angular/common';
+import { LoadingService } from '../../core/services/loading.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -11,18 +12,18 @@ import { CommonModule } from '@angular/common';
 })
 export class AdminLayout implements OnInit {
 
-  user:any;
+  user: any;
   present: string = new Date().toDateString();
 
-  constructor(public auth: Authservice, private router: Router) {
-    
+  constructor(public auth: Authservice, private router: Router, public loading: LoadingService) {
+
   }
 
-  ngOnInit():void {
+  ngOnInit(): void {
     this.user = this.auth.getUserProfile();
   }
 
-  logout(){
+  logout() {
     this.auth.logout();
     setTimeout(() => {
       this.router.navigate(['/auth']);

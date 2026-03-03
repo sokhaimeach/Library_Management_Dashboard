@@ -9,6 +9,8 @@ import { Memberservice } from '../services/memberservice/memberservice';
 import { MemberI, MemberItem } from '../models/member.modal';
 import { Borrowservice } from '../services/borrowservice/borrowservice';
 import { BorrowI } from '../models/borrow.model';
+import { LoadingService } from '../../core/services/loading.service';
+import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader';
 
 type BorrowStatus = 'returned' | 'late' | 'overdue' | 'lost' | 'damaged';
 
@@ -34,7 +36,7 @@ interface BorrowRecord {
 
 @Component({
   selector: 'app-borrow-return',
-  imports: [CommonModule, FormsModule, AlertSuccess],
+  imports: [CommonModule, FormsModule, AlertSuccess, SkeletonLoaderComponent],
   templateUrl: './borrow-return.html',
   styleUrl: './borrow-return.css',
 })
@@ -43,7 +45,8 @@ export class BorrowReturn {
   constructor(private alert: Alertservice,
     private bookservice: Bookservices,
     private memberservice: Memberservice,
-    private borrowservice: Borrowservice) {}
+    private borrowservice: Borrowservice,
+    public loading: LoadingService) { }
 
   memberItem: MemberItem = {
     name: '',
@@ -67,9 +70,15 @@ export class BorrowReturn {
   }
 
   getAllBook() {
+    this.loading.show();
     this.bookservice.getAllBooks("", "").subscribe({
       next: (res: any) => {
         this.books = res.data;
+        this.loading.hide();
+      },
+      error: (err) => {
+        console.error(err);
+        this.loading.hide();
       }
     });
   }
@@ -102,9 +111,9 @@ export class BorrowReturn {
     const member_id = this.selectedMember()?._id || "";
     const book_id = this.selectedBook()?._id || "";
 
-    if(!member_id || !book_id) return;
+    if (!member_id || !book_id) return;
 
-    this.borrowservice.createNewBorrow({member_id, book_id}).subscribe({
+    this.borrowservice.createNewBorrow({ member_id, book_id }).subscribe({
       next: (res) => {
         this.alert.showAlert('success', res.message);
         this.clearMember();
@@ -162,30 +171,30 @@ export class BorrowReturn {
   checkDamageType(type: boolean) {
     this.isLittleDamage = type;
 
-    if(type) {
+    if (type) {
       this.statusItem.damage_type = 'can';
     } else {
       this.statusItem.damage_type = 'cannot';
     }
   }
 
-  selectStatus(b: BorrowStatus){
+  selectStatus(b: BorrowStatus) {
     this.statusItem.status = b;
     this.updateStatus = b;
 
-    if(b === "damaged") {
+    if (b === "damaged") {
       this.checkDamageType(true);
     }
   }
 
   // save status change
   saveStatus() {
-    if(this.statusItem.damage_fee <=0 && this.updateStatus === 'damaged' && this.isLittleDamage) {
+    if (this.statusItem.damage_fee <= 0 && this.updateStatus === 'damaged' && this.isLittleDamage) {
       this.removeFailed = true;
-      return;  
+      return;
     }
 
-    if(this.selectedBorrow === null) return;
+    if (this.selectedBorrow === null) return;
 
     this.borrowservice.updateBorrowStatus(this.selectedBorrow._id, this.statusItem).subscribe({
       next: (res) => {
@@ -198,7 +207,7 @@ export class BorrowReturn {
     })
 
     this.clearSelectUpdate();
-    
+
   }
 
   clearSelectUpdate() {

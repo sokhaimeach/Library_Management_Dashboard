@@ -5,12 +5,14 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from "@angular/router";
 import { UserI } from '../models/user.model';
 import { Userservice } from '../services/userservice/userservice';
+import { LoadingService } from '../../core/services/loading.service';
+import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader';
 import { AlertSuccess } from '../../shared/components/alert-success/alert-success';
 import { Alertservice } from '../../shared/components/alert-success/alertservice';
 
 @Component({
   selector: 'app-user',
-  imports: [CommonModule, FilterDropdown, FormsModule, RouterLink, AlertSuccess],
+  imports: [CommonModule, FormsModule, AlertSuccess, SkeletonLoaderComponent, FilterDropdown, RouterLink],
   templateUrl: './user.html',
   styleUrl: './user.css',
 })
@@ -39,26 +41,31 @@ export class User implements OnInit {
   filterStatus: string = "";
   // handle error
   errorMessage: string = '';
-  isError:boolean = false;
+  isError: boolean = false;
 
   constructor(
     private userservice: Userservice,
     private alert: Alertservice,
-    ) {}
+    public loading: LoadingService
+  ) { }
 
   ngOnInit(): void {
     this.getAllUserInfo();
   }
 
   // get all users
-  async getAllUserInfo(){
-    await this.userservice.getAllUsers(this.filter, this.filterStatus, this.searchQuery).subscribe({
+  getAllUserInfo() {
+    this.loading.show();
+    this.userservice.getAllUsers(this.filter, this.filterStatus, this.searchQuery).subscribe({
       next: (res) => {
         this.users.set(res);
+        this.loading.hide();
       },
       error: (err) => {
+        console.error(err);
         this.isError = true;
         this.errorMessage = err.error?.message;
+        this.loading.hide();
       }
     });
   }
@@ -77,8 +84,8 @@ export class User implements OnInit {
   }
 
   // editt user info
-  async editUserInfo(){
-    let {_id:_, role, status, start_date, password,...userInfo} = this.item;
+  async editUserInfo() {
+    let { _id: _, role, status, start_date, password, ...userInfo } = this.item;
     await this.userservice.updateUser(this.editUserId, userInfo).subscribe({
       next: (res) => {
         this.alert.showAlert('success', res?.message);

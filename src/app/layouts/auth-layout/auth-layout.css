@@ -15,7 +15,7 @@
     justify-content: center;
     align-items: center;
     background: linear-gradient(180deg, var(--saas-purple) 0%, var(--saas-blue) 40%, var(--saas-bg-page) 40%, var(--saas-bg-page) 100%);
-    padding: 20px;
+    padding: 10px;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
@@ -157,22 +157,8 @@
     max-width: 400px;
 }
 
-.pagination-dots {
-    display: flex;
-    gap: 8px;
-    margin-top: 40px;
-}
 
-.dot {
-    width: 32px;
-    height: 6px;
-    border-radius: 3px;
-    background-color: #E5E7EB;
-}
 
-.dot.active {
-    background-color: var(--saas-blue);
-}
 
 @media (max-width: 1024px) {
     .auth-card {

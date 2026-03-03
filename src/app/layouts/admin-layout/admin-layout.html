@@ -1,4 +1,9 @@
 <main class="app-shell">
+    <!-- Global Loading Bar -->
+    <div class="loading-bar-container" *ngIf="loading.isLoading()">
+        <div class="loading-bar"></div>
+    </div>
+
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-head">

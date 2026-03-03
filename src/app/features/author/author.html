@@ -67,6 +67,26 @@
                 </thead>
 
                 <tbody>
+                    @if(loading.isLoading()){
+                    @for(i of [1,2,3,4,5]; track $index){
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <app-skeleton-loader type="circle"
+                                    [customStyle]="{width: '32px', height: '32px'}"></app-skeleton-loader>
+                                <app-skeleton-loader type="text" [customStyle]="{width: '120px'}"></app-skeleton-loader>
+                            </div>
+                        </td>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '100px'}"></app-skeleton-loader>
+                        </td>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '80px'}"></app-skeleton-loader></td>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '200px'}"></app-skeleton-loader>
+                        </td>
+                        <td class="text-end"><app-skeleton-loader type="text"
+                                [customStyle]="{width: '50px'}"></app-skeleton-loader></td>
+                    </tr>
+                    }
+                    } @else {
                     @for(author of authors(); track $index){
                     <tr class="row-hover">
                         <td>
@@ -113,6 +133,7 @@
                             </div>
                         </td>
                     </tr>
+                    }
                     }
                 </tbody>
             </table>

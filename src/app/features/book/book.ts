@@ -11,10 +11,12 @@ import { AuthorI, AuthorItem } from '../models/author.model';
 import { CategoryI, CategoryItem } from '../models/category.model';
 import { Authorservice } from '../services/authorservice/authorservice';
 import { Categoryservice } from '../services/categoryservice/categoryservice';
+import { LoadingService } from '../../core/services/loading.service';
+import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader';
 
 @Component({
   selector: 'app-book',
-  imports: [FilterDropdown, FormsModule, CommonModule, AlertSuccess, RouterLink],
+  imports: [FilterDropdown, FormsModule, CommonModule, AlertSuccess, RouterLink, SkeletonLoaderComponent],
   templateUrl: './book.html',
   styleUrl: './book.css',
 })
@@ -30,7 +32,7 @@ export class Book {
     cover_url: '',
   };
 
-  authorItem:AuthorItem = {
+  authorItem: AuthorItem = {
     name: '',
     birth_date: '',
     nationality: 'Khmer',
@@ -58,7 +60,8 @@ export class Book {
   constructor(private bookservice: Bookservices,
     private alert: Alertservice,
     private authorservice: Authorservice,
-    private categoryservice: Categoryservice) {}
+    private categoryservice: Categoryservice,
+    public loading: LoadingService) { }
   ngOnInit(): void {
     this.getAllBooks();
     this.getAllAuthors();
@@ -67,12 +70,15 @@ export class Book {
 
   //get all books
   getAllBooks() {
+    this.loading.show();
     this.bookservice.getAllBooks(this.filter, this.searchQuery).subscribe({
       next: (res: any) => {
         this.books.set(res.data);
+        this.loading.hide();
       },
       error: (err) => {
         console.error(err);
+        this.loading.hide();
       },
     });
   }
@@ -141,7 +147,7 @@ export class Book {
         this.alert.showAlert('error', err.error?.message);
       }
     });
-    
+
   }
 
 
@@ -180,7 +186,7 @@ export class Book {
   modalTitle: string = 'Add New Book';
   updateBookId: string = "";
   isEdit: boolean = false;
-  openModal(book: B){
+  openModal(book: B) {
     this.isEdit = true;
     this.modalTitle = 'Edit Book Information';
     this.updateBookId = book._id;
@@ -288,10 +294,10 @@ export class Book {
     this.filterAuthorData = !q
       ? [...this.authors()]
       : this.authors().filter(
-          (b) =>
-            b.name.toLowerCase().includes(q) ||
-            b._id.toLowerCase().includes(q)
-        );
+        (b) =>
+          b.name.toLowerCase().includes(q) ||
+          b._id.toLowerCase().includes(q)
+      );
   }
 
   selectAuthorId(author: any) {
@@ -314,10 +320,10 @@ export class Book {
     this.filterCategoryData = !q
       ? [...this.categories()]
       : this.categories().filter(
-          (b) =>
-            b.name.toLowerCase().includes(q) ||
-            b._id.toLowerCase().includes(q)
-        );
+        (b) =>
+          b.name.toLowerCase().includes(q) ||
+          b._id.toLowerCase().includes(q)
+      );
   }
 
   selectCategoryId(category: any) {

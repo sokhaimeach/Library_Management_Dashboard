@@ -6,10 +6,12 @@ import { AuthorI, AuthorItem } from '../models/author.model';
 import { Authorservice } from '../services/authorservice/authorservice';
 import { AlertSuccess } from '../../shared/components/alert-success/alert-success';
 import { Alertservice } from '../../shared/components/alert-success/alertservice';
+import { LoadingService } from '../../core/services/loading.service';
+import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader';
 
 @Component({
   selector: 'app-author',
-  imports: [CommonModule, FilterDropdown, FormsModule, AlertSuccess],
+  imports: [CommonModule, FilterDropdown, FormsModule, AlertSuccess, SkeletonLoaderComponent],
   templateUrl: './author.html',
   styleUrl: './author.css',
 })
@@ -28,18 +30,24 @@ export class Author {
 
   constructor(
     private authorservice: Authorservice,
-    private alert: Alertservice
-  ) {}
+    private alert: Alertservice,
+    public loading: LoadingService
+  ) { }
   ngOnInit(): void {
     this.getAllAuthorInfo(this.filter, this.searchQuery);
   }
 
   // get all authors
   getAllAuthorInfo(query: string, search: string) {
+    this.loading.show();
     this.authorservice.getAllAuthors(query, search).subscribe({
       next: (res) => {
         this.authors.set(res);
+        this.loading.hide();
       },
+      error: (err) => {
+        this.loading.hide();
+      }
     });
   }
 
@@ -83,7 +91,7 @@ export class Author {
   }
 
   // seaerch
-  search(){
+  search() {
     this.getAllAuthorInfo(this.filter, this.searchQuery);
   }
 
@@ -132,7 +140,7 @@ export class Author {
     // call API here
     this.filter = "";
     this.genreFilters.forEach(gen => {
-      if(gen.checked){
+      if (gen.checked) {
         this.filter += (gen.key + ",");
       }
     });

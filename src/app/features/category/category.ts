@@ -5,10 +5,12 @@ import { AlertSuccess } from '../../shared/components/alert-success/alert-succes
 import { Alertservice } from '../../shared/components/alert-success/alertservice';
 import { CategoryI, CategoryItem } from '../models/category.model';
 import { Categoryservice } from '../services/categoryservice/categoryservice';
+import { LoadingService } from '../../core/services/loading.service';
+import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader';
 
 @Component({
   selector: 'app-category',
-  imports: [CommonModule, FormsModule, AlertSuccess],
+  imports: [CommonModule, FormsModule, AlertSuccess, SkeletonLoaderComponent],
   templateUrl: './category.html',
   styleUrl: './category.css',
 })
@@ -22,16 +24,21 @@ export class Category {
   categories = signal<CategoryI[]>([]);
   searchQuery: string = "";
 
-  constructor(private alert: Alertservice, private categoryservice: Categoryservice) {}
+  constructor(private alert: Alertservice, private categoryservice: Categoryservice, public loading: LoadingService) { }
   ngOnInit(): void {
     this.getAllCategoriesInfo();
   }
 
   // get all categories
-  getAllCategoriesInfo(){
+  getAllCategoriesInfo() {
+    this.loading.show();
     this.categoryservice.getAllCategories(this.searchQuery).subscribe({
       next: (res) => {
         this.categories.set(res);
+        this.loading.hide();
+      },
+      error: (err) => {
+        this.loading.hide();
       }
     });
   }
@@ -64,8 +71,8 @@ export class Category {
 
 
   // API Actions would go here
-  onDeleteCategory(){
-    if(this.deleteCategoryId === '') return;
+  onDeleteCategory() {
+    if (this.deleteCategoryId === '') return;
     // call delete API here
     this.categoryservice.deleteCategory(this.deleteCategoryId).subscribe({
       next: (res) => {

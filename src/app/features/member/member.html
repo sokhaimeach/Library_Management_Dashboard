@@ -39,7 +39,7 @@
                     <i class="bi bi-search" (click)="searchQuery? getAllMemberInfo():''"></i>
                 </span>
                 <input type="text" class="input" [(ngModel)]="searchQuery"
-                placeholder="Search member name, phone, email..." (keydown.Enter)="getAllMemberInfo()" />
+                    placeholder="Search member name, phone, email..." (keydown.Enter)="getAllMemberInfo()" />
             </div>
 
             <app-filter-dropdown [filters]="genreFilters" (filtersChange)="onFilterChange($event)">
@@ -65,6 +65,33 @@
                 </thead>
 
                 <tbody>
+                    @if (loading.isLoading()) {
+                    @for (i of [1,2,3,4,5,6]; track $index) {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <app-skeleton-loader type="circle"
+                                    [customStyle]="{width: '40px', height: '40px'}"></app-skeleton-loader>
+                                <div>
+                                    <app-skeleton-loader type="title"
+                                        [customStyle]="{width: '120px'}"></app-skeleton-loader>
+                                    <app-skeleton-loader type="text"
+                                        [customStyle]="{width: '80px'}"></app-skeleton-loader>
+                                </div>
+                            </div>
+                        </td>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '100px'}"></app-skeleton-loader>
+                        </td>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '150px'}"></app-skeleton-loader>
+                        </td>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '100px'}"></app-skeleton-loader>
+                        </td>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '60px'}"></app-skeleton-loader></td>
+                        <td class="text-end"><app-skeleton-loader type="text"
+                                [customStyle]="{width: '80px'}"></app-skeleton-loader></td>
+                    </tr>
+                    }
+                    } @else {
                     @for(member of members(); track $index){
                     <tr class="row-hover">
                         <td>
@@ -106,22 +133,19 @@
 
                         <td class="text-end">
                             <div class="side-actions">
-                                <button class="icon-btn eye" type="button" aria-label="View History" [routerLink]="['/admin/member/history/'+member._id]">
+                                <button class="icon-btn eye" type="button" aria-label="View History"
+                                    [routerLink]="['/admin/member/history/'+member._id]">
                                     <i class="bi bi-eye"></i>
                                 </button>
 
-                                <button class="icon-btn" type="button" aria-label="Edit member"
-                                data-bs-toggle="modal" data-bs-target="#exampleModal" (click)="openEditModal(member)">
+                                <button class="icon-btn" type="button" aria-label="Edit member" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal" (click)="openEditModal(member)">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
-
-                                <!-- <button class="icon-btn danger" type="button" aria-label="Delete permanently"
-                                    data-bs-toggle="modal" data-bs-target="#deleteConfirmModal" (click)="openDeleteModal(member)">
-                                    <i class="bi bi-trash3"></i>
-                                </button> -->
                             </div>
                         </td>
                     </tr>
+                    }
                     }
                 </tbody>
             </table>
@@ -155,14 +179,14 @@
                     <div class="row mb-5">
                         <div class="col-6">
                             <label class="mb-1" for="">Phone number</label>
-                            <input type="text" class="form-control inputs" placeholder="+855..."
-                            name="phone_number" [(ngModel)]="item.contact.phone_number">
+                            <input type="text" class="form-control inputs" placeholder="+855..." name="phone_number"
+                                [(ngModel)]="item.contact.phone_number">
                         </div>
 
                         <div class="col-6">
                             <label class="mb-1" for="">Email</label>
-                            <input type="email" class="form-control inputs" placeholder="example@gmail.com"
-                            name="email" [(ngModel)]="item.contact.email">
+                            <input type="email" class="form-control inputs" placeholder="example@gmail.com" name="email"
+                                [(ngModel)]="item.contact.email">
                         </div>
                     </div>
 
@@ -206,8 +230,8 @@
 
                 <div class="d-flex gap-2 justify-content-end">
                     <button class="btn btn-light btn-soft2" type="button" data-bs-dismiss="modal">Cancel</button>
-                    <button class="btn btn-danger btn-save" type="button"
-                         data-bs-dismiss="modal" (click)="onDeleteMember()">
+                    <button class="btn btn-danger btn-save" type="button" data-bs-dismiss="modal"
+                        (click)="onDeleteMember()">
                         <i class="bi bi-trash3 me-1"></i> Delete
                     </button>
                 </div>

@@ -63,6 +63,44 @@
                 </thead>
 
                 <tbody>
+                    @if (loading.isLoading()) {
+                    @for (i of [1,2,3,4,5,6,7,8]; track $index) {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <app-skeleton-loader type="circle"
+                                    [customStyle]="{width: '32px', height: '32px'}"></app-skeleton-loader>
+                                <div>
+                                    <app-skeleton-loader type="title"
+                                        [customStyle]="{width: '100px'}"></app-skeleton-loader>
+                                    <app-skeleton-loader type="text"
+                                        [customStyle]="{width: '60px'}"></app-skeleton-loader>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <app-skeleton-loader type="title" [customStyle]="{width: '120px'}"></app-skeleton-loader>
+                            <app-skeleton-loader type="text" [customStyle]="{width: '80px'}"></app-skeleton-loader>
+                        </td>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '100px'}"></app-skeleton-loader>
+                        </td>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '100px'}"></app-skeleton-loader>
+                        </td>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '100px'}"></app-skeleton-loader>
+                        </td>
+                        <td><app-skeleton-loader type="text"
+                                [customStyle]="{width: '80px', borderRadius: '20px'}"></app-skeleton-loader></td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <app-skeleton-loader type="circle"
+                                    [customStyle]="{width: '28px', height: '28px'}"></app-skeleton-loader>
+                                <app-skeleton-loader type="circle"
+                                    [customStyle]="{width: '28px', height: '28px'}"></app-skeleton-loader>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                    } @else {
                     @for(b of borrows(); track b._id){
                     <tr class="row-hover">
 
@@ -126,6 +164,7 @@
                         </td>
 
                     </tr>
+                    }
                     }
                 </tbody>
             </table>
@@ -282,7 +321,8 @@
                                 <div class="d-flex justify-content-end mt-3">
                                     <button class="btn btn-dark btn-save" type="button" data-bs-dismiss="modal"
                                         data-bs-toggle="modal" data-bs-target="#updateStatusModal"
-                                        (click)="openUpdateStatus({_id: d._id})" [disabled]="d.status !== 'overdue'? true:false">
+                                        (click)="openUpdateStatus({_id: d._id})"
+                                        [disabled]="d.status !== 'overdue'? true:false">
                                         <i class="bi bi-arrow-repeat me-1"></i> Update status
                                     </button>
                                 </div>

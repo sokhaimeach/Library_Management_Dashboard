@@ -38,8 +38,8 @@
                 <span class="input-group-text bg-transparent border-0 text-muted">
                     <i class="bi bi-search" (click)="searchQuery? getAllCategoriesInfo():''"></i>
                 </span>
-                <input type="text" class="input" [(ngModel)]="searchQuery"
-                placeholder="Search category name..." (keydown.Enter)="getAllCategoriesInfo()" />
+                <input type="text" class="input" [(ngModel)]="searchQuery" placeholder="Search category name..."
+                    (keydown.Enter)="getAllCategoriesInfo()" />
             </div>
 
             <!-- optional: filter placeholder -->
@@ -63,6 +63,24 @@
                 </thead>
 
                 <tbody>
+                    @if(loading.isLoading()){
+                    @for(i of [1,2,3,4,5]; track $index){
+                    <tr>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '30px'}"></app-skeleton-loader></td>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <app-skeleton-loader type="circle"
+                                    [customStyle]="{width: '32px', height: '32px'}"></app-skeleton-loader>
+                                <app-skeleton-loader type="text" [customStyle]="{width: '100px'}"></app-skeleton-loader>
+                            </div>
+                        </td>
+                        <td><app-skeleton-loader type="text" [customStyle]="{width: '250px'}"></app-skeleton-loader>
+                        </td>
+                        <td class="text-end"><app-skeleton-loader type="text"
+                                [customStyle]="{width: '50px'}"></app-skeleton-loader></td>
+                    </tr>
+                    }
+                    } @else {
                     @for(category of categories(); track $index){
                     <tr class="row-hover">
                         <td>
@@ -103,6 +121,7 @@
                             </div>
                         </td>
                     </tr>
+                    }
                     }
                 </tbody>
             </table>

@@ -39,7 +39,7 @@
                     <i class="bi bi-search" (click)="searchQuery? getAllBooks():''"></i>
                 </span>
                 <input type="text" class="input" placeholder="Search title, author, category..." name="search"
-                [(ngModel)]="searchQuery" (keydown.Enter)="getAllBooks()" />
+                    [(ngModel)]="searchQuery" (keydown.Enter)="getAllBooks()" />
             </div>
 
             <div class="d-flex justify-content-between w-100">
@@ -56,6 +56,25 @@
 
 <!-- ======= Book Card List ======= -->
 <div class="px-3 gap-2 main-card">
+    @if (loading.isLoading()) {
+    @for (i of [1,2,3,4,5,6,7,8]; track $index) {
+    <div class="book-card shadow-sm" style="border: none;">
+        <app-skeleton-loader type="rect"
+            [customStyle]="{height: '240px', borderRadius: '16px 16px 0 0'}"></app-skeleton-loader>
+        <div class="content p-3">
+            <app-skeleton-loader type="title" [customStyle]="{width: '80%', height: '20px'}"></app-skeleton-loader>
+            <app-skeleton-loader type="text" [customStyle]="{width: '50%'}"></app-skeleton-loader>
+            <app-skeleton-loader type="text" [customStyle]="{width: '40%'}"></app-skeleton-loader>
+            <div class="d-flex gap-2 mt-3">
+                <app-skeleton-loader type="text"
+                    [customStyle]="{width: '60px', height: '24px', borderRadius: '20px'}"></app-skeleton-loader>
+                <app-skeleton-loader type="text"
+                    [customStyle]="{width: '60px', height: '24px', borderRadius: '20px'}"></app-skeleton-loader>
+            </div>
+        </div>
+    </div>
+    }
+    } @else {
     @for(book of books(); track $index){
     <div class="book-card" role="group" [attr.aria-label]="'Book: ' + book.title">
         <div class="cover">
@@ -108,8 +127,8 @@
             </div>
 
             <div class="side-actions">
-                <button class="icon-btn" type="button" (click)="openModal(book)"
-                    aria-label="Edit book" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                <button class="icon-btn" type="button" (click)="openModal(book)" aria-label="Edit book"
+                    data-bs-toggle="modal" data-bs-target="#exampleModal">
                     <i class="bi bi-pencil-square"></i>
                 </button>
 
@@ -129,6 +148,7 @@
         </div>
     </div>
     }
+    }
 </div>
 
 
@@ -147,7 +167,8 @@
                         aria-label="Close"></button>
                 </div>
 
-                <form (submit)=" this.modalTitle !== 'Edit Book Information'? createBook():editBookInfo();$event.preventDefault()">
+                <form
+                    (submit)=" this.modalTitle !== 'Edit Book Information'? createBook():editBookInfo();$event.preventDefault()">
                     <div class="row">
                         <div class="col-6">
                             <label class="mb-1" for="">Title</label>
@@ -277,7 +298,7 @@
                         <div class="col-12 d-flex flex-column">
                             <label class="mb-1">Description</label>
                             <textarea class="description" name="description" [(ngModel)]="item.description"
-                            placeholder="Write book description..."></textarea>
+                                placeholder="Write book description..."></textarea>
                         </div>
                     </div>
 
