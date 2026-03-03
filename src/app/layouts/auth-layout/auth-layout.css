@@ -1,35 +1,191 @@
-.login-card {
-    border-radius: var(--modal-radius);
-    box-shadow: var(--shadow-card);
+:host {
+    --saas-purple: #000000;
+    --saas-blue: #000000;
+    --saas-light-blue: #E0E7FF;
+    --saas-bg-page: #F5F7FF;
+    --saas-text-main: #1F2937;
+    --saas-text-dim: #6B7280;
+    --saas-input-bg: #F3F4F6;
 }
 
-.login-btn{
-    background-color: black;
+.page-wrapper {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(180deg, var(--saas-purple) 0%, var(--saas-blue) 40%, var(--saas-bg-page) 40%, var(--saas-bg-page) 100%);
+    padding: 20px;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.auth-card {
+    background: white;
     width: 100%;
-    color: white;
-    font-weight: 550;
-    border-radius: 12px;
+    max-width: 1100px;
+    height: 100%;
+    max-height: 700px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
 }
 
-.email-text {
-    user-select: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.email-text:active{
-    transform: scale(0.9);
+/* Left Section: Form */
+.form-section {
+    padding: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-form {
+.login-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--saas-text-main);
+    margin-bottom: 40px;
+    text-align: left;
+}
+
+.auth-input-group {
+    margin-bottom: 24px;
+    display: flex;
     flex-direction: column;
 }
 
-.inputs, .description{
-    border: 1px solid var(--color-border);
-    border-radius: var(--button-radius);
-    width: 100%;
-    padding: 8px 15px 8px 15px;
+.input-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--saas-text-dim);
+    margin-bottom: 8px;
 }
+
+.inputs {
+    background-color: var(--saas-input-bg);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 16px 18px;
+    width: 100%;
+    font-size: 1rem;
+    color: var(--saas-text-main);
+    transition: all 0.2s ease;
+}
+
 .inputs:focus {
-  outline: 2px solid blue;
+    background-color: white;
+    border-color: var(--saas-blue);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.forgot-link {
+    display: block;
+    text-align: right;
+    font-size: 0.875rem;
+    color: var(--saas-blue);
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: 8px;
+}
+
+.login-btn {
+    background-color: var(--saas-blue);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 18px;
+    width: 100%;
+    font-weight: 700;
+    font-size: 1.125rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 32px;
+}
+
+.login-btn:hover {
+    background-color: #858a95;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+}
+
+.footer-text {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.875rem;
+    color: var(--saas-text-dim);
+}
+
+.signup-link {
+    color: var(--saas-blue);
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Right Section: Visual */
+.visual-section {
+    background-color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    text-align: center;
+    border-left: 1px solid #F3F4F6;
+}
+
+.illustration {
+    width: 100%;
+    max-width: 450px;
+    height: auto;
+    margin-bottom: 40px;
+}
+
+.visual-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--saas-text-main);
+    margin-bottom: 16px;
+}
+
+.visual-desc {
+    font-size: 1rem;
+    color: var(--saas-text-dim);
+    line-height: 1.6;
+    max-width: 400px;
+}
+
+.pagination-dots {
+    display: flex;
+    gap: 8px;
+    margin-top: 40px;
+}
+
+.dot {
+    width: 32px;
+    height: 6px;
+    border-radius: 3px;
+    background-color: #E5E7EB;
+}
+
+.dot.active {
+    background-color: var(--saas-blue);
+}
+
+@media (max-width: 1024px) {
+    .auth-card {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        max-height: none;
+    }
+
+    .visual-section {
+        display: none;
+    }
+
+    .form-section {
+        padding: 40px;
+    }
 }
