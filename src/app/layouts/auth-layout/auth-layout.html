@@ -21,20 +21,29 @@
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <!-- <div class="d-flex justify-content-between align-items-center mb-4">
                     <div class="form-check m-0">
                         <input type="checkbox" class="form-check-input" id="rememberMe">
                         <label class="form-check-label" for="rememberMe">Remember me</label>
                     </div>
                     <a class="forgot-link" style="cursor: pointer;">Forgot password ?</a>
-                </div>
+                </div> -->
 
                 <div class="alert-custom mb-3" *ngIf="message() !== ''">
                     <i class="bi bi-exclamation-circle-fill me-2"></i>
                     <span>{{message()}}</span>
                 </div>
 
-                <button type="submit" class="login-btn">Login</button>
+                <button type="submit" class="login-btn">
+                    @if(loading.isLoading()){
+                        <div class="spinner-border me-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        Loading...
+                    } @else {
+                        Login
+                    }
+                </button>
             </form>
 
             <!-- login by email -->
@@ -51,11 +60,20 @@
                     <span>{{emailMess()}}</span>
                 </div>
 
-                <button type="submit" class="login-btn">Login with Email</button>
+                <button type="submit" class="login-btn">
+                    @if(loading.isLoading()){
+                        <div class="spinner-border me-3" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        Loading...
+                    } @else {
+                        Login with Email
+                    }
+                </button>
             </form>
 
             <footer class="footer-text">
-                Don't have an account ? <span class="signup-link" (click)="loginByEmail = !loginByEmail">
+                Forget password ? <span class="signup-link" (click)="loginByEmail = !loginByEmail">
                     {{!loginByEmail ? 'Login by Email' : 'Login by username'}}
                 </span>
             </footer>

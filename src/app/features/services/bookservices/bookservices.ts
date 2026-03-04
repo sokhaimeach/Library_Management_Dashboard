@@ -47,4 +47,8 @@ export class Bookservices {
   deletePermanently(id: string): Observable<{message: string}> {
     return this.http.delete<{message: string}>(`${this.url}copy/${id}/deleteavailable`);
   }
+
+  addMoreCopy(id: string, quantity: number): Observable<{message: string}> {
+    return this.http.post<{message: string}>(`${this.url}copy/add/${id}`, {quantity});
+  }
 }

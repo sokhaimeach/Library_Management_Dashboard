@@ -17,8 +17,9 @@ export class LoadingService {
         const elapsed = Date.now() - this.loadingStartTime;
         const remaining = Math.max(0, this.minDuration - elapsed);
 
-        setTimeout(() => {
-            this.isLoading.set(false);
-        }, remaining);
+        this.isLoading.set(false);
+        // setTimeout(() => {
+        //     this.isLoading.set(false);
+        // }, remaining);
     }
 }

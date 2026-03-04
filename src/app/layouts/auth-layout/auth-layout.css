@@ -102,6 +102,9 @@
     cursor: pointer;
     transition: all 0.2s ease;
     margin-top: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .login-btn:hover {

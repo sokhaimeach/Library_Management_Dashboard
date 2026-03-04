@@ -33,6 +33,9 @@
   border-radius: 12px;
   background: var(--accent-soft);
   color: var(--text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* KPI Cards */
@@ -295,4 +298,16 @@
 .inputs:focus {
   border-color: var(--text-primary);
   box-shadow: 0 0 0 4px rgba(30, 41, 59, 0.05);
+}
+
+.close-modal{
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.close-modal {
+  position: absolute;
+  top: 30px;
+  right: 20px;
 }

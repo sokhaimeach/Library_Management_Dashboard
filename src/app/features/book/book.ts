@@ -57,6 +57,11 @@ export class Book {
   removeMessage: string = '';
   removeId: string = '';
 
+  // add quantity
+  addQuantity: number = 0;
+  currentTotal: number = 0;
+  addQuantityId: string = '';
+
   constructor(private bookservice: Bookservices,
     private alert: Alertservice,
     private authorservice: Authorservice,
@@ -150,6 +155,23 @@ export class Book {
 
   }
 
+  onAddBookCopy() {
+    if(this.addQuantity <= 0) {
+      this.alert.showAlert('info', "Quantity to add must bigger then 0");
+      return;
+    }
+
+    this.bookservice.addMoreCopy(this.addQuantityId, this.addQuantity).subscribe({
+      next: (res) => {
+        this.alert.showAlert('success', res.message);
+        this.getAllBooks();
+      },
+      error: (err) => {
+        this.alert.showAlert('error', err.error?.message);
+      }
+    });
+  }
+
 
   // submit author 
   onSubmitAuthor() {
@@ -240,6 +262,12 @@ export class Book {
       this.removeQuantity = availableCopies;
     }
     console.log(this.removeQuantity);
+  }
+
+  openAddQuantityModal(id: string, total: number) {
+    this.addQuantityId = id;
+    this.currentTotal = total;
+    // console.log(this.addQuantityId, this.currentTotal)
   }
 
 
