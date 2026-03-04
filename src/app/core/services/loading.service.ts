@@ -6,7 +6,7 @@ import { Injectable, signal } from '@angular/core';
 export class LoadingService {
     isLoading = signal<boolean>(false);
     private loadingStartTime: number = 0;
-    private minDuration: number = 3000; // 3 seconds minimum display time
+    private minDuration: number = 2000; // 3 seconds minimum display time
 
     show() {
         this.loadingStartTime = Date.now();
